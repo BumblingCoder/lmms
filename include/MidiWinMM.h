@@ -28,8 +28,9 @@
 #include "lmmsconfig.h"
 
 #ifdef LMMS_BUILD_WIN32
-#include <mmsystem.h>
 #include <windows.h>
+// windows.h must be before mmsystem.h
+#include <mmsystem.h>
 
 #include "MidiClient.h"
 #include "MidiPort.h"
