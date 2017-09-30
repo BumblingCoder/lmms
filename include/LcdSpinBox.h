@@ -22,21 +22,21 @@
  *
  */
 
-
 #ifndef LCD_SPINBOX_H
 #define LCD_SPINBOX_H
 
-#include "LcdWidget.h"
 #include "AutomatableModelView.h"
-
+#include "LcdWidget.h"
 
 class EXPORT LcdSpinBox : public LcdWidget, public IntModelView
 {
 	Q_OBJECT
 public:
-	LcdSpinBox( int numDigits, QWidget* parent, const QString& name = QString::null );
+	LcdSpinBox( int numDigits, QWidget * parent,
+	            const QString & name = QString::null );
 
-	LcdSpinBox( int numDigits, const QString& style, QWidget* parent, const QString& name = QString::null );
+	LcdSpinBox( int numDigits, const QString & style, QWidget * parent,
+	            const QString & name = QString::null );
 
 	virtual ~LcdSpinBox();
 
@@ -48,21 +48,13 @@ public:
 
 	/*! Sets an offset which is always added to value of model so we can
 	    display values in a user-friendly way if they internally start at 0 */
-	void setDisplayOffset( int offset )
-	{
-		m_displayOffset = offset;
-	}
+	void setDisplayOffset( int offset ) { m_displayOffset = offset; }
 
 	/*! \brief Returns internal offset for displaying values */
-	int displayOffset() const
-	{
-		return m_displayOffset;
-	}
-
+	int displayOffset() const { return m_displayOffset; }
 
 public slots:
 	virtual void update();
-
 
 protected:
 	virtual void contextMenuEvent( QContextMenuEvent * _me );
@@ -80,8 +72,7 @@ private:
 
 signals:
 	void manualChange();
-
-} ;
+};
 
 typedef IntModel LcdSpinBoxModel;
 

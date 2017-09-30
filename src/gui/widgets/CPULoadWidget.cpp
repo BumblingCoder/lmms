@@ -3,7 +3,7 @@
  *                      Hydrogen's CPU-load-widget)
  *
  * Copyright (c) 2005-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -23,52 +23,41 @@
  *
  */
 
-
 #include <QPainter>
 
 #include "CPULoadWidget.h"
-#include "embed.h"
 #include "Engine.h"
 #include "Mixer.h"
+#include "embed.h"
 
-
-CPULoadWidget::CPULoadWidget( QWidget * _parent ) :
-	QWidget( _parent ),
-	m_currentLoad( 0 ),
-	m_temp(),
-	m_background( embed::getIconPixmap( "cpuload_bg" ) ),
-	m_leds( embed::getIconPixmap( "cpuload_leds" ) ),
-	m_changed( true ),
-	m_updateTimer()
+CPULoadWidget::CPULoadWidget( QWidget * _parent )
+    : QWidget( _parent ),
+      m_currentLoad( 0 ),
+      m_temp(),
+      m_background( embed::getIconPixmap( "cpuload_bg" ) ),
+      m_leds( embed::getIconPixmap( "cpuload_leds" ) ),
+      m_changed( true ),
+      m_updateTimer()
 {
 	setAttribute( Qt::WA_OpaquePaintEvent, true );
 	setFixedSize( m_background.width(), m_background.height() );
 
 	m_temp = QPixmap( width(), height() );
-	
 
-	connect( &m_updateTimer, SIGNAL( timeout() ),
-					this, SLOT( updateCpuLoad() ) );
-	m_updateTimer.start( 100 );	// update cpu-load at 10 fps
+	connect( &m_updateTimer, SIGNAL( timeout() ), this,
+	         SLOT( updateCpuLoad() ) );
+	m_updateTimer.start( 100 ); // update cpu-load at 10 fps
 }
 
+CPULoadWidget::~CPULoadWidget() {}
 
-
-
-CPULoadWidget::~CPULoadWidget()
-{
-}
-
-
-
-
-void CPULoadWidget::paintEvent( QPaintEvent *  )
+void CPULoadWidget::paintEvent( QPaintEvent * )
 {
 	if( m_changed == true )
 	{
 		m_changed = false;
-		
-		m_temp.fill( QColor(0,0,0,0) );
+
+		m_temp.fill( QColor( 0, 0, 0, 0 ) );
 		QPainter p( &m_temp );
 		p.drawPixmap( 0, 0, m_background );
 
@@ -78,16 +67,12 @@ void CPULoadWidget::paintEvent( QPaintEvent *  )
 		int w = ( m_leds.width() * m_currentLoad / 300 ) * 3;
 		if( w > 0 )
 		{
-			p.drawPixmap( 23, 3, m_leds, 0, 0, w,
-							m_leds.height() );
+			p.drawPixmap( 23, 3, m_leds, 0, 0, w, m_leds.height() );
 		}
 	}
 	QPainter p( this );
 	p.drawPixmap( 0, 0, m_temp );
 }
-
-
-
 
 void CPULoadWidget::updateCpuLoad()
 {
@@ -100,9 +85,3 @@ void CPULoadWidget::updateCpuLoad()
 		update();
 	}
 }
-
-
-
-
-
-

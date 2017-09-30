@@ -26,29 +26,24 @@
 
 #include "AudioDevice.h"
 #include "ConfigManager.h"
-#include "debug.h"
 #include "Mixer.h"
+#include "debug.h"
 
-
-
-AudioDevice::AudioDevice( const ch_cnt_t _channels, Mixer*  _mixer ) :
-	m_supportsCapture( false ),
-	m_sampleRate( _mixer->processingSampleRate() ),
-	m_channels( _channels ),
-	m_mixer( _mixer ),
-	m_buffer( new surroundSampleFrame[mixer()->framesPerPeriod()] )
+AudioDevice::AudioDevice( const ch_cnt_t _channels, Mixer * _mixer )
+    : m_supportsCapture( false ),
+      m_sampleRate( _mixer->processingSampleRate() ),
+      m_channels( _channels ),
+      m_mixer( _mixer ),
+      m_buffer( new surroundSampleFrame[mixer()->framesPerPeriod()] )
 {
 	int error;
-	if( ( m_srcState = src_new(
-		mixer()->currentQualitySettings().libsrcInterpolation(),
-				SURROUND_CHANNELS, &error ) ) == NULL )
+	if( ( m_srcState =
+	          src_new( mixer()->currentQualitySettings().libsrcInterpolation(),
+	                   SURROUND_CHANNELS, &error ) ) == NULL )
 	{
 		printf( "Error: src_new() failed in audio_device.cpp!\n" );
 	}
 }
-
-
-
 
 AudioDevice::~AudioDevice()
 {
@@ -58,9 +53,6 @@ AudioDevice::~AudioDevice()
 	m_devMutex.tryLock();
 	unlock();
 }
-
-
-
 
 void AudioDevice::processNextBuffer()
 {
@@ -74,9 +66,6 @@ void AudioDevice::processNextBuffer()
 		m_inProcess = false;
 	}
 }
-
-
-
 
 fpp_t AudioDevice::getNextBuffer( surroundSampleFrame * _ab )
 {
@@ -94,9 +83,8 @@ fpp_t AudioDevice::getNextBuffer( surroundSampleFrame * _ab )
 	if( mixer()->processingSampleRate() != m_sampleRate )
 	{
 		resample( b, frames, _ab, mixer()->processingSampleRate(),
-								m_sampleRate );
-		frames = frames * m_sampleRate /
-					mixer()->processingSampleRate();
+		          m_sampleRate );
+		frames = frames * m_sampleRate / mixer()->processingSampleRate();
 	}
 	else
 	{
@@ -114,9 +102,6 @@ fpp_t AudioDevice::getNextBuffer( surroundSampleFrame * _ab )
 	return frames;
 }
 
-
-
-
 void AudioDevice::stopProcessing()
 {
 	if( mixer()->hasFifoWriter() )
@@ -127,9 +112,6 @@ void AudioDevice::stopProcessing()
 		}
 	}
 }
-
-
-
 
 void AudioDevice::stopProcessingThread( QThread * thread )
 {
@@ -144,51 +126,29 @@ void AudioDevice::stopProcessingThread( QThread * thread )
 	}
 }
 
-
-
-
 void AudioDevice::applyQualitySettings()
 {
 	src_delete( m_srcState );
 
 	int error;
-	if( ( m_srcState = src_new(
-		mixer()->currentQualitySettings().libsrcInterpolation(),
-				SURROUND_CHANNELS, &error ) ) == NULL )
+	if( ( m_srcState =
+	          src_new( mixer()->currentQualitySettings().libsrcInterpolation(),
+	                   SURROUND_CHANNELS, &error ) ) == NULL )
 	{
 		printf( "Error: src_new() failed in audio_device.cpp!\n" );
 	}
 }
 
+void AudioDevice::registerPort( AudioPort * ) {}
 
+void AudioDevice::unregisterPort( AudioPort * _port ) {}
 
-
-void AudioDevice::registerPort( AudioPort * )
-{
-}
-
-
-
-
-void AudioDevice::unregisterPort( AudioPort * _port )
-{
-}
-
-
-
-
-void AudioDevice::renamePort( AudioPort * )
-{
-}
-
-
-
+void AudioDevice::renamePort( AudioPort * ) {}
 
 void AudioDevice::resample( const surroundSampleFrame * _src,
-						const fpp_t _frames,
-						surroundSampleFrame * _dst,
-						const sample_rate_t _src_sr,
-						const sample_rate_t _dst_sr )
+                            const fpp_t _frames, surroundSampleFrame * _dst,
+                            const sample_rate_t _src_sr,
+                            const sample_rate_t _dst_sr )
 {
 	if( m_srcState == NULL )
 	{
@@ -204,17 +164,14 @@ void AudioDevice::resample( const surroundSampleFrame * _src,
 	if( ( error = src_process( m_srcState, &m_srcData ) ) )
 	{
 		printf( "AudioDevice::resample(): error while resampling: %s\n",
-							src_strerror( error ) );
+		        src_strerror( error ) );
 	}
 }
 
-
-
 int AudioDevice::convertToS16( const surroundSampleFrame * _ab,
-								const fpp_t _frames,
-								const float _master_gain,
-								int_sample_t * _output_buffer,
-								const bool _convert_endian )
+                               const fpp_t _frames, const float _master_gain,
+                               int_sample_t * _output_buffer,
+                               const bool _convert_endian )
 {
 	if( _convert_endian )
 	{
@@ -223,11 +180,12 @@ int AudioDevice::convertToS16( const surroundSampleFrame * _ab,
 		{
 			for( ch_cnt_t chnl = 0; chnl < channels(); ++chnl )
 			{
-				temp = static_cast<int_sample_t>( Mixer::clip( _ab[frame][chnl] * _master_gain ) * OUTPUT_SAMPLE_MULTIPLIER );
-				
+				temp = static_cast<int_sample_t>(
+				    Mixer::clip( _ab[frame][chnl] * _master_gain ) *
+				    OUTPUT_SAMPLE_MULTIPLIER );
+
 				( _output_buffer + frame * channels() )[chnl] =
-						( temp & 0x00ff ) << 8 |
-						( temp & 0xff00 ) >> 8;
+				    ( temp & 0x00ff ) << 8 | ( temp & 0xff00 ) >> 8;
 			}
 		}
 	}
@@ -238,10 +196,9 @@ int AudioDevice::convertToS16( const surroundSampleFrame * _ab,
 			for( ch_cnt_t chnl = 0; chnl < channels(); ++chnl )
 			{
 				( _output_buffer + frame * channels() )[chnl] =
-						static_cast<int_sample_t>(
-						Mixer::clip( _ab[frame][chnl] *
-						_master_gain ) *
-						OUTPUT_SAMPLE_MULTIPLIER );
+				    static_cast<int_sample_t>(
+				        Mixer::clip( _ab[frame][chnl] * _master_gain ) *
+				        OUTPUT_SAMPLE_MULTIPLIER );
 			}
 		}
 	}
@@ -249,23 +206,15 @@ int AudioDevice::convertToS16( const surroundSampleFrame * _ab,
 	return _frames * channels() * BYTES_PER_INT_SAMPLE;
 }
 
-
-
-
 void AudioDevice::clearS16Buffer( int_sample_t * _outbuf, const fpp_t _frames )
 {
 
 	assert( _outbuf != NULL );
 
-	memset( _outbuf, 0,  _frames * channels() * BYTES_PER_INT_SAMPLE );
+	memset( _outbuf, 0, _frames * channels() * BYTES_PER_INT_SAMPLE );
 }
-
-
-
 
 bool AudioDevice::hqAudio() const
 {
 	return ConfigManager::inst()->value( "mixer", "hqaudio" ).toInt();
 }
-
-

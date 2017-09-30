@@ -29,9 +29,7 @@
 
 #include "lmmsconfig.h"
 
-
 static const size_t SIZEOF_SET = sizeof( int ) * 8;
-
 
 static size_t align( size_t size, size_t alignment )
 {
@@ -42,9 +40,6 @@ static size_t align( size_t size, size_t alignment )
 	}
 	return size;
 }
-
-
-
 
 LocklessAllocator::LocklessAllocator( size_t nmemb, size_t size )
 {
@@ -58,24 +53,18 @@ LocklessAllocator::LocklessAllocator( size_t nmemb, size_t size )
 	m_available = m_capacity;
 }
 
-
-
-
 LocklessAllocator::~LocklessAllocator()
 {
 	int available = m_available;
 	if( available != m_capacity )
 	{
 		fprintf( stderr, "LocklessAllocator: "
-				"Destroying with elements still allocated\n" );
+		                 "Destroying with elements still allocated\n" );
 	}
 
 	delete[] m_pool;
 	delete[] m_freeState;
 }
-
-
-
 
 #ifdef LMMS_BUILD_WIN32
 static int ffs( int i )
@@ -94,9 +83,6 @@ static int ffs( int i )
 }
 #endif
 
-
-
-
 void * LocklessAllocator::alloc()
 {
 	int available;
@@ -108,36 +94,30 @@ void * LocklessAllocator::alloc()
 			fprintf( stderr, "LocklessAllocator: No free space\n" );
 			return NULL;
 		}
-	}
-	while( !m_available.testAndSetOrdered( available, available - 1 ) );
+	} while( !m_available.testAndSetOrdered( available, available - 1 ) );
 
-	size_t startIndex = m_startIndex.fetchAndAddOrdered( 1 )
-							% m_freeStateSets;
+	size_t startIndex = m_startIndex.fetchAndAddOrdered( 1 ) % m_freeStateSets;
 	for( size_t set = startIndex;; set = ( set + 1 ) % m_freeStateSets )
 	{
 		for( int freeState = m_freeState[set]; freeState != -1;
-						freeState = m_freeState[set] )
+		     freeState = m_freeState[set] )
 		{
 			int bit = ffs( ~freeState ) - 1;
 			if( m_freeState[set].testAndSetOrdered( freeState,
-							freeState | 1 << bit ) )
+			                                        freeState | 1 << bit ) )
 			{
-				return m_pool + ( SIZEOF_SET * set + bit )
-								* m_elementSize;
+				return m_pool + ( SIZEOF_SET * set + bit ) * m_elementSize;
 			}
 		}
 	}
 }
 
-
-
-
 void LocklessAllocator::free( void * ptr )
 {
-	ptrdiff_t diff = (char *)ptr - m_pool;
+	ptrdiff_t diff = (char *) ptr - m_pool;
 	if( diff < 0 || diff % m_elementSize )
 	{
-invalid:
+	invalid:
 		fprintf( stderr, "LocklessAllocator: Invalid pointer\n" );
 		return;
 	}
@@ -150,7 +130,7 @@ invalid:
 	int bit = offset % SIZEOF_SET;
 	int mask = 1 << bit;
 	int prevState = m_freeState[set].fetchAndAndOrdered( ~mask );
-	if ( !( prevState & mask ) )
+	if( !( prevState & mask ) )
 	{
 		fprintf( stderr, "LocklessAllocator: Block not in use\n" );
 		return;

@@ -31,9 +31,7 @@
 
 class LadspaControl;
 
-
-typedef enum BufferRates
-{
+typedef enum BufferRates {
 	CHANNEL_IN,
 	CHANNEL_OUT,
 	AUDIO_RATE_INPUT,
@@ -42,8 +40,7 @@ typedef enum BufferRates
 	CONTROL_RATE_OUTPUT
 } buffer_rate_t;
 
-typedef enum BufferData
-{
+typedef enum BufferData {
 	TOGGLED,
 	INTEGER,
 	FLOATING,
@@ -73,18 +70,16 @@ typedef struct PortDescription
 	LadspaControl * control;
 } port_desc_t;
 
-
-inline Plugin::Descriptor::SubPluginFeatures::Key ladspaKeyToSubPluginKey(
-						const Plugin::Descriptor * _desc,
-						const QString & _name,
-						const ladspa_key_t & _key )
+inline Plugin::Descriptor::SubPluginFeatures::Key
+ladspaKeyToSubPluginKey( const Plugin::Descriptor * _desc,
+                         const QString & _name, const ladspa_key_t & _key )
 {
 	Plugin::Descriptor::SubPluginFeatures::Key::AttributeMap m;
 	QString file = _key.first;
-	m["file"] = file.remove( QRegExp( "\\.so$" ) ).remove( QRegExp( "\\.dll$" ) );
+	m["file"] =
+	    file.remove( QRegExp( "\\.so$" ) ).remove( QRegExp( "\\.dll$" ) );
 	m["plugin"] = _key.second;
 	return Plugin::Descriptor::SubPluginFeatures::Key( _desc, _name, m );
 }
-
 
 #endif

@@ -2,7 +2,7 @@
  * ToolTip.cpp - namespace toolTip, a tooltip-wrapper for LMMS
  *
  * Copyright (c) 2005-2006 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -22,12 +22,10 @@
  *
  */
 
-
 #include <QToolTip>
 
-#include "ToolTip.h"
 #include "ConfigManager.h"
-
+#include "ToolTip.h"
 
 void ToolTip::add( QWidget * _w, const QString & _txt )
 {
@@ -36,5 +34,3 @@ void ToolTip::add( QWidget * _w, const QString & _txt )
 		_w->setToolTip( _txt );
 	}
 }
-
-

@@ -26,19 +26,18 @@
 
 #include "ui_EffectSelectDialog.h"
 
-#include "gui_templates.h"
-#include "embed.h"
 #include "PluginFactory.h"
+#include "embed.h"
+#include "gui_templates.h"
 
 #include <QLabel>
 
-
-EffectSelectDialog::EffectSelectDialog( QWidget * _parent ) :
-	QDialog( _parent ),
-	ui( new Ui::EffectSelectDialog ),
-	m_sourceModel(),
-	m_model(),
-	m_descriptionWidget( NULL )
+EffectSelectDialog::EffectSelectDialog( QWidget * _parent )
+    : QDialog( _parent ),
+      ui( new Ui::EffectSelectDialog ),
+      m_sourceModel(),
+      m_model(),
+      m_descriptionWidget( NULL )
 {
 	ui->setupUi( this );
 
@@ -48,34 +47,35 @@ EffectSelectDialog::EffectSelectDialog( QWidget * _parent ) :
 
 	EffectKeyList subPluginEffectKeys;
 
-	for (const Plugin::Descriptor* desc: pluginFactory->descriptors(Plugin::Effect))
+	for( const Plugin::Descriptor * desc :
+	     pluginFactory->descriptors( Plugin::Effect ) )
 	{
 		if( desc->subPluginFeatures )
 		{
 			desc->subPluginFeatures->listSubPluginKeys(
-				// as iterators are always stated to be not
-				// equal with pointers, we dereference the
-				// iterator and take the address of the item,
-				// so we're on the safe side and the compiler
-				// likely will reduce that to just "it"
-							desc,
-							subPluginEffectKeys );
+			    // as iterators are always stated to be not
+			    // equal with pointers, we dereference the
+			    // iterator and take the address of the item,
+			    // so we're on the safe side and the compiler
+			    // likely will reduce that to just "it"
+			    desc, subPluginEffectKeys );
 		}
 		else
 		{
 			m_effectKeys << EffectKey( desc, desc->name );
-
 		}
 	}
 
 	m_effectKeys += subPluginEffectKeys;
 
 	// and fill our source model
-	m_sourceModel.setHorizontalHeaderItem( 0, new QStandardItem( tr( "Name" ) ) );
-	m_sourceModel.setHorizontalHeaderItem( 1, new QStandardItem( tr( "Type" ) ) );
+	m_sourceModel.setHorizontalHeaderItem( 0,
+	                                       new QStandardItem( tr( "Name" ) ) );
+	m_sourceModel.setHorizontalHeaderItem( 1,
+	                                       new QStandardItem( tr( "Type" ) ) );
 	int row = 0;
 	for( EffectKeyList::ConstIterator it = m_effectKeys.begin();
-						it != m_effectKeys.end(); ++it )
+	     it != m_effectKeys.end(); ++it )
 	{
 		QString name;
 		QString type;
@@ -98,39 +98,40 @@ EffectSelectDialog::EffectSelectDialog( QWidget * _parent ) :
 	m_model.setSourceModel( &m_sourceModel );
 	m_model.setFilterCaseSensitivity( Qt::CaseInsensitive );
 
+	connect( ui->filterEdit, SIGNAL( textChanged( const QString & ) ), &m_model,
+	         SLOT( setFilterFixedString( const QString & ) ) );
+	connect( ui->filterEdit, SIGNAL( textChanged( const QString & ) ), this,
+	         SLOT( updateSelection() ) );
 	connect( ui->filterEdit, SIGNAL( textChanged( const QString & ) ),
-				&m_model, SLOT( setFilterFixedString( const QString & ) ) );
-	connect( ui->filterEdit, SIGNAL( textChanged( const QString & ) ),
-					this, SLOT( updateSelection() ) );
-	connect( ui->filterEdit, SIGNAL( textChanged( const QString & ) ),
-							SLOT( sortAgain() ) );
+	         SLOT( sortAgain() ) );
 
 	ui->pluginList->setModel( &m_model );
 
 	// setup selection model
 	QItemSelectionModel * selectionModel = new QItemSelectionModel( &m_model );
 	ui->pluginList->setSelectionModel( selectionModel );
-	connect( selectionModel, SIGNAL( currentRowChanged( const QModelIndex &,
-														const QModelIndex & ) ),
-			SLOT( rowChanged( const QModelIndex &, const QModelIndex & ) ) );
+	connect(
+	    selectionModel,
+	    SIGNAL( currentRowChanged( const QModelIndex &, const QModelIndex & ) ),
+	    SLOT( rowChanged( const QModelIndex &, const QModelIndex & ) ) );
 	connect( ui->pluginList, SIGNAL( doubleClicked( const QModelIndex & ) ),
-				SLOT( acceptSelection() ) );
+	         SLOT( acceptSelection() ) );
 
 	// try to accept current selection when pressing "OK"
-	connect( ui->buttonBox, SIGNAL( accepted() ),
-				this, SLOT( acceptSelection() ) );
+	connect( ui->buttonBox, SIGNAL( accepted() ), this,
+	         SLOT( acceptSelection() ) );
 
 #if QT_VERSION >= 0x050000
 #define setResizeMode setSectionResizeMode
 	ui->filterEdit->setClearButtonEnabled( true );
 #endif
 	ui->pluginList->verticalHeader()->setResizeMode(
-						QHeaderView::ResizeToContents );
+	    QHeaderView::ResizeToContents );
 	ui->pluginList->verticalHeader()->hide();
 	ui->pluginList->horizontalHeader()->setResizeMode( 0,
-							QHeaderView::Stretch );
-	ui->pluginList->horizontalHeader()->setResizeMode( 1,
-						QHeaderView::ResizeToContents );
+	                                                   QHeaderView::Stretch );
+	ui->pluginList->horizontalHeader()->setResizeMode(
+	    1, QHeaderView::ResizeToContents );
 	ui->pluginList->sortByColumn( 0, Qt::AscendingOrder );
 #if QT_VERSION >= 0x050000
 #undef setResizeMode
@@ -140,29 +141,17 @@ EffectSelectDialog::EffectSelectDialog( QWidget * _parent ) :
 	show();
 }
 
-
-
-
-EffectSelectDialog::~EffectSelectDialog()
-{
-	delete ui;
-}
-
-
-
+EffectSelectDialog::~EffectSelectDialog() { delete ui; }
 
 Effect * EffectSelectDialog::instantiateSelectedPlugin( EffectChain * _parent )
 {
 	if( !m_currentSelection.name.isEmpty() && m_currentSelection.desc )
 	{
-		return Effect::instantiate( m_currentSelection.desc->name,
-										_parent, &m_currentSelection );
+		return Effect::instantiate( m_currentSelection.desc->name, _parent,
+		                            &m_currentSelection );
 	}
 	return NULL;
 }
-
-
-
 
 void EffectSelectDialog::acceptSelection()
 {
@@ -172,11 +161,8 @@ void EffectSelectDialog::acceptSelection()
 	}
 }
 
-
-
-
 void EffectSelectDialog::rowChanged( const QModelIndex & _idx,
-										const QModelIndex & )
+                                     const QModelIndex & )
 {
 	delete m_descriptionWidget;
 	m_descriptionWidget = NULL;
@@ -190,76 +176,77 @@ void EffectSelectDialog::rowChanged( const QModelIndex & _idx,
 	{
 		m_currentSelection = m_effectKeys[m_model.mapToSource( _idx ).row()];
 	}
-    if( m_currentSelection.desc )
+	if( m_currentSelection.desc )
 	{
 		m_descriptionWidget = new QWidget;
 
-        QHBoxLayout *hbox = new QHBoxLayout( m_descriptionWidget );
+		QHBoxLayout * hbox = new QHBoxLayout( m_descriptionWidget );
 
-        Plugin::Descriptor const & descriptor = *( m_currentSelection.desc );
+		Plugin::Descriptor const & descriptor = *( m_currentSelection.desc );
 
-        if ( descriptor.logo )
-        {
-            QLabel *logoLabel = new QLabel( m_descriptionWidget );
-            logoLabel->setPixmap( descriptor.logo->pixmap() );
-            logoLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+		if( descriptor.logo )
+		{
+			QLabel * logoLabel = new QLabel( m_descriptionWidget );
+			logoLabel->setPixmap( descriptor.logo->pixmap() );
+			logoLabel->setSizePolicy( QSizePolicy::Minimum,
+			                          QSizePolicy::Minimum );
 
-            hbox->addWidget( logoLabel );
-            hbox->setAlignment( logoLabel, Qt::AlignTop);
-        }
+			hbox->addWidget( logoLabel );
+			hbox->setAlignment( logoLabel, Qt::AlignTop );
+		}
 
-        QWidget *textualInfoWidget = new QWidget( m_descriptionWidget );
+		QWidget * textualInfoWidget = new QWidget( m_descriptionWidget );
 
-        hbox->addWidget(textualInfoWidget);
+		hbox->addWidget( textualInfoWidget );
 
-        QVBoxLayout * textWidgetLayout = new QVBoxLayout( textualInfoWidget);
-        textWidgetLayout->setMargin( 4 );
-        textWidgetLayout->setSpacing( 0 );
+		QVBoxLayout * textWidgetLayout = new QVBoxLayout( textualInfoWidget );
+		textWidgetLayout->setMargin( 4 );
+		textWidgetLayout->setSpacing( 0 );
 
-        if ( m_currentSelection.desc->subPluginFeatures )
-        {
-            QWidget *subWidget = new QWidget(textualInfoWidget);
-            QVBoxLayout * subLayout = new QVBoxLayout( subWidget );
-            subLayout->setMargin( 4 );
-            subLayout->setSpacing( 0 );
-            m_currentSelection.desc->subPluginFeatures->
-                fillDescriptionWidget( subWidget, &m_currentSelection );
-            for( QWidget * w : subWidget->findChildren<QWidget *>() )
-            {
-                if( w->parent() == subWidget )
-                {
-                    subLayout->addWidget( w );
-                }
-            }
+		if( m_currentSelection.desc->subPluginFeatures )
+		{
+			QWidget * subWidget = new QWidget( textualInfoWidget );
+			QVBoxLayout * subLayout = new QVBoxLayout( subWidget );
+			subLayout->setMargin( 4 );
+			subLayout->setSpacing( 0 );
+			m_currentSelection.desc->subPluginFeatures->fillDescriptionWidget(
+			    subWidget, &m_currentSelection );
+			for( QWidget * w : subWidget->findChildren<QWidget *>() )
+			{
+				if( w->parent() == subWidget )
+				{
+					subLayout->addWidget( w );
+				}
+			}
 
-            textWidgetLayout->addWidget(subWidget);
-        }
-        else
-        {
-            QLabel *label = new QLabel(m_descriptionWidget);
-            QString labelText = "<p><b>" + tr("Name") + ":</b> " + QString::fromUtf8(descriptor.displayName) + "</p>";
-            labelText += "<p><b>" + tr("Description") + ":</b> " + qApp->translate( "pluginBrowser", descriptor.description ) + "</p>";
-            labelText += "<p><b>" + tr("Author") + ":</b> " + QString::fromUtf8(descriptor.author) + "</p>";
+			textWidgetLayout->addWidget( subWidget );
+		}
+		else
+		{
+			QLabel * label = new QLabel( m_descriptionWidget );
+			QString labelText = "<p><b>" + tr( "Name" ) + ":</b> " +
+			                    QString::fromUtf8( descriptor.displayName ) +
+			                    "</p>";
+			labelText +=
+			    "<p><b>" + tr( "Description" ) + ":</b> " +
+			    qApp->translate( "pluginBrowser", descriptor.description ) +
+			    "</p>";
+			labelText += "<p><b>" + tr( "Author" ) + ":</b> " +
+			             QString::fromUtf8( descriptor.author ) + "</p>";
 
-            label->setText(labelText);
-            textWidgetLayout->addWidget(label);
-        }
+			label->setText( labelText );
+			textWidgetLayout->addWidget( label );
+		}
 
-        ui->scrollArea->setWidget( m_descriptionWidget );
+		ui->scrollArea->setWidget( m_descriptionWidget );
 		m_descriptionWidget->show();
 	}
 }
-
-
-
 
 void EffectSelectDialog::sortAgain()
 {
 	ui->pluginList->setSortingEnabled( ui->pluginList->isSortingEnabled() );
 }
-
-
-
 
 void EffectSelectDialog::updateSelection()
 {
@@ -267,14 +254,9 @@ void EffectSelectDialog::updateSelection()
 	if( ui->pluginList->selectionModel()->selection().size() <= 0 )
 	{
 		// then select our first item
-		ui->pluginList->selectionModel()->select( m_model.index( 0, 0 ),
-					QItemSelectionModel::ClearAndSelect
-					| QItemSelectionModel::Rows );
+		ui->pluginList->selectionModel()->select(
+		    m_model.index( 0, 0 ),
+		    QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows );
 		rowChanged( m_model.index( 0, 0 ), QModelIndex() );
 	}
 }
-
-
-
-
-

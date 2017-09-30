@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef TOOLTIP_H
 #define TOOLTIP_H
 
@@ -32,11 +31,9 @@
 
 class QWidget;
 
-
 struct ToolTip
 {
 	static void EXPORT add( QWidget * _w, const QString & _txt );
-} ;
-
+};
 
 #endif

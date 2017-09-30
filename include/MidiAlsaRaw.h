@@ -35,12 +35,10 @@
 
 #include "MidiClient.h"
 
-
 struct pollfd;
 class QLineEdit;
 
-
-class MidiAlsaRaw : public MidiClientRaw , public QThread
+class MidiAlsaRaw : public MidiClientRaw, public QThread
 {
 public:
 	MidiAlsaRaw();
@@ -48,33 +46,27 @@ public:
 
 	static QString probeDevice();
 
-
 	inline static QString name()
 	{
-		return QT_TRANSLATE_NOOP( "MidiSetupWidget",
-			"ALSA Raw-MIDI (Advanced Linux Sound Architecture)" );
+		return QT_TRANSLATE_NOOP(
+		    "MidiSetupWidget",
+		    "ALSA Raw-MIDI (Advanced Linux Sound Architecture)" );
 	}
 
-	inline static QString configSection()
-	{
-		return "MidiAlsaRaw";
-	}
-
+	inline static QString configSection() { return "MidiAlsaRaw"; }
 
 protected:
 	virtual void sendByte( const unsigned char c );
 	virtual void run();
 
-
 private:
-	snd_rawmidi_t * m_input, * * m_inputp;
-	snd_rawmidi_t * m_output, * * m_outputp;
+	snd_rawmidi_t *m_input, **m_inputp;
+	snd_rawmidi_t *m_output, **m_outputp;
 	int m_npfds;
 	pollfd * m_pfds;
 
 	volatile bool m_quit;
-
-} ;
+};
 
 #endif
 

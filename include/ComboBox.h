@@ -22,60 +22,47 @@
  *
  */
 
-
 #ifndef COMBOBOX_H
 #define COMBOBOX_H
 
 #include <QMenu>
 #include <QWidget>
 
-#include "ComboBoxModel.h"
 #include "AutomatableModelView.h"
-
-
+#include "ComboBoxModel.h"
 
 class EXPORT ComboBox : public QWidget, public IntModelView
 {
 	Q_OBJECT
 public:
-	ComboBox( QWidget* parent = NULL, const QString& name = QString() );
+	ComboBox( QWidget * parent = NULL, const QString & name = QString() );
 	virtual ~ComboBox();
 
-	ComboBoxModel* model()
-	{
-		return castModel<ComboBoxModel>();
-	}
+	ComboBoxModel * model() { return castModel<ComboBoxModel>(); }
 
-	const ComboBoxModel* model() const
-	{
-		return castModel<ComboBoxModel>();
-	}
+	const ComboBoxModel * model() const { return castModel<ComboBoxModel>(); }
 
 public slots:
 	void selectNext();
 	void selectPrevious();
 
-
 protected:
-	virtual void contextMenuEvent( QContextMenuEvent* event );
-	virtual void mousePressEvent( QMouseEvent* event );
-	virtual void paintEvent( QPaintEvent* event );
-	virtual void wheelEvent( QWheelEvent* event );
-
+	virtual void contextMenuEvent( QContextMenuEvent * event );
+	virtual void mousePressEvent( QMouseEvent * event );
+	virtual void paintEvent( QPaintEvent * event );
+	virtual void wheelEvent( QWheelEvent * event );
 
 private:
-	static QPixmap* s_background;
-	static QPixmap* s_arrow;
-	static QPixmap* s_arrowSelected;
+	static QPixmap * s_background;
+	static QPixmap * s_arrow;
+	static QPixmap * s_arrowSelected;
 
 	QMenu m_menu;
 
 	bool m_pressed;
 
-
 private slots:
-	void setItem( QAction* item );
-
-} ;
+	void setItem( QAction * item );
+};
 
 #endif

@@ -23,16 +23,14 @@
  *
  */
 
-
 #ifndef CPULOAD_WIDGET_H
 #define CPULOAD_WIDGET_H
 
-#include <QtCore/QTimer>
 #include <QPixmap>
 #include <QWidget>
+#include <QtCore/QTimer>
 
 #include "lmms_basics.h"
-
 
 class CPULoadWidget : public QWidget
 {
@@ -41,14 +39,11 @@ public:
 	CPULoadWidget( QWidget * _parent );
 	virtual ~CPULoadWidget();
 
-
 protected:
 	virtual void paintEvent( QPaintEvent * _ev );
 
-
 protected slots:
 	void updateCpuLoad();
-
 
 private:
 	int m_currentLoad;
@@ -60,8 +55,6 @@ private:
 	bool m_changed;
 
 	QTimer m_updateTimer;
-
-} ;
-
+};
 
 #endif

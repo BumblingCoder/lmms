@@ -28,30 +28,34 @@
 
 #include <QtCore/QVector>
 
-#include "volume.h"
-#include "panning.h"
 #include "MidiTime.h"
 #include "SerializingObject.h"
+#include "panning.h"
+#include "volume.h"
 
 class DetuningHelper;
-
 
 enum Keys
 {
 	Key_C = 0,
-	Key_CIS = 1, Key_DES = 1,
+	Key_CIS = 1,
+	Key_DES = 1,
 	Key_D = 2,
-	Key_DIS = 3, Key_ES = 3,
-	Key_E = 4, Key_FES = 4,
+	Key_DIS = 3,
+	Key_ES = 3,
+	Key_E = 4,
+	Key_FES = 4,
 	Key_F = 5,
-	Key_FIS = 6, Key_GES = 6,
+	Key_FIS = 6,
+	Key_GES = 6,
 	Key_G = 7,
-	Key_GIS = 8, Key_AS = 8,
+	Key_GIS = 8,
+	Key_AS = 8,
 	Key_A = 9,
-	Key_AIS = 10, Key_B = 10,
+	Key_AIS = 10,
+	Key_B = 10,
 	Key_H = 11
-} ;
-
+};
 
 enum Octaves
 {
@@ -59,34 +63,30 @@ enum Octaves
 	Octave_1,
 	Octave_2,
 	Octave_3,
-	Octave_4, DefaultOctave = Octave_4,
+	Octave_4,
+	DefaultOctave = Octave_4,
 	Octave_5,
 	Octave_6,
 	Octave_7,
 	Octave_8,
 	NumOctaves
-} ;
-
+};
 
 const int WhiteKeysPerOctave = 7;
 const int BlackKeysPerOctave = 5;
 const int KeysPerOctave = WhiteKeysPerOctave + BlackKeysPerOctave;
 const int NumKeys = NumOctaves * KeysPerOctave;
-const int DefaultKey = DefaultOctave*KeysPerOctave + Key_A;
+const int DefaultKey = DefaultOctave * KeysPerOctave + Key_A;
 
 const float MaxDetuning = 4 * 12.0f;
-
-
 
 class EXPORT Note : public SerializingObject
 {
 public:
 	Note( const MidiTime & length = MidiTime( 0 ),
-		const MidiTime & pos = MidiTime( 0 ),
-		int key = DefaultKey,
-		volume_t volume = DefaultVolume,
-		panning_t panning = DefaultPanning,
-		DetuningHelper * detuning = NULL );
+	      const MidiTime & pos = MidiTime( 0 ), int key = DefaultKey,
+	      volume_t volume = DefaultVolume, panning_t panning = DefaultPanning,
+	      DetuningHelper * detuning = NULL );
 	Note( const Note & note );
 	virtual ~Note();
 
@@ -104,7 +104,6 @@ public:
 		m_isPlaying = isPlaying;
 	}
 
-
 	void setLength( const MidiTime & length );
 	void setPos( const MidiTime & pos );
 	void setKey( const int key );
@@ -113,37 +112,22 @@ public:
 	void quantizeLength( const int qGrid );
 	void quantizePos( const int qGrid );
 
-	static inline bool lessThan( Note * &lhs, Note * &rhs )
+	static inline bool lessThan( Note *& lhs, Note *& rhs )
 	{
 		// function to compare two notes - must be called explictly when
 		// using qSort
-		return (bool) ((int) ( *lhs ).pos() < (int) ( *rhs ).pos());
+		return (bool) ( (int) ( *lhs ).pos() < (int) ( *rhs ).pos() );
 	}
 
-	inline bool selected() const
-	{
-		return m_selected;
-	}
+	inline bool selected() const { return m_selected; }
 
-	inline int oldKey() const
-	{
-		return m_oldKey;
-	}
+	inline int oldKey() const { return m_oldKey; }
 
-	inline MidiTime oldPos() const
-	{
-		return m_oldPos;
-	}
+	inline MidiTime oldPos() const { return m_oldPos; }
 
-	inline MidiTime oldLength() const
-	{
-		return m_oldLength;
-	}
+	inline MidiTime oldLength() const { return m_oldLength; }
 
-	inline bool isPlaying() const
-	{
-		return m_isPlaying;
-	}
+	inline bool isPlaying() const { return m_isPlaying; }
 
 	inline MidiTime endPos() const
 	{
@@ -151,15 +135,9 @@ public:
 		return pos() + l;
 	}
 
-	inline const MidiTime & length() const
-	{
-		return m_length;
-	}
+	inline const MidiTime & length() const { return m_length; }
 
-	inline const MidiTime & pos() const
-	{
-		return m_pos;
-	}
+	inline const MidiTime & pos() const { return m_pos; }
 
 	inline MidiTime pos( MidiTime basePos ) const
 	{
@@ -167,52 +145,33 @@ public:
 		return m_pos - bp;
 	}
 
-	inline int key() const
-	{
-		return m_key;
-	}
+	inline int key() const { return m_key; }
 
-	inline volume_t getVolume() const
-	{
-		return m_volume;
-	}
+	inline volume_t getVolume() const { return m_volume; }
 
 	int midiVelocity( int midiBaseVelocity ) const
 	{
-		return qMin( MidiMaxVelocity, getVolume() * midiBaseVelocity / DefaultVolume );
+		return qMin( MidiMaxVelocity,
+		             getVolume() * midiBaseVelocity / DefaultVolume );
 	}
 
-	inline panning_t getPanning() const
-	{
-		return m_panning;
-	}
+	inline panning_t getPanning() const { return m_panning; }
 
-	static QString classNodeName()
-	{
-		return "note";
-	}
+	static QString classNodeName() { return "note"; }
 
-	inline virtual QString nodeName() const
-	{
-		return classNodeName();
-	}
+	inline virtual QString nodeName() const { return classNodeName(); }
 
 	static MidiTime quantized( const MidiTime & m, const int qGrid );
 
-	DetuningHelper * detuning() const
-	{
-		return m_detuning;
-	}
+	DetuningHelper * detuning() const { return m_detuning; }
 	bool hasDetuningInfo() const;
-	bool withinRange(int tickStart, int tickEnd) const;
+	bool withinRange( int tickStart, int tickEnd ) const;
 
 	void createDetuning();
-
 
 protected:
 	virtual void saveSettings( QDomDocument & doc, QDomElement & parent );
 	virtual void loadSettings( const QDomElement & _this );
-
 
 private:
 	// for piano roll editing
@@ -230,8 +189,6 @@ private:
 	DetuningHelper * m_detuning;
 };
 
-
 typedef QVector<Note *> NoteVector;
-
 
 #endif

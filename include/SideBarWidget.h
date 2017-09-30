@@ -29,54 +29,33 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-
 class SideBarWidget : public QWidget
 {
 	Q_OBJECT
 public:
 	SideBarWidget( const QString & _title, const QPixmap & _icon,
-							QWidget * _parent );
+	               QWidget * _parent );
 	virtual ~SideBarWidget();
 
-	inline const QPixmap & icon() const
-	{
-		return m_icon;
-	}
-	inline const QString & title() const
-	{
-		return m_title;
-	}
-
+	inline const QPixmap & icon() const { return m_icon; }
+	inline const QString & title() const { return m_title; }
 
 protected:
 	virtual void paintEvent( QPaintEvent * _pe );
 	virtual void resizeEvent( QResizeEvent * _re );
-	virtual void contextMenuEvent( QContextMenuEvent * )
-	{
-	}
+	virtual void contextMenuEvent( QContextMenuEvent * ) {}
 
-	QWidget * contentParent()
-	{
-		return m_contents;
-	}
+	QWidget * contentParent() { return m_contents; }
 
-	void addContentWidget( QWidget * _w )
-	{
-		m_layout->addWidget( _w );
-	}
+	void addContentWidget( QWidget * _w ) { m_layout->addWidget( _w ); }
 
-	void addContentLayout( QLayout * _l )
-	{
-		m_layout->addLayout( _l );
-	}
-
+	void addContentLayout( QLayout * _l ) { m_layout->addLayout( _l ); }
 
 private:
 	QWidget * m_contents;
 	QVBoxLayout * m_layout;
 	QString m_title;
 	QPixmap m_icon;
-
-} ;
+};
 
 #endif

@@ -24,22 +24,18 @@
 
 #include <QIcon>
 
-#include "InstrumentView.h"
-#include "embed.h"
 #include "InstrumentTrack.h"
+#include "InstrumentView.h"
 #include "StringPairDrag.h"
+#include "embed.h"
 
-
-InstrumentView::InstrumentView( Instrument * _Instrument, QWidget * _parent ) :
-	PluginView( _Instrument, _parent )
+InstrumentView::InstrumentView( Instrument * _Instrument, QWidget * _parent )
+    : PluginView( _Instrument, _parent )
 {
 	setModel( _Instrument );
 	setFixedSize( 250, 250 );
 	setAttribute( Qt::WA_DeleteOnClose, true );
 }
-
-
-
 
 InstrumentView::~InstrumentView()
 {
@@ -49,25 +45,20 @@ InstrumentView::~InstrumentView()
 	}
 }
 
-
-
-
 void InstrumentView::setModel( Model * _model, bool )
 {
 	if( dynamic_cast<Instrument *>( _model ) != NULL )
 	{
 		ModelView::setModel( _model );
-		instrumentTrackWindow()->setWindowIcon( model()->descriptor()->logo->pixmap() );
-		connect( model(), SIGNAL( destroyed( QObject * ) ), this, SLOT( close() ) );
+		instrumentTrackWindow()->setWindowIcon(
+		    model()->descriptor()->logo->pixmap() );
+		connect( model(), SIGNAL( destroyed( QObject * ) ), this,
+		         SLOT( close() ) );
 	}
 }
 
-
-
-
 InstrumentTrackWindow * InstrumentView::instrumentTrackWindow( void )
 {
-	return( dynamic_cast<InstrumentTrackWindow *>(
-					parentWidget()->parentWidget() ) );
+	return ( dynamic_cast<InstrumentTrackWindow *>(
+	    parentWidget()->parentWidget() ) );
 }
-

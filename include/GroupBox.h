@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef GROUP_BOX_H
 #define GROUP_BOX_H
 
@@ -31,9 +30,7 @@
 #include "AutomatableModelView.h"
 #include "PixmapButton.h"
 
-
 class QPixmap;
-
 
 class GroupBox : public QWidget, public BoolModelView
 {
@@ -44,21 +41,13 @@ public:
 
 	virtual void modelChanged();
 
-	PixmapButton * ledButton()
-	{
-		return m_led;
-	}
+	PixmapButton * ledButton() { return m_led; }
 
-	int titleBarHeight() const
-	{
-		return m_titleBarHeight;
-	}
-
+	int titleBarHeight() const { return m_titleBarHeight; }
 
 protected:
 	virtual void mousePressEvent( QMouseEvent * _me );
 	virtual void paintEvent( QPaintEvent * _pe );
-
 
 private:
 	void updatePixmap();
@@ -66,11 +55,8 @@ private:
 	PixmapButton * m_led;
 	QString m_caption;
 	const int m_titleBarHeight;
-
-} ;
-
+};
 
 typedef BoolModel groupBoxModel;
-
 
 #endif

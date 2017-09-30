@@ -25,8 +25,8 @@
 #ifndef PIANO_H
 #define PIANO_H
 
-#include "Note.h"
 #include "Model.h"
+#include "Note.h"
 
 class InstrumentTrack;
 class MidiEventProcessor;
@@ -38,46 +38,31 @@ public:
 	{
 		WhiteKey,
 		BlackKey
-	} ;
+	};
 
-	Piano( InstrumentTrack* track );
+	Piano( InstrumentTrack * track );
 	virtual ~Piano();
 
 	void setKeyState( int key, bool state );
 
-	bool isKeyPressed( int key ) const
-	{
-		return m_pressedKeys[key];
-	}
+	bool isKeyPressed( int key ) const { return m_pressedKeys[key]; }
 
 	void handleKeyPress( int key, int midiVelocity = -1 );
 	void handleKeyRelease( int key );
 
-	InstrumentTrack* instrumentTrack() const
-	{
-		return m_instrumentTrack;
-	}
+	InstrumentTrack * instrumentTrack() const { return m_instrumentTrack; }
 
-	MidiEventProcessor* midiEventProcessor() const
-	{
-		return m_midiEvProc;
-	}
+	MidiEventProcessor * midiEventProcessor() const { return m_midiEvProc; }
 
-	static bool isWhiteKey(int key);
-	static bool isBlackKey(int key);
-
+	static bool isWhiteKey( int key );
+	static bool isBlackKey( int key );
 
 private:
-	static bool isValidKey( int key )
-	{
-		return key >= 0 && key < NumKeys;
-	}
+	static bool isValidKey( int key ) { return key >= 0 && key < NumKeys; }
 
-	InstrumentTrack* m_instrumentTrack;
-	MidiEventProcessor* m_midiEvProc;
+	InstrumentTrack * m_instrumentTrack;
+	MidiEventProcessor * m_midiEvProc;
 	bool m_pressedKeys[NumKeys];
-
-} ;
+};
 
 #endif
-

@@ -32,25 +32,23 @@
 #include "ConfigManager.h"
 
 #ifdef LMMS_BUILD_WIN32
-	QStringList nameFilters("*.dll");
+QStringList nameFilters( "*.dll" );
 #else
-	QStringList nameFilters("lib*.so");
+QStringList nameFilters( "lib*.so" );
 #endif
 
-qint64 qHash(const QFileInfo& fi)
-{
-	return qHash(fi.absoluteFilePath());
-}
+qint64 qHash( const QFileInfo & fi ) { return qHash( fi.absoluteFilePath() ); }
 
 std::unique_ptr<PluginFactory> PluginFactory::s_instance;
 
 PluginFactory::PluginFactory()
 {
 	// Adds a search path relative to the main executable if the path exists.
-	auto addRelativeIfExists = [this] (const QString& path) {
-		QDir dir(qApp->applicationDirPath());
-		if (!path.isEmpty() && dir.cd(path)) {
-			QDir::addSearchPath("plugins", dir.absolutePath());
+	auto addRelativeIfExists = [this]( const QString & path ) {
+		QDir dir( qApp->applicationDirPath() );
+		if( !path.isEmpty() && dir.cd( path ) )
+		{
+			QDir::addSearchPath( "plugins", dir.absolutePath() );
 		}
 	};
 
@@ -64,30 +62,28 @@ PluginFactory::PluginFactory()
 	//           plugins at "C:/Program Files/LMMS/plugins/"
 
 #ifndef LMMS_BUILD_WIN32
-	addRelativeIfExists("../lib/lmms"); // Installed
+	addRelativeIfExists( "../lib/lmms" ); // Installed
 #endif
-	addRelativeIfExists("plugins"); // Portable
+	addRelativeIfExists( "plugins" ); // Portable
 #ifdef PLUGIN_DIR // We may also have received a relative directory via a define
-	addRelativeIfExists(PLUGIN_DIR);
+	addRelativeIfExists( PLUGIN_DIR );
 #endif
 	// Or via an environment variable:
 	QString env_path;
-	if (!(env_path = qgetenv("LMMS_PLUGIN_DIR")).isEmpty())
-		QDir::addSearchPath("plugins", env_path);
+	if( !( env_path = qgetenv( "LMMS_PLUGIN_DIR" ) ).isEmpty() )
+		QDir::addSearchPath( "plugins", env_path );
 
-	QDir::addSearchPath("plugins", ConfigManager::inst()->workingDir() + "plugins");
+	QDir::addSearchPath( "plugins",
+	                     ConfigManager::inst()->workingDir() + "plugins" );
 
 	discoverPlugins();
 }
 
-PluginFactory::~PluginFactory()
-{
-}
+PluginFactory::~PluginFactory() {}
 
-PluginFactory* PluginFactory::instance()
+PluginFactory * PluginFactory::instance()
 {
-	if (s_instance == nullptr)
-		s_instance.reset(new PluginFactory());
+	if( s_instance == nullptr ) s_instance.reset( new PluginFactory() );
 
 	return s_instance.get();
 }
@@ -97,35 +93,38 @@ const Plugin::DescriptorList PluginFactory::descriptors() const
 	return m_descriptors.values();
 }
 
-const Plugin::DescriptorList PluginFactory::descriptors(Plugin::PluginTypes type) const
+const Plugin::DescriptorList
+PluginFactory::descriptors( Plugin::PluginTypes type ) const
 {
-	return m_descriptors.values(type);
+	return m_descriptors.values( type );
 }
 
-const PluginFactory::PluginInfoList& PluginFactory::pluginInfos() const
+const PluginFactory::PluginInfoList & PluginFactory::pluginInfos() const
 {
 	return m_pluginInfos;
 }
 
-const PluginFactory::PluginInfo PluginFactory::pluginSupportingExtension(const QString& ext)
+const PluginFactory::PluginInfo
+PluginFactory::pluginSupportingExtension( const QString & ext )
 {
-	return m_pluginByExt.value(ext, PluginInfo());
+	return m_pluginByExt.value( ext, PluginInfo() );
 }
 
-const PluginFactory::PluginInfo PluginFactory::pluginInfo(const char* name) const
+const PluginFactory::PluginInfo
+PluginFactory::pluginInfo( const char * name ) const
 {
-	for (const PluginInfo& info : m_pluginInfos)
+	for( const PluginInfo & info : m_pluginInfos )
 	{
-		if (qstrcmp(info.descriptor->name, name) == 0)
-			return info;
+		if( qstrcmp( info.descriptor->name, name ) == 0 ) return info;
 	}
 	return PluginInfo();
 }
 
-QString PluginFactory::errorString(QString pluginName) const
+QString PluginFactory::errorString( QString pluginName ) const
 {
-	static QString notfound = qApp->translate("PluginFactory", "Plugin not found.");
-	return m_errors.value(pluginName, notfound);
+	static QString notfound =
+	    qApp->translate( "PluginFactory", "Plugin not found." );
+	return m_errors.value( pluginName, notfound );
 }
 
 void PluginFactory::discoverPlugins()
@@ -135,42 +134,50 @@ void PluginFactory::discoverPlugins()
 	m_pluginByExt.clear();
 
 	QSet<QFileInfo> files;
-	for (const QString& searchPath : QDir::searchPaths("plugins"))
+	for( const QString & searchPath : QDir::searchPaths( "plugins" ) )
 	{
-		files.unite(QDir(searchPath).entryInfoList(nameFilters).toSet());
+		files.unite( QDir( searchPath ).entryInfoList( nameFilters ).toSet() );
 	}
 
 	// Cheap dependency handling: zynaddsubfx needs ZynAddSubFxCore. By loading
 	// all libraries twice we ensure that libZynAddSubFxCore is found.
-	for (const QFileInfo& file : files)
+	for( const QFileInfo & file : files )
 	{
-		QLibrary(file.absoluteFilePath()).load();
+		QLibrary( file.absoluteFilePath() ).load();
 	}
 
-	for (const QFileInfo& file : files)
+	for( const QFileInfo & file : files )
 	{
-		auto library = std::make_shared<QLibrary>(file.absoluteFilePath());
+		auto library = std::make_shared<QLibrary>( file.absoluteFilePath() );
 
-		if (! library->load()) {
+		if( !library->load() )
+		{
 			m_errors[file.baseName()] = library->errorString();
-			qWarning("%s", library->errorString().toLocal8Bit().data());
+			qWarning( "%s", library->errorString().toLocal8Bit().data() );
 			continue;
 		}
-		if (library->resolve("lmms_plugin_main") == nullptr) {
+		if( library->resolve( "lmms_plugin_main" ) == nullptr )
+		{
 			continue;
 		}
 
 		QString descriptorName = file.baseName() + "_plugin_descriptor";
-		if( descriptorName.left(3) == "lib" )
+		if( descriptorName.left( 3 ) == "lib" )
 		{
-			descriptorName = descriptorName.mid(3);
+			descriptorName = descriptorName.mid( 3 );
 		}
 
-		Plugin::Descriptor* pluginDescriptor = reinterpret_cast<Plugin::Descriptor*>(library->resolve(descriptorName.toUtf8().constData()));
-		if(pluginDescriptor == nullptr)
+		Plugin::Descriptor * pluginDescriptor =
+		    reinterpret_cast<Plugin::Descriptor *>(
+		        library->resolve( descriptorName.toUtf8().constData() ) );
+		if( pluginDescriptor == nullptr )
 		{
-			qWarning() << qApp->translate("PluginFactory", "LMMS plugin %1 does not have a plugin descriptor named %2!").
-						  arg(file.absoluteFilePath()).arg(descriptorName);
+			qWarning() << qApp->translate( "PluginFactory",
+			                               "LMMS plugin %1 does not "
+			                               "have a plugin descriptor "
+			                               "named %2!" )
+			                  .arg( file.absoluteFilePath() )
+			                  .arg( descriptorName );
 			continue;
 		}
 
@@ -180,19 +187,18 @@ void PluginFactory::discoverPlugins()
 		info.descriptor = pluginDescriptor;
 		pluginInfos << info;
 
-		for (const QString& ext : QString(info.descriptor->supportedFileTypes).split(','))
+		for( const QString & ext :
+		     QString( info.descriptor->supportedFileTypes ).split( ',' ) )
 		{
-			m_pluginByExt.insert(ext, info);
+			m_pluginByExt.insert( ext, info );
 		}
 
-		descriptors.insert(info.descriptor->type, info.descriptor);
+		descriptors.insert( info.descriptor->type, info.descriptor );
 	}
 
 	m_pluginInfos = pluginInfos;
 	m_descriptors = descriptors;
 }
-
-
 
 const QString PluginFactory::PluginInfo::name() const
 {

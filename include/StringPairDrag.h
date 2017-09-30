@@ -35,16 +35,15 @@
 
 class QPixmap;
 
-
 class EXPORT StringPairDrag : public QDrag
 {
 public:
 	StringPairDrag( const QString & _key, const QString & _value,
-					const QPixmap & _icon, QWidget * _w );
+	                const QPixmap & _icon, QWidget * _w );
 	~StringPairDrag();
 
 	static bool processDragEnterEvent( QDragEnterEvent * _dee,
-						const QString & _allowed_keys );
+	                                   const QString & _allowed_keys );
 	static QString decodeMimeKey( const QMimeData * mimeData );
 	static QString decodeMimeValue( const QMimeData * mimeData );
 	static QString decodeKey( QDropEvent * _de );
@@ -52,10 +51,8 @@ public:
 
 	static const char * mimeType()
 	{
-		return( "application/x-lmms-stringpair" );
+		return ( "application/x-lmms-stringpair" );
 	}
-
-} ;
-
+};
 
 #endif

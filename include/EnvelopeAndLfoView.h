@@ -41,15 +41,12 @@ class LedCheckBox;
 class PixmapButton;
 class TempoSyncKnob;
 
-
-
 class EnvelopeAndLfoView : public QWidget, public ModelView
 {
 	Q_OBJECT
 public:
 	EnvelopeAndLfoView( QWidget * _parent );
 	virtual ~EnvelopeAndLfoView();
-
 
 protected:
 	virtual void modelChanged();
@@ -59,17 +56,14 @@ protected:
 	virtual void mousePressEvent( QMouseEvent * _me );
 	virtual void paintEvent( QPaintEvent * _pe );
 
-
 protected slots:
 	void lfoUserWaveChanged();
-
 
 private:
 	static QPixmap * s_envGraph;
 	static QPixmap * s_lfoGraph;
 
 	EnvelopeAndLfoParameters * m_params;
-
 
 	// envelope stuff
 	Knob * m_predelayKnob;
@@ -90,8 +84,8 @@ private:
 
 	LedCheckBox * m_x100Cb;
 	LedCheckBox * m_controlEnvAmountCb;
-	
+
 	float m_randomGraph;
-} ;
+};
 
 #endif

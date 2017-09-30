@@ -24,26 +24,21 @@
  *
  */
 
-
-#include <QMimeData>
 #include <QDragEnterEvent>
+#include <QMimeData>
 
-
-#include "StringPairDrag.h"
 #include "GuiApplication.h"
 #include "MainWindow.h"
-
+#include "StringPairDrag.h"
 
 StringPairDrag::StringPairDrag( const QString & _key, const QString & _value,
-					const QPixmap & _icon, QWidget * _w ) :
-	QDrag( _w )
+                                const QPixmap & _icon, QWidget * _w )
+    : QDrag( _w )
 {
 	if( _icon.isNull() && _w )
 	{
 		setPixmap( QPixmap::grabWidget( _w ).scaled(
-						64, 64,
-						Qt::KeepAspectRatio,
-						Qt::SmoothTransformation ) );
+		    64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation ) );
 	}
 	else
 	{
@@ -56,9 +51,6 @@ StringPairDrag::StringPairDrag( const QString & _key, const QString & _value,
 	start( Qt::IgnoreAction );
 }
 
-
-
-
 StringPairDrag::~StringPairDrag()
 {
 	// during a drag, we might have lost key-press-events, so reset
@@ -69,52 +61,39 @@ StringPairDrag::~StringPairDrag()
 	}
 }
 
-
-
-
 bool StringPairDrag::processDragEnterEvent( QDragEnterEvent * _dee,
-						const QString & _allowed_keys )
+                                            const QString & _allowed_keys )
 {
 	if( !_dee->mimeData()->hasFormat( mimeType() ) )
 	{
-		return( false );
+		return ( false );
 	}
 	QString txt = _dee->mimeData()->data( mimeType() );
 	if( _allowed_keys.split( ',' ).contains( txt.section( ':', 0, 0 ) ) )
 	{
 		_dee->acceptProposedAction();
-		return( true );
+		return ( true );
 	}
 	_dee->ignore();
-	return( false );
+	return ( false );
 }
-
-
-
 
 QString StringPairDrag::decodeMimeKey( const QMimeData * mimeData )
 {
-	return( QString::fromUtf8( mimeData->data( mimeType() ) ).section( ':', 0, 0 ) );
+	return ( QString::fromUtf8( mimeData->data( mimeType() ) )
+	             .section( ':', 0, 0 ) );
 }
-
-
-
 
 QString StringPairDrag::decodeMimeValue( const QMimeData * mimeData )
 {
-	return( QString::fromUtf8( mimeData->data( mimeType() ) ).section( ':', 1, -1 ) );
+	return ( QString::fromUtf8( mimeData->data( mimeType() ) )
+	             .section( ':', 1, -1 ) );
 }
-
-
-
 
 QString StringPairDrag::decodeKey( QDropEvent * _de )
 {
 	return decodeMimeKey( _de->mimeData() );
 }
-
-
-
 
 QString StringPairDrag::decodeValue( QDropEvent * _de )
 {

@@ -34,31 +34,15 @@ class DetuningHelper : public InlineAutomation
 	Q_OBJECT
 	MM_OPERATORS
 public:
-	DetuningHelper() :
-		InlineAutomation()
-	{
-	}
+	DetuningHelper() : InlineAutomation() {}
 
-	virtual ~DetuningHelper()
-	{
-	}
+	virtual ~DetuningHelper() {}
 
-	virtual float defaultValue() const
-	{
-		return 0;
-	}
+	virtual float defaultValue() const { return 0; }
 
-	virtual QString displayName() const
-	{
-		return tr( "Note detuning" );
-	}
+	virtual QString displayName() const { return tr( "Note detuning" ); }
 
-	inline virtual QString nodeName() const
-	{
-		return "detuning";
-	}
-
-} ;
-
+	inline virtual QString nodeName() const { return "detuning"; }
+};
 
 #endif

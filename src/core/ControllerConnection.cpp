@@ -27,19 +27,13 @@
 #include <QDomElement>
 #include <QObject>
 
-
-#include "Song.h"
 #include "ControllerConnection.h"
-
+#include "Song.h"
 
 ControllerConnectionVector ControllerConnection::s_connections;
 
-
-
-ControllerConnection::ControllerConnection( Controller * _controller ) :
-	m_controller( NULL ),
-	m_controllerId( -1 ),
-	m_ownsController( false )
+ControllerConnection::ControllerConnection( Controller * _controller )
+    : m_controller( NULL ), m_controllerId( -1 ), m_ownsController( false )
 {
 	if( _controller != NULL )
 	{
@@ -47,25 +41,18 @@ ControllerConnection::ControllerConnection( Controller * _controller ) :
 	}
 	else
 	{
-		m_controller = Controller::create( Controller::DummyController,
-									NULL );
+		m_controller = Controller::create( Controller::DummyController, NULL );
 	}
 	s_connections.append( this );
 }
 
-
-
-
-ControllerConnection::ControllerConnection( int _controllerId ) :
-	m_controller( Controller::create( Controller::DummyController, NULL ) ),
-	m_controllerId( _controllerId ),
-	m_ownsController( false )
+ControllerConnection::ControllerConnection( int _controllerId )
+    : m_controller( Controller::create( Controller::DummyController, NULL ) ),
+      m_controllerId( _controllerId ),
+      m_ownsController( false )
 {
 	s_connections.append( this );
 }
-
-
-
 
 ControllerConnection::~ControllerConnection()
 {
@@ -80,15 +67,7 @@ ControllerConnection::~ControllerConnection()
 	}
 }
 
-
-
-
-void ControllerConnection::setController( int /*_controllerId*/ )
-{
-}
-
-
-
+void ControllerConnection::setController( int /*_controllerId*/ ) {}
 
 void ControllerConnection::setController( Controller * _controller )
 {
@@ -116,59 +95,54 @@ void ControllerConnection::setController( Controller * _controller )
 	if( _controller->type() != Controller::DummyController )
 	{
 		_controller->addConnection( this );
-		QObject::connect( _controller, SIGNAL( valueChanged() ),
-				this, SIGNAL( valueChanged() ) );
+		QObject::connect( _controller, SIGNAL( valueChanged() ), this,
+		                  SIGNAL( valueChanged() ) );
 	}
 
-	m_ownsController =
-			( _controller->type() == Controller::MidiController );
+	m_ownsController = ( _controller->type() == Controller::MidiController );
 
 	// If we don't own the controller, allow deletion of controller
 	// to delete the connection
-	if( !m_ownsController ) {
-		QObject::connect( _controller, SIGNAL( destroyed() ),
-				this, SLOT( deleteConnection() ) );
+	if( !m_ownsController )
+	{
+		QObject::connect( _controller, SIGNAL( destroyed() ), this,
+		                  SLOT( deleteConnection() ) );
 	}
 }
-
-
 
 inline void ControllerConnection::setTargetName( const QString & _name )
 {
 	m_targetName = _name;
 	if( m_controller )
 	{
-	//	m_controller->getMidiPort()->setName( _name );
+		//	m_controller->getMidiPort()->setName( _name );
 	}
 }
-
-
 
 /*
  * A connection may not be finalized.  This means, the connection should exist,
  * but the controller does not yet exist.  This happens when loading.  Even
  * loading connections last won't help, since there can be connections BETWEEN
  * controllers. So, we remember the controller-ID and use a dummyController
- * instead.  Once the song is loaded, finalizeConnections() connects to the proper controllers
+ * instead.  Once the song is loaded, finalizeConnections() connects to the
+ * proper controllers
  */
 void ControllerConnection::finalizeConnections()
 {
 	for( int i = 0; i < s_connections.size(); ++i )
 	{
 		ControllerConnection * c = s_connections[i];
-		if ( !c->isFinalized() && c->m_controllerId <
-				Engine::getSong()->controllers().size() )
+		if( !c->isFinalized() &&
+		    c->m_controllerId < Engine::getSong()->controllers().size() )
 		{
-			c->setController( Engine::getSong()->
-					controllers().at( c->m_controllerId ) );
+			c->setController(
+			    Engine::getSong()->controllers().at( c->m_controllerId ) );
 		}
 	}
 }
 
-
-
-
-void ControllerConnection::saveSettings( QDomDocument & _doc, QDomElement & _this )
+void ControllerConnection::saveSettings( QDomDocument & _doc,
+                                         QDomElement & _this )
 {
 	if( Engine::getSong() )
 	{
@@ -187,15 +161,13 @@ void ControllerConnection::saveSettings( QDomDocument & _doc, QDomElement & _thi
 	}
 }
 
-
-
-
 void ControllerConnection::loadSettings( const QDomElement & _this )
 {
 	QDomNode node = _this.firstChild();
 	if( !node.isNull() )
 	{
-		setController( Controller::create( node.toElement(), Engine::getSong() ) );
+		setController(
+		    Controller::create( node.toElement(), Engine::getSong() ) );
 	}
 	else
 	{
@@ -212,12 +184,4 @@ void ControllerConnection::loadSettings( const QDomElement & _this )
 	}
 }
 
-
-void ControllerConnection::deleteConnection()
-{
-	delete this;
-}
-
-
-
-
+void ControllerConnection::deleteConnection() { delete this; }

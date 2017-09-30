@@ -23,7 +23,6 @@
  *
  */
 
-
 #ifndef TRACK_RENAME_LINE_EDIT_H
 #define TRACK_RENAME_LINE_EDIT_H
 
@@ -35,12 +34,12 @@ class TrackRenameLineEdit : public QLineEdit
 public:
 	TrackRenameLineEdit( QWidget * parent );
 	void show();
-	
+
 protected:
 	virtual void keyPressEvent( QKeyEvent * ke );
-	
+
 private:
 	QString m_oldName;
-} ;
+};
 
 #endif

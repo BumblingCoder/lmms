@@ -32,7 +32,6 @@
 
 class LadspaControl;
 
-
 class EXPORT LadspaControlView : public QWidget, public ModelView
 {
 	Q_OBJECT
@@ -42,7 +41,6 @@ public:
 
 private:
 	LadspaControl * m_ctl;
-
-} ;
+};
 
 #endif

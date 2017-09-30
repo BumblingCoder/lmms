@@ -28,14 +28,12 @@
 
 #include <QtCore/QReadWriteLock>
 
-#include "Track.h"
 #include "JournallingObject.h"
-
+#include "Track.h"
 
 class AutomationPattern;
 class InstrumentTrack;
 class TrackContainerView;
-
 
 class EXPORT TrackContainer : public Model, public JournallingObject
 {
@@ -46,7 +44,7 @@ public:
 	{
 		BBContainer,
 		SongContainer
-	} ;
+	};
 
 	TrackContainer();
 	virtual ~TrackContainer();
@@ -55,14 +53,9 @@ public:
 
 	virtual void loadSettings( const QDomElement & _this );
 
-
-	virtual AutomationPattern * tempoAutomationPattern()
-	{
-		return NULL;
-	}
+	virtual AutomationPattern * tempoAutomationPattern() { return NULL; }
 
 	int countTracks( Track::TrackTypes _tt = Track::NumTrackTypes ) const;
-
 
 	void addTrack( Track * _track );
 	void removeTrack( Track * _track );
@@ -71,35 +64,29 @@ public:
 
 	void clearAllTracks();
 
-	const TrackList & tracks() const
-	{
-		return m_tracks;
-	}
+	const TrackList & tracks() const { return m_tracks; }
 
 	bool isEmpty() const;
 
-	static const QString classNodeName()
-	{
-		return "trackcontainer";
-	}
+	static const QString classNodeName() { return "trackcontainer"; }
 
 	inline void setType( TrackContainerTypes newType )
 	{
 		m_TrackContainerType = newType;
 	}
 
-	inline TrackContainerTypes type() const
-	{
-		return m_TrackContainerType;
-	}
+	inline TrackContainerTypes type() const { return m_TrackContainerType; }
 
-	virtual AutomatedValueMap automatedValuesAt(MidiTime time, int tcoNum = -1) const;
+	virtual AutomatedValueMap automatedValuesAt( MidiTime time,
+	                                             int tcoNum = -1 ) const;
 
 signals:
 	void trackAdded( Track * _track );
 
 protected:
-	static AutomatedValueMap automatedValuesFromTracks(const TrackList &tracks, MidiTime timeStart, int tcoNum = -1);
+	static AutomatedValueMap
+	automatedValuesFromTracks( const TrackList & tracks, MidiTime timeStart,
+	                           int tcoNum = -1 );
 
 	mutable QReadWriteLock m_tracksMutex;
 
@@ -108,37 +95,23 @@ private:
 
 	TrackContainerTypes m_TrackContainerType;
 
-
 	friend class TrackContainerView;
 	friend class Track;
-
-} ;
-
+};
 
 class DummyTrackContainer : public TrackContainer
 {
 public:
 	DummyTrackContainer();
 
-	virtual ~DummyTrackContainer()
-	{
-	}
+	virtual ~DummyTrackContainer() {}
 
-	virtual QString nodeName() const
-	{
-		return "DummyTrackContainer";
-	}
+	virtual QString nodeName() const { return "DummyTrackContainer"; }
 
-	InstrumentTrack * dummyInstrumentTrack()
-	{
-		return m_dummyInstrumentTrack;
-	}
-
+	InstrumentTrack * dummyInstrumentTrack() { return m_dummyInstrumentTrack; }
 
 private:
 	InstrumentTrack * m_dummyInstrumentTrack;
-
-} ;
-
+};
 
 #endif

@@ -26,7 +26,6 @@
  *
  */
 
-
 #ifndef CONTROLLER_CONNECTION_H
 #define CONTROLLER_CONNECTION_H
 
@@ -41,21 +40,16 @@ class ControllerConnection;
 
 typedef QVector<ControllerConnection *> ControllerConnectionVector;
 
-
 class EXPORT ControllerConnection : public QObject, public JournallingObject
 {
 	Q_OBJECT
 public:
-
 	ControllerConnection( Controller * _controller );
 	ControllerConnection( int _controllerId );
 
 	virtual ~ControllerConnection();
 
-	inline Controller * getController()
-	{
-		return m_controller;
-	}
+	inline Controller * getController() { return m_controller; }
 
 	void setController( Controller * _controller );
 
@@ -65,49 +59,33 @@ public:
 	{
 		return m_controller->currentValue( _offset );
 	}
-	
-	ValueBuffer * valueBuffer()
-	{
-		return m_controller->valueBuffer();
-	}
+
+	ValueBuffer * valueBuffer() { return m_controller->valueBuffer(); }
 
 	inline void setTargetName( const QString & _name );
 
-	inline QString targetName() const
-	{
-		return m_targetName;
-	}
+	inline QString targetName() const { return m_targetName; }
 
-	inline bool isFinalized()
-	{
-		return m_controllerId < 0;
-	}
+	inline bool isFinalized() { return m_controllerId < 0; }
 
 	static void finalizeConnections();
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _this );
 	virtual void loadSettings( const QDomElement & _this );
 
-	static inline const QString classNodeName()
-	{
-		return "connection";
-	}
+	static inline const QString classNodeName() { return "connection"; }
 
-	virtual QString nodeName() const
-	{
-		return classNodeName();
-	}
-
+	virtual QString nodeName() const { return classNodeName(); }
 
 public slots:
 	void deleteConnection();
 
 protected:
-	//virtual controllerDialog * createDialog( QWidget * _parent );
+	// virtual controllerDialog * createDialog( QWidget * _parent );
 	Controller * m_controller;
 	QString m_targetName;
 	int m_controllerId;
-	
+
 	bool m_ownsController;
 
 	static ControllerConnectionVector s_connections;
@@ -120,4 +98,3 @@ signals:
 };
 
 #endif
-

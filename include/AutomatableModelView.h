@@ -25,8 +25,8 @@
 #ifndef AUTOMATABLE_MODEL_VIEW_H
 #define AUTOMATABLE_MODEL_VIEW_H
 
-#include "ModelView.h"
 #include "AutomatableModel.h"
+#include "ModelView.h"
 
 class QMenu;
 class QMouseEvent;
@@ -34,57 +34,42 @@ class QMouseEvent;
 class EXPORT AutomatableModelView : public ModelView
 {
 public:
-	AutomatableModelView( Model* model, QWidget* _this );
+	AutomatableModelView( Model * model, QWidget * _this );
 	virtual ~AutomatableModelView();
 
 	// some basic functions for convenience
-	AutomatableModel* modelUntyped()
+	AutomatableModel * modelUntyped() { return castModel<AutomatableModel>(); }
+
+	const AutomatableModel * modelUntyped() const
 	{
 		return castModel<AutomatableModel>();
 	}
 
-	const AutomatableModel* modelUntyped() const
-	{
-		return castModel<AutomatableModel>();
-	}
+	virtual void setModel( Model * model, bool isOldModelValid = true );
 
-	virtual void setModel( Model* model, bool isOldModelValid = true );
-
-	template<typename T>
-	inline T value() const
+	template <typename T> inline T value() const
 	{
 		return modelUntyped() ? modelUntyped()->value<T>() : 0;
 	}
 
-	inline void setDescription( const QString& desc )
-	{
-		m_description = desc;
-	}
+	inline void setDescription( const QString & desc ) { m_description = desc; }
 
-	inline void setUnit( const QString& unit )
-	{
-		m_unit = unit;
-	}
+	inline void setUnit( const QString & unit ) { m_unit = unit; }
 
-	void addDefaultActions( QMenu* menu );
-
+	void addDefaultActions( QMenu * menu );
 
 protected:
-	virtual void mousePressEvent( QMouseEvent* event );
+	virtual void mousePressEvent( QMouseEvent * event );
 
 	QString m_description;
 	QString m_unit;
-
-} ;
-
-
-
+};
 
 class AutomatableModelViewSlots : public QObject
 {
 	Q_OBJECT
 public:
-	AutomatableModelViewSlots( AutomatableModelView* amv, QObject* parent );
+	AutomatableModelViewSlots( AutomatableModelView * amv, QObject * parent );
 
 public slots:
 	void execConnectionDialog();
@@ -93,40 +78,26 @@ public slots:
 	void unlinkAllModels();
 	void removeSongGlobalAutomation();
 
-
 protected:
-	AutomatableModelView* m_amv;
+	AutomatableModelView * m_amv;
+};
 
-} ;
+#define generateTypedModelView( type )                                         \
+	class EXPORT type##ModelView : public AutomatableModelView                 \
+	{                                                                          \
+	public:                                                                    \
+		type##ModelView( Model * model, QWidget * _this )                      \
+		    : AutomatableModelView( model, _this )                             \
+		{                                                                      \
+		}                                                                      \
+                                                                               \
+		type##Model * model() { return castModel<type##Model>(); }             \
+                                                                               \
+		const type##Model * model() const { return castModel<type##Model>(); } \
+	}
 
-
-
-
-#define generateTypedModelView(type)							\
-class EXPORT type##ModelView : public AutomatableModelView		\
-{																\
-public:															\
-	type##ModelView( Model* model, QWidget* _this ) :			\
-		AutomatableModelView( model, _this )					\
-	{															\
-	}															\
-																\
-	type##Model* model()										\
-	{															\
-		return castModel<type##Model>();						\
-	}															\
-																\
-	const type##Model* model() const							\
-	{															\
-		return castModel<type##Model>();						\
-	}															\
-}
-
-
-generateTypedModelView(Float);
-generateTypedModelView(Int);
-generateTypedModelView(Bool);
-
+generateTypedModelView( Float );
+generateTypedModelView( Int );
+generateTypedModelView( Bool );
 
 #endif
-

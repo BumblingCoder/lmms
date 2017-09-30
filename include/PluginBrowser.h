@@ -25,12 +25,11 @@
 #ifndef PLUGIN_BROWSER_H
 #define PLUGIN_BROWSER_H
 
-#include <QtCore/QTimer>
 #include <QPixmap>
+#include <QtCore/QTimer>
 
-#include "SideBarWidget.h"
 #include "Plugin.h"
-
+#include "SideBarWidget.h"
 
 class PluginBrowser : public SideBarWidget
 {
@@ -39,23 +38,16 @@ public:
 	PluginBrowser( QWidget * _parent );
 	virtual ~PluginBrowser();
 
-
 private:
 	QWidget * m_view;
 };
-
-
-
 
 class PluginDescList : public QWidget
 {
 	Q_OBJECT
 public:
-	PluginDescList(QWidget* parent);
+	PluginDescList( QWidget * parent );
 };
-
-
-
 
 class PluginDescWidget : public QWidget
 {
@@ -64,17 +56,14 @@ public:
 	PluginDescWidget( const Plugin::Descriptor & _pd, QWidget * _parent );
 	virtual ~PluginDescWidget();
 
-
 protected:
 	virtual void enterEvent( QEvent * _e );
 	virtual void leaveEvent( QEvent * _e );
 	virtual void mousePressEvent( QMouseEvent * _me );
 	virtual void paintEvent( QPaintEvent * _pe );
 
-
 private slots:
 	void updateHeight();
-
 
 private:
 	QTimer m_updateTimer;
@@ -84,8 +73,6 @@ private:
 
 	bool m_mouseOver;
 	int m_targetHeight;
-
 };
-
 
 #endif

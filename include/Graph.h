@@ -23,20 +23,18 @@
  *
  */
 
-
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <QWidget>
-#include <QPixmap>
 #include <QCursor>
+#include <QPixmap>
+#include <QWidget>
 
 #include "Model.h"
 #include "ModelView.h"
 #include "lmms_basics.h"
 
 class graphModel;
-
 
 class EXPORT Graph : public QWidget, public ModelView
 {
@@ -52,33 +50,22 @@ public:
 	};
 
 	Graph( QWidget * _parent, graphStyle _style = Graph::LinearStyle,
-		int _width = 132,
-		int _height = 104
-	);
+	       int _width = 132, int _height = 104 );
 	virtual ~Graph();
 
 	void setForeground( const QPixmap & _pixmap );
 
-
 	void setGraphColor( const QColor );
 
-	inline graphModel * model()
-	{
-		return castModel<graphModel>();
-	}
+	inline graphModel * model() { return castModel<graphModel>(); }
 
-	inline graphStyle getGraphStyle()
-	{
-		return m_graphStyle;
-	}
-
+	inline graphStyle getGraphStyle() { return m_graphStyle; }
 
 	inline void setGraphStyle( graphStyle _s )
 	{
 		m_graphStyle = _s;
 		update();
 	}
-
 
 protected:
 	virtual void paintEvent( QPaintEvent * _pe );
@@ -98,7 +85,6 @@ private:
 	void changeSampleAt( int _x, int _y );
 	void drawLineAt( int _x, int _y, int _lastx );
 
-
 	QPixmap m_foreground;
 	QColor m_graphColor;
 
@@ -106,44 +92,26 @@ private:
 
 	bool m_mouseDown;
 	int m_lastCursorX;
-
-} ;
-
+};
 
 class EXPORT graphModel : public Model
 {
 	Q_OBJECT
 public:
-	graphModel( float _min,
-			float _max,
-			int _size,
-			:: Model * _parent,
-			bool _default_constructed = false,
-			float _step = 0.0 );
+	graphModel( float _min, float _max, int _size, ::Model * _parent,
+	            bool _default_constructed = false, float _step = 0.0 );
 
 	virtual ~graphModel();
 
 	// TODO: saveSettings, loadSettings?
 
-	inline float minValue() const
-	{
-		return( m_minValue );
-	}
+	inline float minValue() const { return ( m_minValue ); }
 
-	inline float maxValue() const
-	{
-		return( m_maxValue );
-	}
+	inline float maxValue() const { return ( m_maxValue ); }
 
-	inline int length() const
-	{
-		return m_length;
-	}
+	inline int length() const { return m_length; }
 
-	inline const float * samples() const
-	{
-		return( m_samples.data() );
-	}
+	inline const float * samples() const { return ( m_samples.data() ); }
 
 public slots:
 	void setRange( float _min, float _max );
@@ -158,7 +126,7 @@ public slots:
 	void setWaveToSaw();
 	void setWaveToSquare();
 	void setWaveToNoise();
-	QString setWaveToUser( );
+	QString setWaveToUser();
 
 	void smooth();
 	void smoothNonCyclic();
@@ -181,7 +149,6 @@ private:
 	float m_step;
 
 	friend class Graph;
-
 };
 
 #endif

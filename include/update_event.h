@@ -22,23 +22,15 @@
  *
  */
 
-
 #ifndef UPDATE_EVENT_H
 #define UPDATE_EVENT_H
 
 #include "custom_events.h"
 
-
-
 class updateEvent : public QEvent
 {
 public:
-	updateEvent() :
-		QEvent( (QEvent::Type)customEvents::GUI_UPDATE )
-	{
-	}
-
-} ;
-
+	updateEvent() : QEvent( (QEvent::Type) customEvents::GUI_UPDATE ) {}
+};
 
 #endif

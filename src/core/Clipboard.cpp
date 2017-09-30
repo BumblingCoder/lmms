@@ -25,9 +25,7 @@
 #include "Clipboard.h"
 #include "JournallingObject.h"
 
-
 Clipboard::Map Clipboard::content;
-
 
 void Clipboard::copy( JournallingObject * _obj )
 {
@@ -37,9 +35,6 @@ void Clipboard::copy( JournallingObject * _obj )
 	content[_obj->nodeName()] = parent.firstChild().toElement();
 }
 
-
-
-
 const QDomElement * Clipboard::getContent( const QString & _node_name )
 {
 	if( content.find( _node_name ) != content.end() )
@@ -48,6 +43,3 @@ const QDomElement * Clipboard::getContent( const QString & _node_name )
 	}
 	return NULL;
 }
-
-
-

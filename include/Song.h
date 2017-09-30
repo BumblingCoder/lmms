@@ -2,7 +2,7 @@
  * Song.h - class song - the root of the model-tree
  *
  * Copyright (c) 2004-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -30,29 +30,29 @@
 #include <QtCore/QSharedMemory>
 #include <QtCore/QVector>
 
-#include "TrackContainer.h"
 #include "Controller.h"
 #include "MeterModel.h"
+#include "TrackContainer.h"
 #include "VstSyncController.h"
-
 
 class AutomationTrack;
 class Pattern;
 class TimeLineWidget;
-
 
 const bpm_t MinTempo = 10;
 const bpm_t DefaultTempo = 140;
 const bpm_t MaxTempo = 999;
 const tick_t MaxSongLength = 9999 * DefaultTicksPerTact;
 
-
 class EXPORT Song : public TrackContainer
 {
 	Q_OBJECT
-	mapPropertyFromModel( int,getTempo,setTempo,m_tempoModel );
-	mapPropertyFromModel( int,masterPitch,setMasterPitch,m_masterPitchModel );
-	mapPropertyFromModel( int,masterVolume,setMasterVolume, m_masterVolumeModel );
+	mapPropertyFromModel( int, getTempo, setTempo, m_tempoModel );
+	mapPropertyFromModel( int, masterPitch, setMasterPitch,
+	                      m_masterPitchModel );
+	mapPropertyFromModel( int, masterVolume, setMasterVolume,
+	                      m_masterVolumeModel );
+
 public:
 	enum PlayModes
 	{
@@ -62,7 +62,7 @@ public:
 		Mode_PlayPattern,
 		Mode_PlayAutomationPattern,
 		Mode_Count
-	} ;
+	};
 
 	void clearErrors();
 	void collectError( const QString error );
@@ -72,75 +72,46 @@ public:
 	class PlayPos : public MidiTime
 	{
 	public:
-		PlayPos( const int abs = 0 ) :
-			MidiTime( abs ),
-			m_timeLine( NULL ),
-			m_currentFrame( 0.0f )
+		PlayPos( const int abs = 0 )
+		    : MidiTime( abs ), m_timeLine( NULL ), m_currentFrame( 0.0f )
 		{
 		}
-		inline void setCurrentFrame( const float f )
-		{
-			m_currentFrame = f;
-		}
-		inline float currentFrame() const
-		{
-			return m_currentFrame;
-		}
+		inline void setCurrentFrame( const float f ) { m_currentFrame = f; }
+		inline float currentFrame() const { return m_currentFrame; }
 		TimeLineWidget * m_timeLine;
 
 	private:
 		float m_currentFrame;
-
-	} ;
-
-
+	};
 
 	void processNextBuffer();
 
-	inline int getLoadingTrackCount() const
-	{
-		return m_nLoadingTrack;
-	}
-	inline int getMilliseconds() const
-	{
-		return m_elapsedMilliSeconds;
-	}
+	inline int getLoadingTrackCount() const { return m_nLoadingTrack; }
+	inline int getMilliseconds() const { return m_elapsedMilliSeconds; }
 	inline void setMilliSeconds( float ellapsedMilliSeconds )
 	{
 		m_elapsedMilliSeconds = ellapsedMilliSeconds;
 	}
-	inline int getTacts() const
-	{
-		return currentTact();
-	}
+	inline int getTacts() const { return currentTact(); }
 
 	inline int ticksPerTact() const
 	{
-		return MidiTime::ticksPerTact(m_timeSigModel);
+		return MidiTime::ticksPerTact( m_timeSigModel );
 	}
 
 	// Returns the beat position inside the bar, 0-based
 	inline int getBeat() const
 	{
-		return getPlayPos().getBeatWithinBar(m_timeSigModel);
+		return getPlayPos().getBeatWithinBar( m_timeSigModel );
 	}
 	// the remainder after bar and beat are removed
 	inline int getBeatTicks() const
 	{
-		return getPlayPos().getTickWithinBeat(m_timeSigModel);
+		return getPlayPos().getTickWithinBeat( m_timeSigModel );
 	}
-	inline int getTicks() const
-	{
-		return currentTick();
-	}
-	inline f_cnt_t getFrames() const
-	{
-		return currentFrame();
-	}
-	inline bool isPaused() const
-	{
-		return m_paused;
-	}
+	inline int getTicks() const { return currentTick(); }
+	inline f_cnt_t getFrames() const { return currentFrame(); }
+	inline bool isPaused() const { return m_paused; }
 
 	inline bool isPlaying() const
 	{
@@ -152,20 +123,11 @@ public:
 		return m_playing == false && m_paused == false;
 	}
 
-	inline bool isExporting() const
-	{
-		return m_exporting;
-	}
+	inline bool isExporting() const { return m_exporting; }
 
-	inline void setExportLoop( bool exportLoop )
-	{
-		m_exportLoop = exportLoop;
-	}
+	inline void setExportLoop( bool exportLoop ) { m_exportLoop = exportLoop; }
 
-	inline bool isRecording() const
-	{
-		return m_recording;
-	}
+	inline bool isRecording() const { return m_recording; }
 
 	bool isExportDone() const;
 	std::pair<MidiTime, MidiTime> getExportEndpoints() const;
@@ -175,30 +137,20 @@ public:
 		m_renderBetweenMarkers = renderBetweenMarkers;
 	}
 
-	inline PlayModes playMode() const
-	{
-		return m_playMode;
-	}
+	inline PlayModes playMode() const { return m_playMode; }
 
-	inline PlayPos & getPlayPos( PlayModes pm )
-	{
-		return m_playPos[pm];
-	}
+	inline PlayPos & getPlayPos( PlayModes pm ) { return m_playPos[pm]; }
 	inline const PlayPos & getPlayPos( PlayModes pm ) const
 	{
 		return m_playPos[pm];
 	}
 	inline const PlayPos & getPlayPos() const
 	{
-		return getPlayPos(m_playMode);
+		return getPlayPos( m_playMode );
 	}
 
 	void updateLength();
-	tact_t length() const
-	{
-		return m_length;
-	}
-
+	tact_t length() const { return m_length; }
 
 	bpm_t getTempo();
 	virtual AutomationPattern * tempoAutomationPattern();
@@ -208,8 +160,8 @@ public:
 		return m_globalAutomationTrack;
 	}
 
-	//TODO: Add Q_DECL_OVERRIDE when Qt4 is dropped
-	AutomatedValueMap automatedValuesAt(MidiTime time, int tcoNum = -1) const;
+	// TODO: Add Q_DECL_OVERRIDE when Qt4 is dropped
+	AutomatedValueMap automatedValuesAt( MidiTime time, int tcoNum = -1 ) const;
 
 	// file management
 	void createNewProject();
@@ -219,46 +171,22 @@ public:
 	bool guiSaveProjectAs( const QString & filename );
 	bool saveProjectFile( const QString & filename );
 
-	const QString & projectFileName() const
-	{
-		return m_fileName;
-	}
+	const QString & projectFileName() const { return m_fileName; }
 
-	bool isLoadingProject() const
-	{
-		return m_loadingProject;
-	}
+	bool isLoadingProject() const { return m_loadingProject; }
 
-	bool isModified() const
-	{
-		return m_modified;
-	}
+	bool isModified() const { return m_modified; }
 
-	virtual QString nodeName() const
-	{
-		return "song";
-	}
+	virtual QString nodeName() const { return "song"; }
 
-	virtual bool fixedTCOs() const
-	{
-		return false;
-	}
+	virtual bool fixedTCOs() const { return false; }
 
 	void addController( Controller * c );
 	void removeController( Controller * c );
-	
 
-	const ControllerVector & controllers() const
-	{
-		return m_controllers;
-	}
+	const ControllerVector & controllers() const { return m_controllers; }
 
-
-	MeterModel & getTimeSigModel()
-	{
-		return m_timeSigModel;
-	}
-
+	MeterModel & getTimeSigModel() { return m_timeSigModel; }
 
 public slots:
 	void playSong();
@@ -277,13 +205,11 @@ public slots:
 	void startExport();
 	void stopExport();
 
-
 	void setModified();
 
 	void clearProject();
 
 	void addBBTrack();
-
 
 private slots:
 	void insertBar();
@@ -300,13 +226,10 @@ private slots:
 
 	void updateFramesPerTick();
 
-
-
 private:
 	Song();
 	Song( const Song & );
 	virtual ~Song();
-
 
 	inline tact_t currentTact() const
 	{
@@ -317,13 +240,13 @@ private:
 	{
 		return m_playPos[m_playMode].getTicks();
 	}
-	
+
 	inline f_cnt_t currentFrame() const
 	{
-		return m_playPos[m_playMode].getTicks() * Engine::framesPerTick() + 
-			m_playPos[m_playMode].currentFrame();
+		return m_playPos[m_playMode].getTicks() * Engine::framesPerTick() +
+		       m_playPos[m_playMode].currentFrame();
 	}
-	
+
 	void setPlayPos( tick_t ticks, PlayModes playMode );
 
 	void saveControllerStates( QDomDocument & doc, QDomElement & element );
@@ -331,7 +254,8 @@ private:
 
 	void removeAllControllers();
 
-	void processAutomations(const TrackList& tracks, MidiTime timeStart, fpp_t frames);
+	void processAutomations( const TrackList & tracks, MidiTime timeStart,
+	                         fpp_t frames );
 
 	AutomationTrack * m_globalAutomationTrack;
 
@@ -365,7 +289,7 @@ private:
 	PlayPos m_playPos[Mode_Count];
 	tact_t m_length;
 
-	const Pattern* m_patternToPlay;
+	const Pattern * m_patternToPlay;
 	bool m_loopPattern;
 
 	double m_elapsedMilliSeconds;
@@ -373,7 +297,6 @@ private:
 	tact_t m_elapsedTacts;
 
 	VstSyncController m_vstSyncController;
-
 
 	friend class LmmsCore;
 	friend class SongEditor;
@@ -390,8 +313,6 @@ signals:
 	void controllerAdded( Controller * );
 	void controllerRemoved( Controller * );
 	void updateSampleTracks();
-
-} ;
-
+};
 
 #endif

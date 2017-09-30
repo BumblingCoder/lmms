@@ -30,21 +30,18 @@
 
 #include "ModelView.h"
 
-
 class GroupBox;
 class LcdSpinBox;
 class QToolButton;
 class LedCheckBox;
 class InstrumentTrack;
 
-
 class InstrumentMidiIOView : public QWidget, public ModelView
 {
 	Q_OBJECT
 public:
-	InstrumentMidiIOView( QWidget* parent );
+	InstrumentMidiIOView( QWidget * parent );
 	virtual ~InstrumentMidiIOView();
-
 
 private:
 	virtual void modelChanged();
@@ -61,26 +58,20 @@ private:
 	LcdSpinBox * m_fixedOutputNoteSpinBox;
 	QToolButton * m_wpBtn;
 
-	LcdSpinBox* m_baseVelocitySpinBox;
-
-} ;
+	LcdSpinBox * m_baseVelocitySpinBox;
+};
 
 class InstrumentMiscView : public QWidget
 {
 	Q_OBJECT
 public:
-	InstrumentMiscView( InstrumentTrack *it, QWidget* parent );
+	InstrumentMiscView( InstrumentTrack * it, QWidget * parent );
 	~InstrumentMiscView();
 
-	GroupBox * pitchGroupBox()
-	{
-		return m_pitchGroupBox;
-	}
+	GroupBox * pitchGroupBox() { return m_pitchGroupBox; }
 
 private:
-
 	GroupBox * m_pitchGroupBox;
-
 };
 
 #endif

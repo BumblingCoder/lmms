@@ -28,22 +28,14 @@
 
 #include <QtCore/QMutex>
 
-
 class sharedObject
 {
 public:
-	sharedObject() :
-		m_referenceCount( 1 ),
-		m_lock()
-	{
-	}
+	sharedObject() : m_referenceCount( 1 ), m_lock() {}
 
-	virtual ~sharedObject()
-	{
-	}
+	virtual ~sharedObject() {}
 
-	template<class T>
-	static T* ref( T* object )
+	template <class T> static T * ref( T * object )
 	{
 		object->m_lock.lock();
 		// TODO: Use QShared
@@ -52,33 +44,24 @@ public:
 		return object;
 	}
 
-	template<class T>
-	static void unref( T* object )
+	template <class T> static void unref( T * object )
 	{
 		object->m_lock.lock();
 		bool deleteObject = --object->m_referenceCount <= 0;
 		object->m_lock.unlock();
 
-		if ( deleteObject )
+		if( deleteObject )
 		{
 			delete object;
 		}
 	}
 
 	// keep clang happy which complaines about unused member variable
-	void dummy()
-	{
-		m_referenceCount = 0;
-	}
+	void dummy() { m_referenceCount = 0; }
 
 private:
 	int m_referenceCount;
 	QMutex m_lock;
-
-} ;
-
-
-
+};
 
 #endif
-

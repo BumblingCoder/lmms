@@ -23,38 +23,24 @@
  *
  */
 
-#include <QMessageBox>
 #include <QCloseEvent>
+#include <QMessageBox>
 
 #include "EffectControlDialog.h"
 #include "EffectControls.h"
 
-
-EffectControlDialog::EffectControlDialog( EffectControls * _controls ) :
-	QWidget( NULL ),
-	ModelView( _controls, this ),
-	m_effectControls( _controls )
+EffectControlDialog::EffectControlDialog( EffectControls * _controls )
+    : QWidget( NULL ),
+      ModelView( _controls, this ),
+      m_effectControls( _controls )
 {
 	setWindowTitle( m_effectControls->effect()->displayName() );
 }
 
-
-
-
-EffectControlDialog::~EffectControlDialog()
-{
-}
-
-
-
+EffectControlDialog::~EffectControlDialog() {}
 
 void EffectControlDialog::closeEvent( QCloseEvent * _ce )
 {
 	_ce->ignore();
 	emit closed();
 }
-
-
-
-
-

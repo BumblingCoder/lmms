@@ -28,15 +28,13 @@
 #include "lmmsconfig.h"
 
 #ifdef LMMS_BUILD_WIN32
-#include <windows.h>
 #include <mmsystem.h>
+#include <windows.h>
 
 #include "MidiClient.h"
 #include "MidiPort.h"
 
-
 class QLineEdit;
-
 
 class MidiWinMM : public QObject, public MidiClient
 {
@@ -50,7 +48,6 @@ public:
 		return QString::Null(); // no midi device name
 	}
 
-
 	inline static QString name()
 	{
 		return QT_TRANSLATE_NOOP( "MidiSetupWidget", "WinMM MIDI" );
@@ -61,15 +58,11 @@ public:
 		return QString::Null(); // no configuration settings
 	}
 
-
-
-	virtual void processOutEvent( const MidiEvent & _me,
-						const MidiTime & _time,
-						const MidiPort * _port );
+	virtual void processOutEvent( const MidiEvent & _me, const MidiTime & _time,
+	                              const MidiPort * _port );
 
 	virtual void applyPortMode( MidiPort * _port );
 	virtual void removePort( MidiPort * _port );
-
 
 	// list devices as ports
 	virtual QStringList readablePorts() const
@@ -86,44 +79,33 @@ public:
 	virtual QString sourcePortName( const MidiEvent & ) const;
 
 	// (un)subscribe given MidiPort to/from destination-port
-	virtual void subscribeReadablePort( MidiPort * _port,
-						const QString & _dest,
-						bool _subscribe = true );
-	virtual void subscribeWritablePort( MidiPort * _port,
-						const QString & _dest,
-						bool _subscribe = true );
-	virtual void connectRPChanged( QObject * _receiver,
-							const char * _member )
+	virtual void subscribeReadablePort( MidiPort * _port, const QString & _dest,
+	                                    bool _subscribe = true );
+	virtual void subscribeWritablePort( MidiPort * _port, const QString & _dest,
+	                                    bool _subscribe = true );
+	virtual void connectRPChanged( QObject * _receiver, const char * _member )
 	{
-		connect( this, SIGNAL( readablePortsChanged() ),
-							_receiver, _member );
+		connect( this, SIGNAL( readablePortsChanged() ), _receiver, _member );
 	}
 
-	virtual void connectWPChanged( QObject * _receiver,
-							const char * _member )
+	virtual void connectWPChanged( QObject * _receiver, const char * _member )
 	{
-		connect( this, SIGNAL( writablePortsChanged() ),
-							_receiver, _member );
+		connect( this, SIGNAL( writablePortsChanged() ), _receiver, _member );
 	}
 
-	virtual bool isRaw() const
-	{
-		return false;
-	}
+	virtual bool isRaw() const { return false; }
 
-
-private:// slots:
+private: // slots:
 	void updateDeviceList();
-
 
 private:
 	void openDevices();
 	void closeDevices();
 
 	static void WINAPI CALLBACK inputCallback( HMIDIIN _hm, UINT _msg,
-						DWORD_PTR _inst,
-						DWORD_PTR _param1,
-							DWORD_PTR _param2 );
+	                                           DWORD_PTR _inst,
+	                                           DWORD_PTR _param1,
+	                                           DWORD_PTR _param2 );
 	void handleInputEvent( HMIDIIN _hm, DWORD _ev );
 
 	QMap<HMIDIIN, QString> m_inputDevices;
@@ -134,14 +116,11 @@ private:
 	SubMap m_inputSubs;
 	SubMap m_outputSubs;
 
-
 signals:
 	void readablePortsChanged();
 	void writablePortsChanged();
-
-} ;
-
-#endif
+};
 
 #endif
 
+#endif

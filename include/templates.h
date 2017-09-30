@@ -22,18 +22,14 @@
  *
  */
 
-
 #ifndef TEMPLATES_H
 #define TEMPLATES_H
 
 #include <QtCore/QtAlgorithms>
 
-
-template<class T>
-inline T tLimit( const T x, const T x1, const T x2 )
+template <class T> inline T tLimit( const T x, const T x1, const T x2 )
 {
 	return qBound( x1, x, x2 );
 }
-
 
 #endif

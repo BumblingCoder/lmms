@@ -26,16 +26,10 @@
 
 #include "ModelView.h"
 
-
-
-ModelView::ModelView( Model* model, QWidget* widget ) :
-	m_widget( widget ),
-	m_model( model )
+ModelView::ModelView( Model * model, QWidget * widget )
+    : m_widget( widget ), m_model( model )
 {
 }
-
-
-
 
 ModelView::~ModelView()
 {
@@ -45,10 +39,7 @@ ModelView::~ModelView()
 	}
 }
 
-
-
-
-void ModelView::setModel( Model* model, bool isOldModelValid )
+void ModelView::setModel( Model * model, bool isOldModelValid )
 {
 	if( isOldModelValid && m_model != NULL )
 	{
@@ -71,16 +62,13 @@ void ModelView::setModel( Model* model, bool isOldModelValid )
 	modelChanged();
 }
 
-
-
-
 void ModelView::doConnections()
 {
 	if( m_model != NULL )
 	{
-		QObject::connect( m_model, SIGNAL( dataChanged() ), widget(), SLOT( update() ) );
-		QObject::connect( m_model, SIGNAL( propertiesChanged() ), widget(), SLOT( update() ) );
+		QObject::connect( m_model, SIGNAL( dataChanged() ), widget(),
+		                  SLOT( update() ) );
+		QObject::connect( m_model, SIGNAL( propertiesChanged() ), widget(),
+		                  SLOT( update() ) );
 	}
 }
-
-

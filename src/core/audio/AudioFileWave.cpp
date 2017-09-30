@@ -24,30 +24,18 @@
  */
 
 #include "AudioFileWave.h"
-#include "endian_handling.h"
 #include "Mixer.h"
-
+#include "endian_handling.h"
 
 AudioFileWave::AudioFileWave( OutputSettings const & outputSettings,
-				const ch_cnt_t channels, bool & successful,
-				const QString & file,
-				Mixer* mixer ) :
-	AudioFileDevice( outputSettings, channels, file, mixer ),
-	m_sf( NULL )
+                              const ch_cnt_t channels, bool & successful,
+                              const QString & file, Mixer * mixer )
+    : AudioFileDevice( outputSettings, channels, file, mixer ), m_sf( NULL )
 {
 	successful = outputFileOpened() && startEncoding();
 }
 
-
-
-
-AudioFileWave::~AudioFileWave()
-{
-	finishEncoding();
-}
-
-
-
+AudioFileWave::~AudioFileWave() { finishEncoding(); }
 
 bool AudioFileWave::startEncoding()
 {
@@ -61,51 +49,48 @@ bool AudioFileWave::startEncoding()
 
 	switch( getOutputSettings().getBitDepth() )
 	{
-	case OutputSettings::Depth_32Bit:
-		m_si.format |= SF_FORMAT_FLOAT;
-		break;
-	case OutputSettings::Depth_24Bit:
-		m_si.format |= SF_FORMAT_PCM_24;
-		break;
-	case OutputSettings::Depth_16Bit:
-	default:
-		m_si.format |= SF_FORMAT_PCM_16;
-		break;
+		case OutputSettings::Depth_32Bit:
+			m_si.format |= SF_FORMAT_FLOAT;
+			break;
+		case OutputSettings::Depth_24Bit:
+			m_si.format |= SF_FORMAT_PCM_24;
+			break;
+		case OutputSettings::Depth_16Bit:
+		default:
+			m_si.format |= SF_FORMAT_PCM_16;
+			break;
 	}
 	m_sf = sf_open(
 #ifdef LMMS_BUILD_WIN32
-					outputFile().toLocal8Bit().constData(),
+	    outputFile().toLocal8Bit().constData(),
 #else
-					outputFile().toUtf8().constData(),
+	    outputFile().toUtf8().constData(),
 #endif
-					SFM_WRITE, &m_si );
+	    SFM_WRITE, &m_si );
 
 	// Prevent fold overs when encountering clipped data
-	sf_command(m_sf, SFC_SET_CLIPPING, NULL, SF_TRUE);
+	sf_command( m_sf, SFC_SET_CLIPPING, NULL, SF_TRUE );
 
-	sf_set_string ( m_sf, SF_STR_SOFTWARE, "LMMS" );
+	sf_set_string( m_sf, SF_STR_SOFTWARE, "LMMS" );
 
 	return true;
 }
 
-
-
-
 void AudioFileWave::writeBuffer( const surroundSampleFrame * _ab,
-						const fpp_t _frames,
-						const float _master_gain )
+                                 const fpp_t _frames, const float _master_gain )
 {
 	OutputSettings::BitDepth bitDepth = getOutputSettings().getBitDepth();
 
-	if( bitDepth == OutputSettings::Depth_32Bit || bitDepth == OutputSettings::Depth_24Bit )
+	if( bitDepth == OutputSettings::Depth_32Bit ||
+	    bitDepth == OutputSettings::Depth_24Bit )
 	{
-		float *  buf = new float[_frames*channels()];
+		float * buf = new float[_frames * channels()];
 		for( fpp_t frame = 0; frame < _frames; ++frame )
 		{
 			for( ch_cnt_t chnl = 0; chnl < channels(); ++chnl )
 			{
-				buf[frame*channels()+chnl] = _ab[frame][chnl] *
-								_master_gain;
+				buf[frame * channels() + chnl] =
+				    _ab[frame][chnl] * _master_gain;
 			}
 		}
 		sf_writef_float( m_sf, buf, _frames );
@@ -114,16 +99,12 @@ void AudioFileWave::writeBuffer( const surroundSampleFrame * _ab,
 	else
 	{
 		int_sample_t * buf = new int_sample_t[_frames * channels()];
-		convertToS16( _ab, _frames, _master_gain, buf,
-							!isLittleEndian() );
+		convertToS16( _ab, _frames, _master_gain, buf, !isLittleEndian() );
 
 		sf_writef_short( m_sf, buf, _frames );
 		delete[] buf;
 	}
 }
-
-
-
 
 void AudioFileWave::finishEncoding()
 {
@@ -132,4 +113,3 @@ void AudioFileWave::finishEncoding()
 		sf_close( m_sf );
 	}
 }
-

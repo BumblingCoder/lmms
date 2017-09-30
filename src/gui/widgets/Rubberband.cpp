@@ -23,30 +23,19 @@
  *
  */
 
-
 #include "Rubberband.h"
 
-
-RubberBand::RubberBand( QWidget * _parent ) :
-	QRubberBand( Rectangle, _parent )
+RubberBand::RubberBand( QWidget * _parent ) : QRubberBand( Rectangle, _parent )
 {
 }
 
-
-
-
-RubberBand::~RubberBand()
-{
-}
-
-
-
+RubberBand::~RubberBand() {}
 
 QVector<selectableObject *> RubberBand::selectedObjects() const
 {
 	QVector<selectableObject *> so = selectableObjects();
 	for( QVector<selectableObject *>::iterator it = so.begin();
-							it != so.end(); )
+	     it != so.end(); )
 	{
 		if( ( *it )->isSelected() == false )
 		{
@@ -57,11 +46,8 @@ QVector<selectableObject *> RubberBand::selectedObjects() const
 			++it;
 		}
 	}
-	return( so );
+	return ( so );
 }
-
-
-
 
 void RubberBand::resizeEvent( QResizeEvent * _re )
 {
@@ -70,40 +56,31 @@ void RubberBand::resizeEvent( QResizeEvent * _re )
 	{
 		QVector<selectableObject *> so = selectableObjects();
 		for( QVector<selectableObject *>::iterator it = so.begin();
-								it != so.end(); ++it )
+		     it != so.end(); ++it )
 		{
-			( *it )->setSelected( QRect( pos(), size() ).intersects(
-					QRect( ( *it )->mapTo( parentWidget(),
-									QPoint() ),
-								( *it )->size() ) ) );
+			( *it )->setSelected(
+			    QRect( pos(), size() )
+			        .intersects(
+			            QRect( ( *it )->mapTo( parentWidget(), QPoint() ),
+			                   ( *it )->size() ) ) );
 		}
 	}
 }
-
-
-
 
 QVector<selectableObject *> RubberBand::selectableObjects() const
 {
 	QVector<selectableObject *> so;
 	if( parentWidget() == NULL )
 	{
-		return( so );
+		return ( so );
 	}
 
 	QList<selectableObject *> l =
-			parentWidget()->findChildren<selectableObject *>();
+	    parentWidget()->findChildren<selectableObject *>();
 	for( QList<selectableObject *>::iterator it = l.begin(); it != l.end();
-									++it )
+	     ++it )
 	{
 		so.push_back( *it );
 	}
-	return( so );
+	return ( so );
 }
-
-
-
-
-
-
-

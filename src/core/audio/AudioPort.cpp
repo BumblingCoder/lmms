@@ -24,33 +24,29 @@
 
 #include "AudioPort.h"
 #include "AudioDevice.h"
-#include "EffectChain.h"
-#include "FxMixer.h"
-#include "Engine.h"
-#include "Mixer.h"
-#include "MixHelpers.h"
 #include "BufferManager.h"
-
+#include "EffectChain.h"
+#include "Engine.h"
+#include "FxMixer.h"
+#include "MixHelpers.h"
+#include "Mixer.h"
 
 AudioPort::AudioPort( const QString & _name, bool _has_effect_chain,
-		FloatModel * volumeModel, FloatModel * panningModel,
-		BoolModel * mutedModel ) :
-	m_bufferUsage( false ),
-	m_portBuffer( BufferManager::acquire() ),
-	m_extOutputEnabled( false ),
-	m_nextFxChannel( 0 ),
-	m_name( "unnamed port" ),
-	m_effects( _has_effect_chain ? new EffectChain( NULL ) : NULL ),
-	m_volumeModel( volumeModel ),
-	m_panningModel( panningModel ),
-	m_mutedModel( mutedModel )
+                      FloatModel * volumeModel, FloatModel * panningModel,
+                      BoolModel * mutedModel )
+    : m_bufferUsage( false ),
+      m_portBuffer( BufferManager::acquire() ),
+      m_extOutputEnabled( false ),
+      m_nextFxChannel( 0 ),
+      m_name( "unnamed port" ),
+      m_effects( _has_effect_chain ? new EffectChain( NULL ) : NULL ),
+      m_volumeModel( volumeModel ),
+      m_panningModel( panningModel ),
+      m_mutedModel( mutedModel )
 {
 	Engine::mixer()->addAudioPort( this );
 	setExtOutputEnabled( true );
 }
-
-
-
 
 AudioPort::~AudioPort()
 {
@@ -59,9 +55,6 @@ AudioPort::~AudioPort()
 	delete m_effects;
 	BufferManager::release( m_portBuffer );
 }
-
-
-
 
 void AudioPort::setExtOutputEnabled( bool _enabled )
 {
@@ -79,28 +72,22 @@ void AudioPort::setExtOutputEnabled( bool _enabled )
 	}
 }
 
-
-
-
 void AudioPort::setName( const QString & _name )
 {
 	m_name = _name;
 	Engine::mixer()->audioDev()->renamePort( this );
 }
 
-
-
-
 bool AudioPort::processEffects()
 {
 	if( m_effects )
 	{
-		bool more = m_effects->processAudioBuffer( m_portBuffer, Engine::mixer()->framesPerPeriod(), m_bufferUsage );
+		bool more = m_effects->processAudioBuffer(
+		    m_portBuffer, Engine::mixer()->framesPerPeriod(), m_bufferUsage );
 		return more;
 	}
 	return false;
 }
-
 
 void AudioPort::doProcessing()
 {
@@ -114,8 +101,9 @@ void AudioPort::doProcessing()
 	// clear the buffer
 	BufferManager::clear( m_portBuffer, fpp );
 
-	//qDebug( "Playhandles: %d", m_playHandles.size() );
-	for( PlayHandle * ph : m_playHandles ) // now we mix all playhandle buffers into the audioport buffer
+	// qDebug( "Playhandles: %d", m_playHandles.size() );
+	for( PlayHandle * ph : m_playHandles ) // now we mix all playhandle buffers
+	                                       // into the audioport buffer
 	{
 		if( ph->buffer() )
 		{
@@ -124,8 +112,9 @@ void AudioPort::doProcessing()
 				m_bufferUsage = true;
 				MixHelpers::add( m_portBuffer, ph->buffer(), fpp );
 			}
-			ph->releaseBuffer(); 	// gets rid of playhandle's buffer and sets
-									// pointer to null, so if it doesn't get re-acquired we know to skip it next time
+			ph->releaseBuffer(); // gets rid of playhandle's buffer and sets
+			                     // pointer to null, so if it doesn't get
+			                     // re-acquired we know to skip it next time
 		}
 	}
 
@@ -143,8 +132,8 @@ void AudioPort::doProcessing()
 			{
 				for( f_cnt_t f = 0; f < fpp; ++f )
 				{
-					float v = volBuf->values()[ f ] * 0.01f;
-					float p = panBuf->values()[ f ] * 0.01f;
+					float v = volBuf->values()[f] * 0.01f;
+					float p = panBuf->values()[f] * 0.01f;
 					m_portBuffer[f][0] *= ( p <= 0 ? 1.0f : 1.0f - p ) * v;
 					m_portBuffer[f][1] *= ( p >= 0 ? 1.0f : 1.0f + p ) * v;
 				}
@@ -158,7 +147,7 @@ void AudioPort::doProcessing()
 				float r = ( p >= 0 ? 1.0f : 1.0f + p );
 				for( f_cnt_t f = 0; f < fpp; ++f )
 				{
-					float v = volBuf->values()[ f ] * 0.01f;
+					float v = volBuf->values()[f] * 0.01f;
 					m_portBuffer[f][0] *= v * l;
 					m_portBuffer[f][1] *= v * r;
 				}
@@ -170,7 +159,7 @@ void AudioPort::doProcessing()
 				float v = m_volumeModel->value() * 0.01f;
 				for( f_cnt_t f = 0; f < fpp; ++f )
 				{
-					float p = panBuf->values()[ f ] * 0.01f;
+					float p = panBuf->values()[f] * 0.01f;
 					m_portBuffer[f][0] *= ( p <= 0 ? 1.0f : 1.0f - p ) * v;
 					m_portBuffer[f][1] *= ( p >= 0 ? 1.0f : 1.0f + p ) * v;
 				}
@@ -198,7 +187,7 @@ void AudioPort::doProcessing()
 			{
 				for( f_cnt_t f = 0; f < fpp; ++f )
 				{
-					float v = volBuf->values()[ f ] * 0.01f;
+					float v = volBuf->values()[f] * 0.01f;
 					m_portBuffer[f][0] *= v;
 					m_portBuffer[f][1] *= v;
 				}
@@ -214,35 +203,40 @@ void AudioPort::doProcessing()
 			}
 		}
 	}
-	// as of now there's no situation where we only have panning model but no volume model
-	// if we have neither, we don't have to do anything here - just pass the audio as is
+	// as of now there's no situation where we only have panning model but no
+	// volume model if we have neither, we don't have to do anything here - just
+	// pass the audio as is
 
 	// handle effects
 	const bool me = processEffects();
 	if( me || m_bufferUsage )
 	{
-		Engine::fxMixer()->mixToChannel( m_portBuffer, m_nextFxChannel ); 	// send output to fx mixer
-																			// TODO: improve the flow here - convert to pull model
+		Engine::fxMixer()->mixToChannel(
+		    m_portBuffer,
+		    m_nextFxChannel ); // send output to fx
+		                       // mixer
+		                       // TODO: improve the
+		                       // flow here - convert
+		                       // to pull model
 		m_bufferUsage = false;
 	}
 }
 
-
 void AudioPort::addPlayHandle( PlayHandle * handle )
 {
 	m_playHandleLock.lock();
-		m_playHandles.append( handle );
+	m_playHandles.append( handle );
 	m_playHandleLock.unlock();
 }
-
 
 void AudioPort::removePlayHandle( PlayHandle * handle )
 {
 	m_playHandleLock.lock();
-		PlayHandleList::Iterator it =	qFind( m_playHandles.begin(), m_playHandles.end(), handle );
-		if( it != m_playHandles.end() )
-		{
-			m_playHandles.erase( it );
-		}
+	PlayHandleList::Iterator it =
+	    qFind( m_playHandles.begin(), m_playHandles.end(), handle );
+	if( it != m_playHandles.end() )
+	{
+		m_playHandles.erase( it );
+	}
 	m_playHandleLock.unlock();
 }

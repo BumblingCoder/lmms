@@ -2,7 +2,7 @@
  * TextFloat.h - class textFloat, a floating text-label
  *
  * Copyright (c) 2005-2008 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -22,24 +22,20 @@
  *
  */
 
-
 #ifndef TEXT_FLOAT_H
 #define TEXT_FLOAT_H
 
-#include <QWidget>
 #include <QPixmap>
+#include <QWidget>
 
 #include "export.h"
-
 
 class EXPORT TextFloat : public QWidget
 {
 	Q_OBJECT
 public:
 	TextFloat();
-	virtual ~TextFloat()
-	{
-	}
+	virtual ~TextFloat() {}
 
 	void setTitle( const QString & _title );
 	void setText( const QString & _text );
@@ -47,28 +43,24 @@ public:
 
 	void setVisibilityTimeOut( int _msecs );
 
-
 	static TextFloat * displayMessage( const QString & _msg,
-						int _timeout = 2000,
-						QWidget * _parent = NULL,
-						int _add_y_margin = 0 );
+	                                   int _timeout = 2000,
+	                                   QWidget * _parent = NULL,
+	                                   int _add_y_margin = 0 );
 	static TextFloat * displayMessage( const QString & _title,
-						const QString & _msg,
-						const QPixmap & _pixmap =
-								QPixmap(),
-						int _timeout = 2000,
-						QWidget * _parent = NULL );
+	                                   const QString & _msg,
+	                                   const QPixmap & _pixmap = QPixmap(),
+	                                   int _timeout = 2000,
+	                                   QWidget * _parent = NULL );
 
 	void moveGlobal( QWidget * _w, const QPoint & _offset )
 	{
-		move( _w->mapToGlobal( QPoint( 0, 0 ) )+_offset );
+		move( _w->mapToGlobal( QPoint( 0, 0 ) ) + _offset );
 	}
-
 
 protected:
 	virtual void paintEvent( QPaintEvent * _me );
 	virtual void mousePressEvent( QMouseEvent * _me );
-
 
 private:
 	void updateSize();
@@ -76,7 +68,6 @@ private:
 	QString m_title;
 	QString m_text;
 	QPixmap m_pixmap;
-
 };
 
 #endif

@@ -2,7 +2,7 @@
  * BBEditor.h - view-component of BB-Editor
  *
  * Copyright (c) 2004-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -22,13 +22,11 @@
  *
  */
 
-
 #ifndef BB_EDITOR_H
 #define BB_EDITOR_H
 
 #include "Editor.h"
 #include "TrackContainerView.h"
-
 
 class BBTrackContainer;
 class ComboBox;
@@ -44,12 +42,11 @@ public:
 
 	QSize sizeHint() const;
 
-	const BBTrackContainerView* trackContainerView() const {
+	const BBTrackContainerView * trackContainerView() const
+	{
 		return m_trackContainerView;
 	}
-	BBTrackContainerView* trackContainerView() {
-		return m_trackContainerView;
-	}
+	BBTrackContainerView * trackContainerView() { return m_trackContainerView; }
 
 	void removeBBView( int bb );
 
@@ -58,27 +55,22 @@ public slots:
 	void stop();
 
 private:
-	BBTrackContainerView* m_trackContainerView;
+	BBTrackContainerView * m_trackContainerView;
 	ComboBox * m_bbComboBox;
-} ;
-
-
+};
 
 class BBTrackContainerView : public TrackContainerView
 {
 	Q_OBJECT
 public:
-	BBTrackContainerView(BBTrackContainer* tc);
+	BBTrackContainerView( BBTrackContainer * tc );
 
-	bool fixedTCOs() const
-	{
-		return true;
-	}
+	bool fixedTCOs() const { return true; }
 
-	void removeBBView(int bb);
+	void removeBBView( int bb );
 
-	void saveSettings(QDomDocument& doc, QDomElement& element);
-	void loadSettings(const QDomElement& element);
+	void saveSettings( QDomDocument & doc, QDomElement & element );
+	void loadSettings( const QDomElement & element );
 
 public slots:
 	void addSteps();
@@ -88,13 +80,12 @@ public slots:
 	void addAutomationTrack();
 
 protected slots:
-	void dropEvent(QDropEvent * de );
+	void dropEvent( QDropEvent * de );
 	void updatePosition();
 
 private:
 	BBTrackContainer * m_bbtc;
 	void makeSteps( bool clone );
 };
-
 
 #endif

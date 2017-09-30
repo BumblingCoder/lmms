@@ -32,7 +32,6 @@
 
 class LcdSpinBox;
 
-
 class MeterDialog : public QWidget, public ModelView
 {
 	Q_OBJECT
@@ -42,11 +41,9 @@ public:
 
 	virtual void modelChanged();
 
-
 private:
 	LcdSpinBox * m_numerator;
 	LcdSpinBox * m_denominator;
-
-} ;
+};
 
 #endif

@@ -38,7 +38,6 @@ class QMdiSubWindow;
 
 class LedCheckBox;
 
-
 class ControllerView : public QFrame, public ModelView
 {
 	Q_OBJECT
@@ -46,16 +45,12 @@ public:
 	ControllerView( Controller * _controller, QWidget * _parent );
 	virtual ~ControllerView();
 
-	inline Controller * getController()
-	{
-		return( castModel<Controller>() );
-	}
+	inline Controller * getController() { return ( castModel<Controller>() ); }
 
 	inline const Controller * getController() const
 	{
-		return( castModel<Controller>() );
+		return ( castModel<Controller>() );
 	}
-
 
 public slots:
 	void editControls();
@@ -67,19 +62,16 @@ public slots:
 signals:
 	void deleteController( ControllerView * _view );
 
-
 protected:
 	virtual void contextMenuEvent( QContextMenuEvent * _me );
 	virtual void modelChanged();
 	virtual void mouseDoubleClickEvent( QMouseEvent * event );
-
 
 private:
 	QMdiSubWindow * m_subWindow;
 	ControllerDialog * m_controllerDlg;
 	QLabel * m_nameLabel;
 	bool m_show;
-
-} ;
+};
 
 #endif

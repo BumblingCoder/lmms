@@ -22,7 +22,6 @@
  *
  */
 
-
 #include <QFontMetrics>
 #include <QPainter>
 
@@ -30,40 +29,27 @@
 #include "embed.h"
 #include "gui_templates.h"
 
-
-static const QString names[LedCheckBox::NumColors] =
-{
-	"led_yellow", "led_green", "led_red"
-} ;
-
-
-
+static const QString names[LedCheckBox::NumColors] = {"led_yellow", "led_green",
+                                                      "led_red"};
 
 //! @todo: in C++11, we can use delegating ctors
-#define DEFAULT_LEDCHECKBOX_INITIALIZER_LIST \
-	AutomatableButton( _parent, _name )
+#define DEFAULT_LEDCHECKBOX_INITIALIZER_LIST AutomatableButton( _parent, _name )
 
 LedCheckBox::LedCheckBox( const QString & _text, QWidget * _parent,
-				const QString & _name, LedColors _color ) :
-	DEFAULT_LEDCHECKBOX_INITIALIZER_LIST,
-	m_text( _text )
+                          const QString & _name, LedColors _color )
+    : DEFAULT_LEDCHECKBOX_INITIALIZER_LIST, m_text( _text )
 {
 	initUi( _color );
 }
 
-
-
-
-LedCheckBox::LedCheckBox( QWidget * _parent,
-				const QString & _name, LedColors _color ) :
-	DEFAULT_LEDCHECKBOX_INITIALIZER_LIST
+LedCheckBox::LedCheckBox( QWidget * _parent, const QString & _name,
+                          LedColors _color )
+    : DEFAULT_LEDCHECKBOX_INITIALIZER_LIST
 {
 	initUi( _color );
 }
 
 #undef DEFAULT_LEDCHECKBOX_INITIALIZER_LIST
-
-
 
 LedCheckBox::~LedCheckBox()
 {
@@ -71,17 +57,11 @@ LedCheckBox::~LedCheckBox()
 	delete m_ledOffPixmap;
 }
 
-
-
-
-void LedCheckBox::setText( const QString &s )
+void LedCheckBox::setText( const QString & s )
 {
 	m_text = s;
 	onTextUpdated();
 }
-
-
-
 
 void LedCheckBox::paintEvent( QPaintEvent * )
 {
@@ -89,8 +69,8 @@ void LedCheckBox::paintEvent( QPaintEvent * )
 	p.setFont( pointSize<7>( font() ) );
 
 	if( model()->value() == true )
-		{
-			p.drawPixmap( 0, 0, *m_ledOnPixmap );
+	{
+		p.drawPixmap( 0, 0, *m_ledOnPixmap );
 	}
 	else
 	{
@@ -103,9 +83,6 @@ void LedCheckBox::paintEvent( QPaintEvent * )
 	p.drawText( m_ledOffPixmap->width() + 3, 10, text() );
 }
 
-
-
-
 void LedCheckBox::initUi( LedColors _color )
 {
 	setCheckable( true );
@@ -114,23 +91,17 @@ void LedCheckBox::initUi( LedColors _color )
 	{
 		_color = Yellow;
 	}
-	m_ledOnPixmap = new QPixmap( embed::getIconPixmap(
-					names[_color].toUtf8().constData() ) );
+	m_ledOnPixmap = new QPixmap(
+	    embed::getIconPixmap( names[_color].toUtf8().constData() ) );
 	m_ledOffPixmap = new QPixmap( embed::getIconPixmap( "led_off" ) );
 
 	setFont( pointSize<7>( font() ) );
 	setText( m_text );
 }
 
-
-
-
 void LedCheckBox::onTextUpdated()
 {
-	setFixedSize( m_ledOffPixmap->width() + 5 + QFontMetrics( font() ).width( text() ), m_ledOffPixmap->height() );
+	setFixedSize( m_ledOffPixmap->width() + 5 +
+	                  QFontMetrics( font() ).width( text() ),
+	              m_ledOffPixmap->height() );
 }
-
-
-
-
-

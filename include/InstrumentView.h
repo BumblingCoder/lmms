@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef INSTRUMENT_VIEW_H
 #define INSTRUMENT_VIEW_H
 
@@ -31,28 +30,19 @@
 
 class InstrumentTrackWindow;
 
-
 class EXPORT InstrumentView : public PluginView
 {
 public:
 	InstrumentView( Instrument * _instrument, QWidget * _parent );
 	virtual ~InstrumentView();
 
-	Instrument * model()
-	{
-		return( castModel<Instrument>() );
-	}
+	Instrument * model() { return ( castModel<Instrument>() ); }
 
-	const Instrument * model() const
-	{
-		return( castModel<Instrument>() );
-	}
+	const Instrument * model() const { return ( castModel<Instrument>() ); }
 
 	virtual void setModel( Model * _model, bool = false );
 
 	InstrumentTrackWindow * instrumentTrackWindow();
-
-} ;
-
+};
 
 #endif

@@ -27,17 +27,15 @@
 
 #include <QtCore/QSemaphore>
 
-
-template<typename T>
-class fifoBuffer
+template <typename T> class fifoBuffer
 {
 public:
-	fifoBuffer( int _size ) :
-		m_reader_sem( _size ),
-		m_writer_sem( _size ),
-		m_reader_index( 0 ),
-		m_writer_index( 0 ),
-		m_size( _size )
+	fifoBuffer( int _size )
+	    : m_reader_sem( _size ),
+	      m_writer_sem( _size ),
+	      m_reader_index( 0 ),
+	      m_writer_index( 0 ),
+	      m_size( _size )
 	{
 		m_buffer = new T[_size];
 		m_reader_sem.acquire( _size );
@@ -63,14 +61,10 @@ public:
 		T element = m_buffer[m_reader_index++];
 		m_reader_index %= m_size;
 		m_writer_sem.release();
-		return( element );
+		return ( element );
 	}
 
-	bool available()
-	{
-		return( m_reader_sem.available() );
-	}
-
+	bool available() { return ( m_reader_sem.available() ); }
 
 private:
 	QSemaphore m_reader_sem;
@@ -79,10 +73,6 @@ private:
 	int m_writer_index;
 	int m_size;
 	T * m_buffer;
-
-} ;
-
-
-
+};
 
 #endif

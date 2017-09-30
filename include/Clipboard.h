@@ -25,9 +25,8 @@
 #ifndef CLIPBOARD_H
 #define CLIPBOARD_H
 
-#include <QtCore/QMap>
 #include <QDomElement>
-
+#include <QtCore/QMap>
 
 class JournallingObject;
 
@@ -41,13 +40,11 @@ public:
 
 	static const char * mimeType()
 	{
-		return( "application/x-lmms-clipboard" );
+		return ( "application/x-lmms-clipboard" );
 	}
-
 
 private:
 	static Map content;
-
-} ;
+};
 
 #endif

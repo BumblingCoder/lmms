@@ -22,37 +22,37 @@
  *
  */
 
-#include <QFileInfo>
-#include <QDir>
-#include <QMessageBox>
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QMessageBox>
 
 #include "ExportProjectDialog.h"
-#include "Song.h"
 #include "GuiApplication.h"
 #include "MainWindow.h"
 #include "OutputSettings.h"
-
+#include "Song.h"
 
 ExportProjectDialog::ExportProjectDialog( const QString & _file_name,
-							QWidget * _parent, bool multi_export=false ) :
-	QDialog( _parent ),
-	Ui::ExportProjectDialog(),
-	m_fileName( _file_name ),
-	m_fileExtension(),
-	m_multiExport( multi_export ),
-	m_renderManager( NULL )
+                                          QWidget * _parent,
+                                          bool multi_export = false )
+    : QDialog( _parent ),
+      Ui::ExportProjectDialog(),
+      m_fileName( _file_name ),
+      m_fileExtension(),
+      m_multiExport( multi_export ),
+      m_renderManager( NULL )
 {
 	setupUi( this );
-	setWindowTitle( tr( "Export project to %1" ).arg(
-					QFileInfo( _file_name ).fileName() ) );
+	setWindowTitle( tr( "Export project to %1" )
+	                    .arg( QFileInfo( _file_name ).fileName() ) );
 
 	// get the extension of the chosen file
 	QStringList parts = _file_name.split( '.' );
 	QString fileExt;
 	if( parts.size() > 0 )
 	{
-		fileExt = "." + parts[parts.size()-1];
+		fileExt = "." + parts[parts.size() - 1];
 	}
 
 	int cbIndex = 0;
@@ -61,17 +61,21 @@ ExportProjectDialog::ExportProjectDialog( const QString & _file_name,
 		if( ProjectRenderer::fileEncodeDevices[i].isAvailable() )
 		{
 			// get the extension of this format
-			QString renderExt = ProjectRenderer::fileEncodeDevices[i].m_extension;
+			QString renderExt =
+			    ProjectRenderer::fileEncodeDevices[i].m_extension;
 
 			// add to combo box
-			fileFormatCB->addItem( ProjectRenderer::tr(
-				ProjectRenderer::fileEncodeDevices[i].m_description ),
-				QVariant(ProjectRenderer::fileEncodeDevices[i].m_fileFormat) // format tag; later used for identification
+			fileFormatCB->addItem(
+			    ProjectRenderer::tr(
+			        ProjectRenderer::fileEncodeDevices[i].m_description ),
+			    QVariant( ProjectRenderer::fileEncodeDevices[i]
+			                  .m_fileFormat ) // format tag; later used for
+			                                  // identification
 			);
 
 			// if this is our extension, select it
-			if( QString::compare( renderExt, fileExt,
-									Qt::CaseInsensitive ) == 0 )
+			if( QString::compare( renderExt, fileExt, Qt::CaseInsensitive ) ==
+			    0 )
 			{
 				fileFormatCB->setCurrentIndex( cbIndex );
 			}
@@ -80,24 +84,16 @@ ExportProjectDialog::ExportProjectDialog( const QString & _file_name,
 		}
 	}
 
-	connect( startButton, SIGNAL( clicked() ),
-			this, SLOT( startBtnClicked() ) );
+	connect( startButton, SIGNAL( clicked() ), this,
+	         SLOT( startBtnClicked() ) );
 }
 
-
-
-
-ExportProjectDialog::~ExportProjectDialog()
-{
-	delete m_renderManager;
-}
-
-
-
+ExportProjectDialog::~ExportProjectDialog() { delete m_renderManager; }
 
 void ExportProjectDialog::reject()
 {
-	if( m_renderManager ) {
+	if( m_renderManager )
+	{
 		m_renderManager->abortProcessing();
 	}
 
@@ -107,8 +103,6 @@ void ExportProjectDialog::reject()
 	QDialog::reject();
 }
 
-
-
 void ExportProjectDialog::accept()
 {
 	delete m_renderManager;
@@ -117,68 +111,65 @@ void ExportProjectDialog::accept()
 	QDialog::accept();
 }
 
-
-
-
 void ExportProjectDialog::closeEvent( QCloseEvent * _ce )
 {
-	if( m_renderManager ) {
+	if( m_renderManager )
+	{
 		m_renderManager->abortProcessing();
 	}
 
 	QDialog::closeEvent( _ce );
 }
 
-
-OutputSettings::StereoMode mapToStereoMode(int index)
+OutputSettings::StereoMode mapToStereoMode( int index )
 {
-	switch (index)
+	switch( index )
 	{
-	case 0:
-		return OutputSettings::StereoMode_Stereo;
-	case 1:
-		return OutputSettings::StereoMode_JointStereo;
-	case 2:
-		return OutputSettings::StereoMode_Mono;
-	default:
-		return OutputSettings::StereoMode_Stereo;
+		case 0:
+			return OutputSettings::StereoMode_Stereo;
+		case 1:
+			return OutputSettings::StereoMode_JointStereo;
+		case 2:
+			return OutputSettings::StereoMode_Mono;
+		default:
+			return OutputSettings::StereoMode_Stereo;
 	}
 }
 
 void ExportProjectDialog::startExport()
 {
-	Mixer::qualitySettings qs =
-			Mixer::qualitySettings(
-					static_cast<Mixer::qualitySettings::Interpolation>(interpolationCB->currentIndex()),
-					static_cast<Mixer::qualitySettings::Oversampling>(oversamplingCB->currentIndex()) );
+	Mixer::qualitySettings qs = Mixer::qualitySettings(
+	    static_cast<Mixer::qualitySettings::Interpolation>(
+	        interpolationCB->currentIndex() ),
+	    static_cast<Mixer::qualitySettings::Oversampling>(
+	        oversamplingCB->currentIndex() ) );
 
-	const int samplerates[5] = { 44100, 48000, 88200, 96000, 192000 };
-	const bitrate_t bitrates[6] = { 64, 128, 160, 192, 256, 320 };
+	const int samplerates[5] = {44100, 48000, 88200, 96000, 192000};
+	const bitrate_t bitrates[6] = {64, 128, 160, 192, 256, 320};
 
 	bool useVariableBitRate = checkBoxVariableBitRate->isChecked();
 
-	OutputSettings::BitRateSettings bitRateSettings(bitrates[ bitrateCB->currentIndex() ], useVariableBitRate);
+	OutputSettings::BitRateSettings bitRateSettings(
+	    bitrates[bitrateCB->currentIndex()], useVariableBitRate );
 	OutputSettings os = OutputSettings(
-			samplerates[ samplerateCB->currentIndex() ],
-			bitRateSettings,
-			static_cast<OutputSettings::BitDepth>( depthCB->currentIndex() ),
-			mapToStereoMode(stereoModeComboBox->currentIndex()) );
+	    samplerates[samplerateCB->currentIndex()], bitRateSettings,
+	    static_cast<OutputSettings::BitDepth>( depthCB->currentIndex() ),
+	    mapToStereoMode( stereoModeComboBox->currentIndex() ) );
 
 	m_renderManager = new RenderManager( qs, os, m_ft, m_fileName );
 
 	Engine::getSong()->setExportLoop( exportLoopCB->isChecked() );
 	Engine::getSong()->setRenderBetweenMarkers( renderMarkersCB->isChecked() );
 
-	connect( m_renderManager, SIGNAL( progressChanged( int ) ),
-			progressBar, SLOT( setValue( int ) ) );
-	connect( m_renderManager, SIGNAL( progressChanged( int ) ),
-			this, SLOT( updateTitleBar( int ) )) ;
-	connect( m_renderManager, SIGNAL( finished() ),
-			this, SLOT( accept() ) );
-	connect( m_renderManager, SIGNAL( finished() ),
-			gui->mainWindow(), SLOT( resetWindowTitle() ) );
+	connect( m_renderManager, SIGNAL( progressChanged( int ) ), progressBar,
+	         SLOT( setValue( int ) ) );
+	connect( m_renderManager, SIGNAL( progressChanged( int ) ), this,
+	         SLOT( updateTitleBar( int ) ) );
+	connect( m_renderManager, SIGNAL( finished() ), this, SLOT( accept() ) );
+	connect( m_renderManager, SIGNAL( finished() ), gui->mainWindow(),
+	         SLOT( resetWindowTitle() ) );
 
-	if ( m_multiExport )
+	if( m_multiExport )
 	{
 		m_renderManager->renderTracks();
 	}
@@ -188,54 +179,53 @@ void ExportProjectDialog::startExport()
 	}
 }
 
-
-void ExportProjectDialog::onFileFormatChanged(int index)
+void ExportProjectDialog::onFileFormatChanged( int index )
 {
 	// Extract the format tag from the currently selected item,
 	// and adjust the UI properly.
-	QVariant format_tag = fileFormatCB->itemData(index);
+	QVariant format_tag = fileFormatCB->itemData( index );
 	bool successful_conversion = false;
 	auto exportFormat = static_cast<ProjectRenderer::ExportFileFormats>(
-		format_tag.toInt(&successful_conversion)
-	);
-	Q_ASSERT(successful_conversion);
+	    format_tag.toInt( &successful_conversion ) );
+	Q_ASSERT( successful_conversion );
 
 	bool stereoModeVisible = exportFormat == ProjectRenderer::MP3File;
 
 	bool sampleRateControlsVisible = exportFormat != ProjectRenderer::MP3File;
 
-	bool bitRateControlsEnabled =
-			(exportFormat == ProjectRenderer::OggFile ||
-			 exportFormat == ProjectRenderer::MP3File);
+	bool bitRateControlsEnabled = ( exportFormat == ProjectRenderer::OggFile ||
+	                                exportFormat == ProjectRenderer::MP3File );
 
 	bool bitDepthControlEnabled = exportFormat == ProjectRenderer::WaveFile;
 
 	bool variableBitrateVisible = exportFormat != ProjectRenderer::MP3File;
 
-	stereoModeWidget->setVisible(stereoModeVisible);
-	sampleRateWidget->setVisible(sampleRateControlsVisible);
+	stereoModeWidget->setVisible( stereoModeVisible );
+	sampleRateWidget->setVisible( sampleRateControlsVisible );
 
-	bitrateWidget->setVisible(bitRateControlsEnabled);
-	checkBoxVariableBitRate->setVisible(variableBitrateVisible);
+	bitrateWidget->setVisible( bitRateControlsEnabled );
+	checkBoxVariableBitRate->setVisible( variableBitrateVisible );
 
-	depthWidget->setVisible(bitDepthControlEnabled);
+	depthWidget->setVisible( bitDepthControlEnabled );
 }
 
 void ExportProjectDialog::startBtnClicked()
 {
 	m_ft = ProjectRenderer::NumFileFormats;
 
-	//Get file format from current menu selection.
+	// Get file format from current menu selection.
 	bool successful_conversion = false;
-	QVariant tag = fileFormatCB->itemData(fileFormatCB->currentIndex());
-	m_ft = static_cast<ProjectRenderer::ExportFileFormats>(tag.toInt(&successful_conversion));
+	QVariant tag = fileFormatCB->itemData( fileFormatCB->currentIndex() );
+	m_ft = static_cast<ProjectRenderer::ExportFileFormats>(
+	    tag.toInt( &successful_conversion ) );
 
 	if( !successful_conversion )
 	{
-		QMessageBox::information( this, tr( "Error" ),
-								  tr( "Error while determining file-encoder device. "
-										  "Please try to choose a different output "
-										  "format." ) );
+		QMessageBox::information(
+		    this, tr( "Error" ),
+		    tr( "Error while determining file-encoder device. "
+		        "Please try to choose a different output "
+		        "format." ) );
 		reject();
 		return;
 	}
@@ -243,9 +233,10 @@ void ExportProjectDialog::startBtnClicked()
 	// Find proper file extension.
 	for( int i = 0; i < ProjectRenderer::NumFileFormats; ++i )
 	{
-		if (m_ft == ProjectRenderer::fileEncodeDevices[i].m_fileFormat)
+		if( m_ft == ProjectRenderer::fileEncodeDevices[i].m_fileFormat )
 		{
-			m_fileExtension = QString( QLatin1String( ProjectRenderer::fileEncodeDevices[i].m_extension ) );
+			m_fileExtension = QString( QLatin1String(
+			    ProjectRenderer::fileEncodeDevices[i].m_extension ) );
 			break;
 		}
 	}
@@ -258,11 +249,7 @@ void ExportProjectDialog::startBtnClicked()
 	startExport();
 }
 
-
-
-
 void ExportProjectDialog::updateTitleBar( int _prog )
 {
-	gui->mainWindow()->setWindowTitle(
-					tr( "Rendering: %1%" ).arg( _prog ) );
+	gui->mainWindow()->setWindowTitle( tr( "Rendering: %1%" ).arg( _prog ) );
 }

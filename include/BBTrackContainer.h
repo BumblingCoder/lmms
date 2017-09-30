@@ -22,37 +22,30 @@
  *
  */
 
-
 #ifndef BB_TRACK_CONTAINER_H
 #define BB_TRACK_CONTAINER_H
 
-#include "TrackContainer.h"
 #include "ComboBoxModel.h"
-
+#include "TrackContainer.h"
 
 class EXPORT BBTrackContainer : public TrackContainer
 {
-	Q_OBJECT
-	mapPropertyFromModel(int,currentBB,setCurrentBB,m_bbComboBoxModel);
+    Q_OBJECT
+    mapPropertyFromModel( int, currentBB, setCurrentBB, m_bbComboBoxModel );
+
 public:
 	BBTrackContainer();
 	virtual ~BBTrackContainer();
 
 	virtual bool play( MidiTime _start, const fpp_t _frames,
-						const f_cnt_t _frame_base, int _tco_num = -1 );
+	                   const f_cnt_t _frame_base, int _tco_num = -1 );
 
 	virtual void updateAfterTrackAdd();
 
-	inline virtual QString nodeName() const
-	{
-		return "bbtrackcontainer";
-	}
+	inline virtual QString nodeName() const { return "bbtrackcontainer"; }
 
 	tact_t lengthOfBB( int _bb ) const;
-	inline tact_t lengthOfCurrentBB()
-	{
-		return lengthOfBB( currentBB() );
-	}
+	inline tact_t lengthOfCurrentBB() { return lengthOfBB( currentBB() ); }
 	int numOfBBs() const;
 	void removeBB( int _bb );
 
@@ -62,7 +55,8 @@ public:
 	void fixIncorrectPositions();
 	void createTCOsForBB( int _bb );
 
-	AutomatedValueMap automatedValuesAt(MidiTime time, int tcoNum) const override;
+	AutomatedValueMap automatedValuesAt( MidiTime time,
+	                                     int tcoNum ) const override;
 
 public slots:
 	void play();
@@ -70,14 +64,10 @@ public slots:
 	void updateComboBox();
 	void currentBBChanged();
 
-
 private:
 	ComboBoxModel m_bbComboBoxModel;
 
-
 	friend class BBEditor;
-
-} ;
-
+};
 
 #endif

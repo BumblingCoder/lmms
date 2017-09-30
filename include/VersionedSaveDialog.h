@@ -24,7 +24,6 @@
  *
  */
 
-
 #ifndef VERSIONEDSAVEDIALOG_H
 #define VERSIONEDSAVEDIALOG_H
 
@@ -32,18 +31,17 @@
 
 class QLineEdit;
 
-
 class VersionedSaveDialog : public FileDialog
 {
 	Q_OBJECT
 public:
-	explicit VersionedSaveDialog( QWidget *parent = 0,
-								  const QString &caption = QString(),
-								  const QString &directory = QString(),
-								  const QString &filter = QString() );
+	explicit VersionedSaveDialog( QWidget * parent = 0,
+	                              const QString & caption = QString(),
+	                              const QString & directory = QString(),
+	                              const QString & filter = QString() );
 
 	// Returns true if file name was changed, returns false if it wasn't
-	static bool changeFileNameVersion( QString &fileName, bool increment );
+	static bool changeFileNameVersion( QString & fileName, bool increment );
 	static bool fileExistsQuery( QString FileName, QString WindowTitle );
 
 public slots:

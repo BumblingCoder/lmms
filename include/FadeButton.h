@@ -22,34 +22,29 @@
  *
  */
 
-
 #ifndef FADE_BUTTON_H
 #define FADE_BUTTON_H
 
-#include <QtCore/QTime>
 #include <QAbstractButton>
 #include <QColor>
-
+#include <QtCore/QTime>
 
 class FadeButton : public QAbstractButton
 {
 	Q_OBJECT
 public:
-	FadeButton( const QColor & _normal_color, const QColor &
-					_activated_color, QWidget * _parent );
+	FadeButton( const QColor & _normal_color, const QColor & _activated_color,
+	            QWidget * _parent );
 
 	virtual ~FadeButton();
 	void setActiveColor( const QColor & activated_color );
 
-
 public slots:
 	void activate();
-
 
 protected:
 	virtual void customEvent( QEvent * );
 	virtual void paintEvent( QPaintEvent * _pe );
-
 
 private:
 	QTime m_stateTimer;
@@ -57,9 +52,6 @@ private:
 	QColor m_activatedColor;
 
 	void signalUpdate();
-
-} ;
-
+};
 
 #endif
-

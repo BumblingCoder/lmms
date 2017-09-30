@@ -22,14 +22,12 @@
  *
  */
 
-
 #ifndef AEFFECTX_H
 #define AEFFECTX_H
 
-#define CCONST(a, b, c, d)( ( ( (int) a ) << 24 ) |		\
-				( ( (int) b ) << 16 ) |		\
-				( ( (int) c ) << 8 ) |		\
-				( ( (int) d ) << 0 ) )
+#define CCONST( a, b, c, d )                                                 \
+	( ( ( (int) a ) << 24 ) | ( ( (int) b ) << 16 ) | ( ( (int) c ) << 8 ) | \
+	  ( ( (int) d ) << 0 ) )
 
 const int audioMasterAutomate = 0;
 const int audioMasterVersion = 1;
@@ -78,21 +76,21 @@ const int audioMasterUpdateDisplay = 42;
 const int audioMasterBeginEdit = 43;
 const int audioMasterEndEdit = 44;
 const int audioMasterOpenFileSelector = 45;
-const int audioMasterCloseFileSelector = 46; // currently unused
-const int audioMasterEditFile = 47; // currently unused
-const int audioMasterGetChunkFile = 48; // currently unused
+const int audioMasterCloseFileSelector = 46;          // currently unused
+const int audioMasterEditFile = 47;                   // currently unused
+const int audioMasterGetChunkFile = 48;               // currently unused
 const int audioMasterGetInputSpeakerArrangement = 49; // currently unused
 
 const int effFlagsHasEditor = 1;
 const int effFlagsCanReplacing = 1 << 4; // very likely
-const int effFlagsIsSynth = 1 << 8; // currently unused
+const int effFlagsIsSynth = 1 << 8;      // currently unused
 
 const int effOpen = 0;
-const int effClose = 1; // currently unused
-const int effSetProgram = 2; // currently unused
-const int effGetProgram = 3; // currently unused
+const int effClose = 1;          // currently unused
+const int effSetProgram = 2;     // currently unused
+const int effGetProgram = 3;     // currently unused
 const int effGetProgramName = 5; // currently unused
-const int effGetParamName = 8; // currently unused
+const int effGetParamName = 8;   // currently unused
 const int effSetSampleRate = 10;
 const int effSetBlockSize = 11;
 const int effMainsChanged = 12;
@@ -107,7 +105,7 @@ const int effGetEffectName = 45;
 const int effGetVendorString = 47;
 const int effGetProductString = 48;
 const int effGetVendorVersion = 49;
-const int effCanDo = 51; // currently unused
+const int effCanDo = 51;         // currently unused
 const int effGetVstVersion = 58; // currently unused
 
 const int kEffectMagic = CCONST( 'V', 's', 't', 'P' );
@@ -140,9 +138,6 @@ const int kVstSmpte249fps = 11;
 const int kVstSmpte599fps = 12;
 const int kVstSmpte60fps = 13;
 
-
-
-
 class VstMidiEvent
 {
 public:
@@ -168,20 +163,12 @@ public:
 	char reserved1;
 	// 1f?
 	char reserved2;
-
-} ;
-
-
-
+};
 
 class VstEvent
 {
 	char dump[sizeof( VstMidiEvent )];
-
-} ;
-
-
-
+};
 
 class VstEvents
 {
@@ -189,12 +176,10 @@ public:
 	// 00
 	int numEvents;
 	// 04
-	void *reserved;
+	void * reserved;
 	// 08
-	VstEvent* events[1];
-
-} ;
-
+	VstEvent * events[1];
+};
 
 class AEffect
 {
@@ -203,13 +188,13 @@ public:
 	// 00-03
 	int magic;
 	// dispatcher 04-07
-	intptr_t (* dispatcher)( AEffect * , int , int , intptr_t, void * , float );
+	intptr_t ( *dispatcher )( AEffect *, int, int, intptr_t, void *, float );
 	// process, quite sure 08-0b
-	void (* process)( AEffect * , float * * , float * * , int );
+	void ( *process )( AEffect *, float **, float **, int );
 	// setParameter 0c-0f
-	void (* setParameter)( AEffect * , int , float );
+	void ( *setParameter )( AEffect *, int, float );
 	// getParameter 10-13
-	float (* getParameter)( AEffect * , int );
+	float ( *getParameter )( AEffect *, int );
 	// programs 14-17
 	int numPrograms;
 	// Params 18-1b
@@ -221,27 +206,23 @@ public:
 	// flags 24-27
 	int flags;
 	// Fill somewhere 28-2b
-	void *ptr1;
-	void *ptr2;
+	void * ptr1;
+	void * ptr2;
 	// Zeroes 2c-2f 30-33 34-37 38-3b
 	char empty3[4 + 4 + 4];
 	// 1.0f 3c-3f
 	float unknown_float;
 	// An object? pointer 40-43
-	void *ptr3;
+	void * ptr3;
 	// Zeroes 44-47
-	void *user;
+	void * user;
 	// Id 48-4b
 	int32_t uniqueID;
 	// Don't know 4c-4f
 	char unknown1[4];
 	// processReplacing 50-53
-	void (* processReplacing)( AEffect * , float * * , float * * , int );
-
-} ;
-
-
-
+	void ( *processReplacing )( AEffect *, float **, float **, int );
+};
 
 class VstTimeInfo
 {
@@ -274,12 +255,9 @@ public:
 	int32_t samplesToNextClock;
 	// 54
 	int32_t flags;
+};
 
-} ;
-
-
-
-typedef intptr_t (* audioMasterCallback)( AEffect * , int32_t, int32_t, intptr_t, void * , float );
-
+typedef intptr_t ( *audioMasterCallback )( AEffect *, int32_t, int32_t,
+                                           intptr_t, void *, float );
 
 #endif

@@ -32,11 +32,10 @@
 // older ALSA-versions might require this
 #define ALSA_PCM_NEW_HW_PARAMS_API
 
-#include <alsa/asoundlib.h>
 #include <QThread>
+#include <alsa/asoundlib.h>
 
 #include "AudioDevice.h"
-
 
 class AudioAlsa : public AudioDevice, public QThread
 {
@@ -48,31 +47,35 @@ public:
 	class DeviceInfo
 	{
 	public:
-		DeviceInfo(QString const & deviceName, QString const & deviceDescription) :
-			m_deviceName(deviceName),
-			m_deviceDescription(deviceDescription)
-		{}
+		DeviceInfo( QString const & deviceName,
+		            QString const & deviceDescription )
+		    : m_deviceName( deviceName ),
+		      m_deviceDescription( deviceDescription )
+		{
+		}
 		~DeviceInfo() {}
 
 		QString const & getDeviceName() const { return m_deviceName; }
-		QString const & getDeviceDescription() const { return m_deviceDescription; }
+		QString const & getDeviceDescription() const
+		{
+			return m_deviceDescription;
+		}
 
 	private:
 		QString m_deviceName;
 		QString m_deviceDescription;
-
 	};
 
 	typedef std::vector<DeviceInfo> DeviceInfoCollection;
 
 public:
-	AudioAlsa( bool & _success_ful, Mixer* mixer );
+	AudioAlsa( bool & _success_ful, Mixer * mixer );
 	virtual ~AudioAlsa();
 
 	inline static QString name()
 	{
 		return QT_TRANSLATE_NOOP( "setupWidget",
-			"ALSA (Advanced Linux Sound Architecture)" );
+		                          "ALSA (Advanced Linux Sound Architecture)" );
 	}
 
 	static QString probeDevice();
@@ -89,7 +92,6 @@ private:
 	int setSWParams();
 	int handleError( int _err );
 
-
 	snd_pcm_t * m_handle;
 
 	snd_pcm_uframes_t m_bufferSize;
@@ -99,8 +101,7 @@ private:
 	snd_pcm_sw_params_t * m_swParams;
 
 	bool m_convertEndian;
-
-} ;
+};
 
 #endif
 

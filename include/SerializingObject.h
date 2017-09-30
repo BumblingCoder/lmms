@@ -29,12 +29,10 @@
 
 #include "export.h"
 
-
 class QDomDocument;
 class QDomElement;
 
 class SerializingObjectHook;
-
 
 class EXPORT SerializingObject
 {
@@ -46,37 +44,26 @@ public:
 
 	virtual void restoreState( const QDomElement & _this );
 
-
 	// to be implemented by actual object
 	virtual QString nodeName() const = 0;
 
 	void setHook( SerializingObjectHook * _hook );
 
-	SerializingObjectHook* hook()
-	{
-		return m_hook;
-	}
-
+	SerializingObjectHook * hook() { return m_hook; }
 
 protected:
 	// to be implemented by sub-objects
-	virtual void saveSettings( QDomDocument& doc, QDomElement& element ) = 0;
-	virtual void loadSettings( const QDomElement& element ) = 0;
-
+	virtual void saveSettings( QDomDocument & doc, QDomElement & element ) = 0;
+	virtual void loadSettings( const QDomElement & element ) = 0;
 
 private:
 	SerializingObjectHook * m_hook;
-
-} ;
-
+};
 
 class SerializingObjectHook
 {
 public:
-	SerializingObjectHook() :
-		m_hookedIn( NULL )
-	{
-	}
+	SerializingObjectHook() : m_hookedIn( NULL ) {}
 	virtual ~SerializingObjectHook()
 	{
 		if( m_hookedIn != NULL )
@@ -92,9 +79,6 @@ private:
 	SerializingObject * m_hookedIn;
 
 	friend class SerializingObject;
-
-} ;
-
+};
 
 #endif
-

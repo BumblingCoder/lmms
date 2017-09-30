@@ -24,42 +24,41 @@
  */
 
 #include <QLabel>
-#include <QPushButton>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QPainter>
+#include <QPushButton>
 #include <QWhatsThis>
 
-#include "EffectView.h"
-#include "DummyEffect.h"
 #include "CaptionMenu.h"
-#include "embed.h"
+#include "DummyEffect.h"
+#include "EffectView.h"
 #include "GuiApplication.h"
-#include "gui_templates.h"
 #include "Knob.h"
 #include "LedCheckbox.h"
 #include "MainWindow.h"
 #include "TempoSyncKnob.h"
 #include "ToolTip.h"
+#include "embed.h"
+#include "gui_templates.h"
 
-
-EffectView::EffectView( Effect * _model, QWidget * _parent ) :
-	PluginView( _model, _parent ),
-	m_bg( embed::getIconPixmap( "effect_plugin" ) ),
-	m_subWindow( NULL ),
-	m_controlView( NULL )
+EffectView::EffectView( Effect * _model, QWidget * _parent )
+    : PluginView( _model, _parent ),
+      m_bg( embed::getIconPixmap( "effect_plugin" ) ),
+      m_subWindow( NULL ),
+      m_controlView( NULL )
 {
 	setFixedSize( 210, 60 );
-	
+
 	// Disable effects that are of type "DummyEffect"
 	bool isEnabled = !dynamic_cast<DummyEffect *>( effect() );
-	m_bypass = new LedCheckBox( this, "", isEnabled ? LedCheckBox::Green : LedCheckBox::Red );
+	m_bypass = new LedCheckBox(
+	    this, "", isEnabled ? LedCheckBox::Green : LedCheckBox::Red );
 	m_bypass->move( 3, 3 );
 	m_bypass->setEnabled( isEnabled );
 	m_bypass->setWhatsThis( tr( "Toggles the effect on or off." ) );
-	
-	ToolTip::add( m_bypass, tr( "On/Off" ) );
 
+	ToolTip::add( m_bypass, tr( "On/Off" ) );
 
 	m_wetDry = new Knob( knobBright_26, this );
 	m_wetDry->setLabel( tr( "W/D" ) );
@@ -67,9 +66,8 @@ EffectView::EffectView( Effect * _model, QWidget * _parent ) :
 	m_wetDry->setEnabled( isEnabled );
 	m_wetDry->setHintText( tr( "Wet Level:" ), "" );
 	m_wetDry->setWhatsThis( tr( "The Wet/Dry knob sets the ratio between "
-					"the input signal and the effect signal that "
-					"forms the output." ) );
-
+	                            "the input signal and the effect signal that "
+	                            "forms the output." ) );
 
 	m_autoQuit = new TempoSyncKnob( knobBright_26, this );
 	m_autoQuit->setLabel( tr( "DECAY" ) );
@@ -77,87 +75,101 @@ EffectView::EffectView( Effect * _model, QWidget * _parent ) :
 	m_autoQuit->setEnabled( isEnabled );
 	m_autoQuit->setHintText( tr( "Time:" ), "ms" );
 	m_autoQuit->setWhatsThis( tr(
-"The Decay knob controls how many buffers of silence must pass before the "
-"plugin stops processing.  Smaller values will reduce the CPU overhead but "
-"run the risk of clipping the tail on delay and reverb effects." ) );
-
+	    "The Decay knob controls how many buffers of silence must pass before "
+	    "the "
+	    "plugin stops processing.  Smaller values will reduce the CPU "
+	    "overhead but "
+	    "run the risk of clipping the tail on delay and reverb effects." ) );
 
 	m_gate = new Knob( knobBright_26, this );
 	m_gate->setLabel( tr( "GATE" ) );
 	m_gate->move( 93, 5 );
 	m_gate->setEnabled( isEnabled );
 	m_gate->setHintText( tr( "Gate:" ), "" );
-	m_gate->setWhatsThis( tr(
-"The Gate knob controls the signal level that is considered to be 'silence' "
-"while deciding when to stop processing signals." ) );
-
+	m_gate->setWhatsThis(
+	    tr( "The Gate knob controls the signal level that is "
+	        "considered to be 'silence' "
+	        "while deciding when to stop processing signals." ) );
 
 	setModel( _model );
 
 	if( effect()->controls()->controlCount() > 0 )
 	{
-		QPushButton * ctls_btn = new QPushButton( tr( "Controls" ),
-									this );
+		QPushButton * ctls_btn = new QPushButton( tr( "Controls" ), this );
 		QFont f = ctls_btn->font();
 		ctls_btn->setFont( pointSize<8>( f ) );
 		ctls_btn->setGeometry( 140, 14, 50, 20 );
-		connect( ctls_btn, SIGNAL( clicked() ),
-					this, SLOT( editControls() ) );
+		connect( ctls_btn, SIGNAL( clicked() ), this, SLOT( editControls() ) );
 
 		m_controlView = effect()->controls()->createView();
 		if( m_controlView )
 		{
 			m_subWindow = gui->mainWindow()->addWindowedWidget( m_controlView );
-			m_subWindow->setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+			m_subWindow->setSizePolicy( QSizePolicy::Fixed,
+			                            QSizePolicy::Fixed );
 			m_subWindow->setFixedSize( m_subWindow->size() );
 
 			Qt::WindowFlags flags = m_subWindow->windowFlags();
 			flags &= ~Qt::WindowMaximizeButtonHint;
 			m_subWindow->setWindowFlags( flags );
 
-			connect( m_controlView, SIGNAL( closed() ),
-					this, SLOT( closeEffects() ) );
+			connect( m_controlView, SIGNAL( closed() ), this,
+			         SLOT( closeEffects() ) );
 
 			m_subWindow->hide();
 		}
 	}
 
-
 	setWhatsThis( tr(
-"Effect plugins function as a chained series of effects where the signal will "
-"be processed from top to bottom.\n\n"
+	    "Effect plugins function as a chained series of effects where the "
+	    "signal "
+	    "will "
+	    "be processed from top to bottom.\n\n"
 
-"The On/Off switch allows you to bypass a given plugin at any point in "
-"time.\n\n"
+	    "The On/Off switch allows you to bypass a given plugin at any point in "
+	    "time.\n\n"
 
-"The Wet/Dry knob controls the balance between the input signal and the "
-"effected signal that is the resulting output from the effect.  The input "
-"for the stage is the output from the previous stage. So, the 'dry' signal "
-"for effects lower in the chain contains all of the previous effects.\n\n"
+	    "The Wet/Dry knob controls the balance between the input signal and "
+	    "the "
+	    "effected signal that is the resulting output from the effect.  The "
+	    "input "
+	    "for the stage is the output from the previous stage. So, the 'dry' "
+	    "signal "
+	    "for effects lower in the chain contains all of the previous "
+	    "effects.\n\n"
 
-"The Decay knob controls how long the signal will continue to be processed "
-"after the notes have been released.  The effect will stop processing signals "
-"when the volume has dropped below a given threshold for a given length of "
-"time.  This knob sets the 'given length of time'.  Longer times will require "
-"more CPU, so this number should be set low for most effects.  It needs to be "
-"bumped up for effects that produce lengthy periods of silence, e.g. "
-"delays.\n\n"
+	    "The Decay knob controls how long the signal will continue to be "
+	    "processed "
+	    "after the notes have been released.  The effect will stop processing "
+	    "signals "
+	    "when the volume has dropped below a given threshold for a given "
+	    "length "
+	    "of "
+	    "time.  This knob sets the 'given length of time'.  Longer times will "
+	    "require "
+	    "more CPU, so this number should be set low for most effects.  It "
+	    "needs "
+	    "to be "
+	    "bumped up for effects that produce lengthy periods of silence, e.g. "
+	    "delays.\n\n"
 
-"The Gate knob controls the 'given threshold' for the effect's auto shutdown.  "
-"The clock for the 'given length of time' will begin as soon as the processed "
-"signal level drops below the level specified with this knob.\n\n"
+	    "The Gate knob controls the 'given threshold' for the effect's auto "
+	    "shutdown.  "
+	    "The clock for the 'given length of time' will begin as soon as the "
+	    "processed "
+	    "signal level drops below the level specified with this knob.\n\n"
 
-"The Controls button opens a dialog for editing the effect's parameters.\n\n"
+	    "The Controls button opens a dialog for editing the effect's "
+	    "parameters.\n\n"
 
-"Right clicking will bring up a context menu where you can change the order "
-"in which the effects are processed or delete an effect altogether." ) );
+	    "Right clicking will bring up a context menu where you can change the "
+	    "order "
+	    "in which the effects are processed or delete an effect "
+	    "altogether." ) );
 
-	//move above vst effect view creation
-	//setModel( _model );
+	// move above vst effect view creation
+	// setModel( _model );
 }
-
-
-
 
 EffectView::~EffectView()
 {
@@ -172,11 +184,7 @@ EffectView::~EffectView()
 		m_subWindow->hide();
 	}
 #endif
-
 }
-
-
-
 
 void EffectView::editControls()
 {
@@ -196,40 +204,16 @@ void EffectView::editControls()
 	}
 }
 
+void EffectView::moveUp() { emit moveUp( this ); }
 
+void EffectView::moveDown() { emit moveDown( this ); }
 
-
-void EffectView::moveUp()
-{
-	emit moveUp( this );
-}
-
-
-
-
-void EffectView::moveDown()
-{
-	emit moveDown( this );
-}
-
-
-
-void EffectView::deletePlugin()
-{
-	emit deletePlugin( this );
-}
-
-
-
+void EffectView::deletePlugin() { emit deletePlugin( this ); }
 
 void EffectView::displayHelp()
 {
-	QWhatsThis::showText( mapToGlobal( rect().bottomRight() ),
-								whatsThis() );
+	QWhatsThis::showText( mapToGlobal( rect().bottomRight() ), whatsThis() );
 }
-
-
-
 
 void EffectView::closeEffects()
 {
@@ -240,29 +224,23 @@ void EffectView::closeEffects()
 	effect()->controls()->setViewVisible( false );
 }
 
-
-
 void EffectView::contextMenuEvent( QContextMenuEvent * )
 {
-	QPointer<CaptionMenu> contextMenu = new CaptionMenu( model()->displayName(), this );
-	contextMenu->addAction( embed::getIconPixmap( "arp_up" ),
-						tr( "Move &up" ),
-						this, SLOT( moveUp() ) );
+	QPointer<CaptionMenu> contextMenu =
+	    new CaptionMenu( model()->displayName(), this );
+	contextMenu->addAction( embed::getIconPixmap( "arp_up" ), tr( "Move &up" ),
+	                        this, SLOT( moveUp() ) );
 	contextMenu->addAction( embed::getIconPixmap( "arp_down" ),
-						tr( "Move &down" ),
-						this, SLOT( moveDown() ) );
+	                        tr( "Move &down" ), this, SLOT( moveDown() ) );
 	contextMenu->addSeparator();
 	contextMenu->addAction( embed::getIconPixmap( "cancel" ),
-						tr( "&Remove this plugin" ),
-						this, SLOT( deletePlugin() ) );
+	                        tr( "&Remove this plugin" ), this,
+	                        SLOT( deletePlugin() ) );
 	contextMenu->addSeparator();
 	contextMenu->addHelpAction();
 	contextMenu->exec( QCursor::pos() );
 	delete contextMenu;
 }
-
-
-
 
 void EffectView::paintEvent( QPaintEvent * )
 {
@@ -278,9 +256,6 @@ void EffectView::paintEvent( QPaintEvent * )
 	p.setPen( palette().text().color() );
 	p.drawText( 5, 54, model()->displayName() );
 }
-
-
-
 
 void EffectView::modelChanged()
 {

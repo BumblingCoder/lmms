@@ -1,5 +1,6 @@
 /*
- * LeftRightNav.h - side-by-side left-facing and right-facing arrows for navigation (looks like < > )
+ * LeftRightNav.h - side-by-side left-facing and right-facing arrows for
+ * navigation (looks like < > )
  *
  * Copyright (c) 2015 Colin Wallace <wallacoloo/at/gmail.com>
  *
@@ -33,13 +34,15 @@ class LeftRightNav : public QWidget
 {
 	Q_OBJECT
 public:
-	LeftRightNav(QWidget *parent=NULL);
-	PixmapButton* getLeftBtn();
-	PixmapButton* getRightBtn();
-	void setShortcuts(const QKeySequence &leftShortcut=Qt::Key_Minus, const QKeySequence &rightShortcut=Qt::Key_Plus);
+	LeftRightNav( QWidget * parent = NULL );
+	PixmapButton * getLeftBtn();
+	PixmapButton * getRightBtn();
+	void setShortcuts( const QKeySequence & leftShortcut = Qt::Key_Minus,
+	                   const QKeySequence & rightShortcut = Qt::Key_Plus );
 signals:
 	void onNavLeft();
 	void onNavRight();
+
 private:
 	QHBoxLayout m_layout;
 	PixmapButton m_leftBtn;

@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef CAPTION_MENU_H
 #define CAPTION_MENU_H
 
@@ -45,10 +44,6 @@ public:
 	///		   text when selected.
 	///
 	void addHelpAction();
-
-} ;
-
-
-
+};
 
 #endif

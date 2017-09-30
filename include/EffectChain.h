@@ -26,12 +26,11 @@
 #ifndef EFFECT_CHAIN_H
 #define EFFECT_CHAIN_H
 
+#include "AutomatableModel.h"
 #include "Model.h"
 #include "SerializingObject.h"
-#include "AutomatableModel.h"
 
 class Effect;
-
 
 class EXPORT EffectChain : public Model, public SerializingObject
 {
@@ -43,25 +42,19 @@ public:
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
 
-	inline virtual QString nodeName() const
-	{
-		return "fxchain";
-	}
+	inline virtual QString nodeName() const { return "fxchain"; }
 
 	void appendEffect( Effect * _effect );
 	void removeEffect( Effect * _effect );
 	void moveDown( Effect * _effect );
 	void moveUp( Effect * _effect );
-	bool processAudioBuffer( sampleFrame * _buf, const fpp_t _frames, bool hasInputNoise );
+	bool processAudioBuffer( sampleFrame * _buf, const fpp_t _frames,
+	                         bool hasInputNoise );
 	void startRunning();
 
 	void clear();
 
-	void setEnabled( bool _on )
-	{
-		m_enabledModel.setValue( _on );
-	}
-
+	void setEnabled( bool _on ) { m_enabledModel.setValue( _on ); }
 
 private:
 	typedef QVector<Effect *> EffectList;
@@ -69,14 +62,10 @@ private:
 
 	BoolModel m_enabledModel;
 
-
 	friend class EffectRackView;
-
 
 signals:
 	void aboutToClear();
-
-} ;
+};
 
 #endif
-

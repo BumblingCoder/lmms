@@ -28,8 +28,8 @@
 
 #include "lmmsconfig.h"
 
-#include "lmms_basics.h"
 #include "Midi.h"
+#include "lmms_basics.h"
 
 const volume_t MinVolume = 0;
 const volume_t MaxVolume = 200;

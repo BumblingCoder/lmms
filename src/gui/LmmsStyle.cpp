@@ -23,9 +23,8 @@
  *
  */
 
-
-#include <QFile>
 #include <QApplication>
+#include <QFile>
 #include <QFrame>
 #include <QPainter>
 #include <QStyleFactory>
@@ -61,47 +60,43 @@ QLinearGradient getGradient( const QColor & _col, const QRectF & _rect )
 	return g;
 }
 
-
-
 QLinearGradient darken( const QLinearGradient & _gradient )
 {
 	QGradientStops stops = _gradient.stops();
-	for (int i = 0; i < stops.size(); ++i) {
-		QColor color = stops.at(i).second;
-		stops[i].second = color.lighter(133);
+	for( int i = 0; i < stops.size(); ++i )
+	{
+		QColor color = stops.at( i ).second;
+		stops[i].second = color.lighter( 133 );
 	}
 
 	QLinearGradient g = _gradient;
-	g.setStops(stops);
+	g.setStops( stops );
 	return g;
 }
 
-
-
-void drawPath( QPainter *p, const QPainterPath &path,
-			   const QColor &col, const QColor &borderCol,
-			   bool dark = false )
+void drawPath( QPainter * p, const QPainterPath & path, const QColor & col,
+               const QColor & borderCol, bool dark = false )
 {
 	const QRectF pathRect = path.boundingRect();
 
-	const QLinearGradient baseGradient = getGradient(col, pathRect);
-	const QLinearGradient darkGradient = darken(baseGradient);
+	const QLinearGradient baseGradient = getGradient( col, pathRect );
+	const QLinearGradient darkGradient = darken( baseGradient );
 
-	p->setOpacity(0.25);
+	p->setOpacity( 0.25 );
 
 	// glow
-	if (dark)
-		p->strokePath(path, QPen(darkGradient, 4));
+	if( dark )
+		p->strokePath( path, QPen( darkGradient, 4 ) );
 	else
-		p->strokePath(path, QPen(baseGradient, 4));
+		p->strokePath( path, QPen( baseGradient, 4 ) );
 
-	p->setOpacity(1.0);
+	p->setOpacity( 1.0 );
 
 	// fill
-	if (dark)
-		p->fillPath(path, darkGradient);
+	if( dark )
+		p->fillPath( path, darkGradient );
 	else
-		p->fillPath(path, baseGradient);
+		p->fillPath( path, baseGradient );
 
 	// TODO: Remove??
 	/*
@@ -112,25 +107,25 @@ void drawPath( QPainter *p, const QPainterPath &path,
 	p->fillPath(path, g);*/
 	// END: Remove??
 
-	p->setOpacity(0.5);
+	p->setOpacity( 0.5 );
 
 	// highlight (bb)
-	if (dark)
-		p->strokePath(path, QPen(borderCol.lighter(133), 2));
+	if( dark )
+		p->strokePath( path, QPen( borderCol.lighter( 133 ), 2 ) );
 	else
-		p->strokePath(path, QPen(borderCol, 2));
+		p->strokePath( path, QPen( borderCol, 2 ) );
 }
 
-
-
-LmmsStyle::LmmsStyle() :
-	QProxyStyle()
+LmmsStyle::LmmsStyle() : QProxyStyle()
 {
 	QFile file( "resources:style.css" );
 	file.open( QIODevice::ReadOnly );
 	qApp->setStyleSheet( file.readAll() );
 
-	if( s_palette != NULL ) { qApp->setPalette( *s_palette ); }
+	if( s_palette != NULL )
+	{
+		qApp->setPalette( *s_palette );
+	}
 
 #if QT_VERSION >= 0x050000
 	setBaseStyle( QStyleFactory::create( "Fusion" ) );
@@ -139,63 +134,56 @@ LmmsStyle::LmmsStyle() :
 #endif
 }
 
-
-
-
 QPalette LmmsStyle::standardPalette( void ) const
 {
-	if( s_palette != NULL) { return * s_palette; }
+	if( s_palette != NULL )
+	{
+		return *s_palette;
+	}
 
 	QPalette pal = QProxyStyle::standardPalette();
 
-	return( pal );
+	return ( pal );
 }
 
-
 void LmmsStyle::drawComplexControl( ComplexControl control,
-					const QStyleOptionComplex * option,
-					QPainter *painter,
-						const QWidget *widget ) const
+                                    const QStyleOptionComplex * option,
+                                    QPainter * painter,
+                                    const QWidget * widget ) const
 {
 	// fix broken titlebar styling on win32
 	if( control == CC_TitleBar )
 	{
 		const QStyleOptionTitleBar * titleBar =
-			qstyleoption_cast<const QStyleOptionTitleBar *>(option );
+		    qstyleoption_cast<const QStyleOptionTitleBar *>( option );
 		if( titleBar )
 		{
 			QStyleOptionTitleBar so( *titleBar );
 			so.palette = standardPalette();
 			so.palette.setColor( QPalette::HighlightedText,
-				( titleBar->titleBarState & State_Active ) ?
-					QColor( 255, 255, 255 ) :
-						QColor( 192, 192, 192 ) );
-			so.palette.setColor( QPalette::Text,
-							QColor( 64, 64, 64 ) );
-			QProxyStyle::drawComplexControl( control, &so,
-							painter, widget );
+			                     ( titleBar->titleBarState & State_Active )
+			                         ? QColor( 255, 255, 255 )
+			                         : QColor( 192, 192, 192 ) );
+			so.palette.setColor( QPalette::Text, QColor( 64, 64, 64 ) );
+			QProxyStyle::drawComplexControl( control, &so, painter, widget );
 			return;
 		}
 	}
-/*	else if( control == CC_ScrollBar )
-	{
-		painter->fillRect( option->rect, QApplication::palette().color( QPalette::Active,
-							QPalette::Background ) );
+	/*	else if( control == CC_ScrollBar )
+	  {
+	    painter->fillRect( option->rect, QApplication::palette().color(
+	  QPalette::Active, QPalette::Background ) );
 
-	}*/
+	  }*/
 	QProxyStyle::drawComplexControl( control, option, painter, widget );
 }
 
-
-
-
 void LmmsStyle::drawPrimitive( PrimitiveElement element,
-		const QStyleOption *option, QPainter *painter,
-		const QWidget *widget) const
+                               const QStyleOption * option, QPainter * painter,
+                               const QWidget * widget ) const
 {
-	if( element == QStyle::PE_Frame ||
-			element == QStyle::PE_FrameLineEdit ||
-			element == QStyle::PE_PanelLineEdit )
+	if( element == QStyle::PE_Frame || element == QStyle::PE_FrameLineEdit ||
+	    element == QStyle::PE_PanelLineEdit )
 	{
 		const QRect rect = option->rect;
 
@@ -213,95 +201,91 @@ void LmmsStyle::drawPrimitive( PrimitiveElement element,
 
 		// black inside lines
 		// 50%
-		black.setAlpha(a100);
-		painter->setPen(QPen(black, 0));
-		lines[0] = QLine(rect.left() + 2, rect.top() + 1,
-					rect.right() - 2, rect.top() + 1);
-		lines[1] = QLine(rect.left() + 2, rect.bottom() - 1,
-					rect.right() - 2, rect.bottom() - 1);
-		lines[2] = QLine(rect.left() + 1, rect.top() + 2,
-					rect.left() + 1, rect.bottom() - 2);
-		lines[3] = QLine(rect.right() - 1, rect.top() + 2,
-					rect.right() - 1, rect.bottom() - 2);
-		painter->drawLines(lines, 4);
+		black.setAlpha( a100 );
+		painter->setPen( QPen( black, 0 ) );
+		lines[0] = QLine( rect.left() + 2, rect.top() + 1, rect.right() - 2,
+		                  rect.top() + 1 );
+		lines[1] = QLine( rect.left() + 2, rect.bottom() - 1, rect.right() - 2,
+		                  rect.bottom() - 1 );
+		lines[2] = QLine( rect.left() + 1, rect.top() + 2, rect.left() + 1,
+		                  rect.bottom() - 2 );
+		lines[3] = QLine( rect.right() - 1, rect.top() + 2, rect.right() - 1,
+		                  rect.bottom() - 2 );
+		painter->drawLines( lines, 4 );
 
 		// black inside dots
-		black.setAlpha(a50);
-		painter->setPen(QPen(black, 0));
-		points[0] = QPoint(rect.left() + 2, rect.top() + 2);
-		points[1] = QPoint(rect.left() + 2, rect.bottom() - 2);
-		points[2] = QPoint(rect.right() - 2, rect.top() + 2);
-		points[3] = QPoint(rect.right() - 2, rect.bottom() - 2);
-		painter->drawPoints(points, 4);
-
+		black.setAlpha( a50 );
+		painter->setPen( QPen( black, 0 ) );
+		points[0] = QPoint( rect.left() + 2, rect.top() + 2 );
+		points[1] = QPoint( rect.left() + 2, rect.bottom() - 2 );
+		points[2] = QPoint( rect.right() - 2, rect.top() + 2 );
+		points[3] = QPoint( rect.right() - 2, rect.bottom() - 2 );
+		painter->drawPoints( points, 4 );
 
 		// outside lines - shadow
 		// 100%
-		shadow.setAlpha(a75);
-		painter->setPen(QPen(shadow, 0));
-		lines[0] = QLine(rect.left() + 2, rect.top(),
-						rect.right() - 2, rect.top());
-		lines[1] = QLine(rect.left(), rect.top() + 2,
-						rect.left(), rect.bottom() - 2);
-		painter->drawLines(lines, 2);
+		shadow.setAlpha( a75 );
+		painter->setPen( QPen( shadow, 0 ) );
+		lines[0] =
+		    QLine( rect.left() + 2, rect.top(), rect.right() - 2, rect.top() );
+		lines[1] = QLine( rect.left(), rect.top() + 2, rect.left(),
+		                  rect.bottom() - 2 );
+		painter->drawLines( lines, 2 );
 
 		// outside corner dots - shadow
 		// 75%
-		shadow.setAlpha(a50);
-		painter->setPen(QPen(shadow, 0));
-		points[0] = QPoint(rect.left() + 1, rect.top() + 1);
-		points[1] = QPoint(rect.right() - 1, rect.top() + 1);
-		painter->drawPoints(points, 2);
+		shadow.setAlpha( a50 );
+		painter->setPen( QPen( shadow, 0 ) );
+		points[0] = QPoint( rect.left() + 1, rect.top() + 1 );
+		points[1] = QPoint( rect.right() - 1, rect.top() + 1 );
+		painter->drawPoints( points, 2 );
 
 		// outside end dots - shadow
 		// 50%
-		shadow.setAlpha(a25);
-		painter->setPen(QPen(shadow, 0));
-		points[0] = QPoint(rect.left() + 1, rect.top());
-		points[1] = QPoint(rect.left(), rect.top() + 1);
-		points[2] = QPoint(rect.right() - 1, rect.top());
-		points[3] = QPoint(rect.left(), rect.bottom() - 1);
-		painter->drawPoints(points, 4);
-
+		shadow.setAlpha( a25 );
+		painter->setPen( QPen( shadow, 0 ) );
+		points[0] = QPoint( rect.left() + 1, rect.top() );
+		points[1] = QPoint( rect.left(), rect.top() + 1 );
+		points[2] = QPoint( rect.right() - 1, rect.top() );
+		points[3] = QPoint( rect.left(), rect.bottom() - 1 );
+		painter->drawPoints( points, 4 );
 
 		// outside lines - highlight
 		// 100%
-		highlight.setAlpha(a75);
-		painter->setPen(QPen(highlight, 0));
-		lines[0] = QLine(rect.left() + 2, rect.bottom(),
-					rect.right() - 2, rect.bottom());
-		lines[1] = QLine(rect.right(), rect.top() + 2,
-					rect.right(), rect.bottom() - 2);
-		painter->drawLines(lines, 2);
+		highlight.setAlpha( a75 );
+		painter->setPen( QPen( highlight, 0 ) );
+		lines[0] = QLine( rect.left() + 2, rect.bottom(), rect.right() - 2,
+		                  rect.bottom() );
+		lines[1] = QLine( rect.right(), rect.top() + 2, rect.right(),
+		                  rect.bottom() - 2 );
+		painter->drawLines( lines, 2 );
 
 		// outside corner dots - highlight
 		// 75%
-		highlight.setAlpha(a50);
-		painter->setPen(QPen(highlight, 0));
-		points[0] = QPoint(rect.left() + 1, rect.bottom() - 1);
-		points[1] = QPoint(rect.right() - 1, rect.bottom() - 1);
-		painter->drawPoints(points, 2);
+		highlight.setAlpha( a50 );
+		painter->setPen( QPen( highlight, 0 ) );
+		points[0] = QPoint( rect.left() + 1, rect.bottom() - 1 );
+		points[1] = QPoint( rect.right() - 1, rect.bottom() - 1 );
+		painter->drawPoints( points, 2 );
 
 		// outside end dots - highlight
 		// 50%
-		highlight.setAlpha(a25);
-		painter->setPen(QPen(highlight, 0));
-		points[0] = QPoint(rect.right() - 1, rect.bottom());
-		points[1] = QPoint(rect.right(), rect.bottom() - 1);
-		points[2] = QPoint(rect.left() + 1, rect.bottom());
-		points[3] = QPoint(rect.right(), rect.top() + 1);
-		painter->drawPoints(points, 4);
+		highlight.setAlpha( a25 );
+		painter->setPen( QPen( highlight, 0 ) );
+		points[0] = QPoint( rect.right() - 1, rect.bottom() );
+		points[1] = QPoint( rect.right(), rect.bottom() - 1 );
+		points[2] = QPoint( rect.left() + 1, rect.bottom() );
+		points[3] = QPoint( rect.right(), rect.top() + 1 );
+		painter->drawPoints( points, 4 );
 	}
 	else
 	{
 		QProxyStyle::drawPrimitive( element, option, painter, widget );
 	}
-
 }
 
-
 int LmmsStyle::pixelMetric( PixelMetric _metric, const QStyleOption * _option,
-						const QWidget * _widget ) const
+                            const QWidget * _widget ) const
 {
 	switch( _metric )
 	{
@@ -325,8 +309,8 @@ int LmmsStyle::pixelMetric( PixelMetric _metric, const QStyleOption * _option,
 	}
 }
 
-
-QImage LmmsStyle::colorizeXpm( const char * const * xpm, const QBrush& fill ) const
+QImage LmmsStyle::colorizeXpm( const char * const * xpm,
+                               const QBrush & fill ) const
 {
 	QImage arrowXpm( xpm );
 	QImage arrow( arrowXpm.size(), QImage::Format_ARGB32 );
@@ -338,8 +322,8 @@ QImage LmmsStyle::colorizeXpm( const char * const * xpm, const QBrush& fill ) co
 	return arrow;
 }
 
-
-void LmmsStyle::hoverColors( bool sunken, bool hover, bool active, QColor& color, QColor& blend ) const
+void LmmsStyle::hoverColors( bool sunken, bool hover, bool active,
+                             QColor & color, QColor & blend ) const
 {
 	if( active )
 	{
@@ -365,4 +349,3 @@ void LmmsStyle::hoverColors( bool sunken, bool hover, bool active, QColor& color
 		blend = QColor( 33, 33, 33 );
 	}
 }
-

@@ -1,5 +1,6 @@
 /*
- * SampleTrack.h - class SampleTrack, a track which provides arrangement of samples
+ * SampleTrack.h - class SampleTrack, a track which provides arrangement of
+ * samples
  *
  * Copyright (c) 2005-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
@@ -34,11 +35,11 @@ class EffectRackView;
 class Knob;
 class SampleBuffer;
 
-
 class SampleTCO : public TrackContentObject
 {
 	Q_OBJECT
-	mapPropertyFromModel(bool,isRecord,setRecord,m_recordModel);
+	mapPropertyFromModel( bool, isRecord, setRecord, m_recordModel );
+
 public:
 	SampleTCO( Track * _track );
 	virtual ~SampleTCO();
@@ -48,49 +49,36 @@ public:
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
-	inline virtual QString nodeName() const
-	{
-		return "sampletco";
-	}
+	inline virtual QString nodeName() const { return "sampletco"; }
 
-	SampleBuffer* sampleBuffer()
-	{
-		return m_sampleBuffer;
-	}
+	SampleBuffer * sampleBuffer() { return m_sampleBuffer; }
 
 	MidiTime sampleLength() const;
 	void setSampleStartFrame( f_cnt_t startFrame );
 	void setSamplePlayLength( f_cnt_t length );
 	virtual TrackContentObjectView * createView( TrackView * _tv );
 
-
 	bool isPlaying() const;
-	void setIsPlaying(bool isPlaying);
+	void setIsPlaying( bool isPlaying );
 
 public slots:
-	void setSampleBuffer( SampleBuffer* sb );
+	void setSampleBuffer( SampleBuffer * sb );
 	void setSampleFile( const QString & _sf );
 	void updateLength();
 	void toggleRecord();
 	void playbackPositionChanged();
 	void updateTrackTcos();
 
-
 private:
-	SampleBuffer* m_sampleBuffer;
+	SampleBuffer * m_sampleBuffer;
 	BoolModel m_recordModel;
 	bool m_isPlaying;
 
-
 	friend class SampleTCOView;
-
 
 signals:
 	void sampleChanged();
-
-} ;
-
-
+};
 
 class SampleTCOView : public TrackContentObjectView
 {
@@ -100,11 +88,8 @@ public:
 	SampleTCOView( SampleTCO * _tco, TrackView * _tv );
 	virtual ~SampleTCOView();
 
-
 public slots:
 	void updateSample();
-
-
 
 protected:
 	virtual void contextMenuEvent( QContextMenuEvent * _cme );
@@ -115,41 +100,30 @@ protected:
 	virtual void mouseDoubleClickEvent( QMouseEvent * );
 	virtual void paintEvent( QPaintEvent * );
 
-
 private:
 	SampleTCO * m_tco;
 	QPixmap m_paintPixmap;
-} ;
-
-
-
+};
 
 class SampleTrack : public Track
 {
 	Q_OBJECT
 public:
-	SampleTrack( TrackContainer* tc );
+	SampleTrack( TrackContainer * tc );
 	virtual ~SampleTrack();
 
 	virtual bool play( const MidiTime & _start, const fpp_t _frames,
-						const f_cnt_t _frame_base, int _tco_num = -1 );
-	virtual TrackView * createView( TrackContainerView* tcv );
+	                   const f_cnt_t _frame_base, int _tco_num = -1 );
+	virtual TrackView * createView( TrackContainerView * tcv );
 	virtual TrackContentObject * createTCO( const MidiTime & _pos );
 
-
 	virtual void saveTrackSpecificSettings( QDomDocument & _doc,
-							QDomElement & _parent );
+	                                        QDomElement & _parent );
 	virtual void loadTrackSpecificSettings( const QDomElement & _this );
 
-	inline AudioPort * audioPort()
-	{
-		return &m_audioPort;
-	}
+	inline AudioPort * audioPort() { return &m_audioPort; }
 
-	virtual QString nodeName() const
-	{
-		return "sampletrack";
-	}
+	virtual QString nodeName() const { return "sampletrack"; }
 
 public slots:
 	void updateTcos();
@@ -160,41 +134,28 @@ private:
 	FloatModel m_panningModel;
 	AudioPort m_audioPort;
 
-
-
 	friend class SampleTrackView;
-
-} ;
-
-
+};
 
 class SampleTrackView : public TrackView
 {
 	Q_OBJECT
 public:
-	SampleTrackView( SampleTrack* Track, TrackContainerView* tcv );
+	SampleTrackView( SampleTrack * Track, TrackContainerView * tcv );
 	virtual ~SampleTrackView();
-
 
 public slots:
 	void showEffects();
 
-
 protected:
 	void modelChanged();
-	virtual QString nodeName() const
-	{
-		return "SampleTrackView";
-	}
-
+	virtual QString nodeName() const { return "SampleTrackView"; }
 
 private:
 	EffectRackView * m_effectRack;
 	QWidget * m_effWindow;
 	Knob * m_volumeKnob;
 	Knob * m_panningKnob;
-
-} ;
-
+};
 
 #endif

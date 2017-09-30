@@ -27,129 +27,119 @@
 
 #include "AutomatableModelView.h"
 #include "AutomationPattern.h"
-#include "ControllerConnectionDialog.h"
 #include "ControllerConnection.h"
-#include "embed.h"
+#include "ControllerConnectionDialog.h"
 #include "GuiApplication.h"
 #include "MainWindow.h"
 #include "StringPairDrag.h"
+#include "embed.h"
 
 #include "AutomationEditor.h"
 
-
-
-AutomatableModelView::AutomatableModelView( ::Model* model, QWidget* _this ) :
-	ModelView( model, _this ),
-	m_description( QString::null ),
-	m_unit( QString::null )
+AutomatableModelView::AutomatableModelView(::Model * model, QWidget * _this )
+    : ModelView( model, _this ),
+      m_description( QString::null ),
+      m_unit( QString::null )
 {
 	widget()->setAcceptDrops( true );
 	widget()->setCursor( QCursor( embed::getIconPixmap( "hand" ), 3, 3 ) );
 }
 
+AutomatableModelView::~AutomatableModelView() {}
 
-
-
-AutomatableModelView::~AutomatableModelView()
+void AutomatableModelView::addDefaultActions( QMenu * menu )
 {
-}
+	AutomatableModel * model = modelUntyped();
 
+	AutomatableModelViewSlots * amvSlots =
+	    new AutomatableModelViewSlots( this, menu );
 
-
-
-void AutomatableModelView::addDefaultActions( QMenu* menu )
-{
-	AutomatableModel* model = modelUntyped();
-
-	AutomatableModelViewSlots* amvSlots = new AutomatableModelViewSlots( this, menu );
-
-	menu->addAction( embed::getIconPixmap( "reload" ),
-						AutomatableModel::tr( "&Reset (%1%2)" ).
-							arg( model->displayValue( model->initValue<float>() ) ).
-							arg( m_unit ),
-						model, SLOT( reset() ) );
+	menu->addAction(
+	    embed::getIconPixmap( "reload" ),
+	    AutomatableModel::tr( "&Reset (%1%2)" )
+	        .arg( model->displayValue( model->initValue<float>() ) )
+	        .arg( m_unit ),
+	    model, SLOT( reset() ) );
 
 	menu->addSeparator();
 	menu->addAction( embed::getIconPixmap( "edit_copy" ),
-						AutomatableModel::tr( "&Copy value (%1%2)" ).
-							arg( model->displayValue( model->value<float>() ) ).
-							arg( m_unit ),
-						model, SLOT( copyValue() ) );
+	                 AutomatableModel::tr( "&Copy value (%1%2)" )
+	                     .arg( model->displayValue( model->value<float>() ) )
+	                     .arg( m_unit ),
+	                 model, SLOT( copyValue() ) );
 
-	menu->addAction( embed::getIconPixmap( "edit_paste" ),
-						AutomatableModel::tr( "&Paste value (%1%2)").
-							arg( model->displayValue( AutomatableModel::copiedValue() ) ).
-							arg( m_unit ),
-						model, SLOT( pasteValue() ) );
+	menu->addAction(
+	    embed::getIconPixmap( "edit_paste" ),
+	    AutomatableModel::tr( "&Paste value (%1%2)" )
+	        .arg( model->displayValue( AutomatableModel::copiedValue() ) )
+	        .arg( m_unit ),
+	    model, SLOT( pasteValue() ) );
 
 	menu->addSeparator();
 
 	menu->addAction( embed::getIconPixmap( "automation" ),
-						AutomatableModel::tr( "Edit song-global automation" ),
-							amvSlots,
-							SLOT( editSongGlobalAutomation() ) );
+	                 AutomatableModel::tr( "Edit song-global automation" ),
+	                 amvSlots, SLOT( editSongGlobalAutomation() ) );
 
 	menu->addAction( QPixmap(),
-						AutomatableModel::tr( "Remove song-global automation" ),
-						amvSlots,
-						SLOT( removeSongGlobalAutomation() ) );
+	                 AutomatableModel::tr( "Remove song-global automation" ),
+	                 amvSlots, SLOT( removeSongGlobalAutomation() ) );
 
 	menu->addSeparator();
 
 	if( model->hasLinkedModels() )
 	{
 		menu->addAction( embed::getIconPixmap( "edit-delete" ),
-							AutomatableModel::tr( "Remove all linked controls" ),
-							amvSlots, SLOT( unlinkAllModels() ) );
+		                 AutomatableModel::tr( "Remove all linked controls" ),
+		                 amvSlots, SLOT( unlinkAllModels() ) );
 		menu->addSeparator();
 	}
 
 	QString controllerTxt;
 	if( model->controllerConnection() )
 	{
-		Controller* cont = model->controllerConnection()->getController();
+		Controller * cont = model->controllerConnection()->getController();
 		if( cont )
 		{
-			controllerTxt = AutomatableModel::tr( "Connected to %1" ).arg( cont->name() );
+			controllerTxt =
+			    AutomatableModel::tr( "Connected to %1" ).arg( cont->name() );
 		}
 		else
 		{
 			controllerTxt = AutomatableModel::tr( "Connected to controller" );
 		}
 
-		QMenu* contMenu = menu->addMenu( embed::getIconPixmap( "controller" ), controllerTxt );
+		QMenu * contMenu = menu->addMenu( embed::getIconPixmap( "controller" ),
+		                                  controllerTxt );
 
 		contMenu->addAction( embed::getIconPixmap( "controller" ),
-								AutomatableModel::tr("Edit connection..."),
-								amvSlots, SLOT( execConnectionDialog() ) );
+		                     AutomatableModel::tr( "Edit connection..." ),
+		                     amvSlots, SLOT( execConnectionDialog() ) );
 		contMenu->addAction( embed::getIconPixmap( "cancel" ),
-								AutomatableModel::tr("Remove connection"),
-								amvSlots, SLOT( removeConnection() ) );
+		                     AutomatableModel::tr( "Remove connection" ),
+		                     amvSlots, SLOT( removeConnection() ) );
 	}
 	else
 	{
 		menu->addAction( embed::getIconPixmap( "controller" ),
-							AutomatableModel::tr("Connect to controller..."),
-							amvSlots, SLOT( execConnectionDialog() ) );
+		                 AutomatableModel::tr( "Connect to controller..." ),
+		                 amvSlots, SLOT( execConnectionDialog() ) );
 	}
 }
 
-
-
-
-void AutomatableModelView::setModel( Model* model, bool isOldModelValid )
+void AutomatableModelView::setModel( Model * model, bool isOldModelValid )
 {
 	ModelView::setModel( model, isOldModelValid );
 }
 
-
-
-
-void AutomatableModelView::mousePressEvent( QMouseEvent* event )
+void AutomatableModelView::mousePressEvent( QMouseEvent * event )
 {
-	if( event->button() == Qt::LeftButton && event->modifiers() & Qt::ControlModifier )
+	if( event->button() == Qt::LeftButton &&
+	    event->modifiers() & Qt::ControlModifier )
 	{
-		new StringPairDrag( "automatable_model", QString::number( modelUntyped()->id() ), QPixmap(), widget() );
+		new StringPairDrag( "automatable_model",
+		                    QString::number( modelUntyped()->id() ), QPixmap(),
+		                    widget() );
 		event->accept();
 	}
 	else if( event->button() == Qt::MidButton )
@@ -158,26 +148,19 @@ void AutomatableModelView::mousePressEvent( QMouseEvent* event )
 	}
 }
 
-
-
-
-
-
-AutomatableModelViewSlots::AutomatableModelViewSlots( AutomatableModelView* amv, QObject* parent ) :
-	QObject(),
-	m_amv( amv )
+AutomatableModelViewSlots::AutomatableModelViewSlots(
+    AutomatableModelView * amv, QObject * parent )
+    : QObject(), m_amv( amv )
 {
-	connect( parent, SIGNAL( destroyed() ), this, SLOT( deleteLater() ), Qt::QueuedConnection );
+	connect( parent, SIGNAL( destroyed() ), this, SLOT( deleteLater() ),
+	         Qt::QueuedConnection );
 }
-
-
-
 
 void AutomatableModelViewSlots::execConnectionDialog()
 {
 	// TODO[pg]: Display a dialog with list of controllers currently in the song
 	// in addition to any system MIDI controllers
-	AutomatableModel* m = m_amv->modelUntyped();
+	AutomatableModel * m = m_amv->modelUntyped();
 
 	m->displayName();
 	ControllerConnectionDialog d( gui->mainWindow(), m );
@@ -190,14 +173,16 @@ void AutomatableModelViewSlots::execConnectionDialog()
 			// Update
 			if( m->controllerConnection() )
 			{
-				m->controllerConnection()->setController( d.chosenController() );
+				m->controllerConnection()->setController(
+				    d.chosenController() );
 			}
 			// New
 			else
 			{
-				ControllerConnection* cc = new ControllerConnection( d.chosenController() );
+				ControllerConnection * cc =
+				    new ControllerConnection( d.chosenController() );
 				m->setControllerConnection( cc );
-				//cc->setTargetName( m->displayName() );
+				// cc->setTargetName( m->displayName() );
 			}
 		}
 		// no controller, so delete existing connection
@@ -208,12 +193,9 @@ void AutomatableModelViewSlots::execConnectionDialog()
 	}
 }
 
-
-
-
 void AutomatableModelViewSlots::removeConnection()
 {
-	AutomatableModel* m = m_amv->modelUntyped();
+	AutomatableModel * m = m_amv->modelUntyped();
 
 	if( m->controllerConnection() )
 	{
@@ -222,28 +204,18 @@ void AutomatableModelViewSlots::removeConnection()
 	}
 }
 
-
-
-
 void AutomatableModelViewSlots::editSongGlobalAutomation()
 {
 	gui->automationEditor()->open(
-				AutomationPattern::globalAutomationPattern(m_amv->modelUntyped())
-	);
+	    AutomationPattern::globalAutomationPattern( m_amv->modelUntyped() ) );
 }
-
-
 
 void AutomatableModelViewSlots::removeSongGlobalAutomation()
 {
 	delete AutomationPattern::globalAutomationPattern( m_amv->modelUntyped() );
 }
 
-
 void AutomatableModelViewSlots::unlinkAllModels()
 {
 	m_amv->modelUntyped()->unlinkAllModels();
 }
-
-
-

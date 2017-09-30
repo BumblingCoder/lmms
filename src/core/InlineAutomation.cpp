@@ -26,23 +26,19 @@
 
 #include "InlineAutomation.h"
 
-
 void InlineAutomation::saveSettings( QDomDocument & _doc,
-							QDomElement & _parent )
+                                     QDomElement & _parent )
 {
 	if( hasAutomation() )
 	{
-		QDomElement ap = _doc.createElement(
-					AutomationPattern::classNodeName() );
+		QDomElement ap =
+		    _doc.createElement( AutomationPattern::classNodeName() );
 		QDomElement v = _doc.createElement( nodeName() );
 		automationPattern()->saveSettings( _doc, v );
 		ap.appendChild( v );
 		_parent.appendChild( ap );
 	}
 }
-
-
-
 
 void InlineAutomation::loadSettings( const QDomElement & _this )
 {
@@ -52,9 +48,7 @@ void InlineAutomation::loadSettings( const QDomElement & _this )
 		node = node.namedItem( nodeName() );
 		if( node.isElement() )
 		{
-			automationPattern()->loadSettings(
-							node.toElement() );
+			automationPattern()->loadSettings( node.toElement() );
 		}
 	}
 }
-

@@ -22,13 +22,11 @@
  *
  */
 
-
 #ifndef ENGINE_H
 #define ENGINE_H
 
-#include <QtCore/QString>
 #include <QtCore/QObject>
-
+#include <QtCore/QString>
 
 #include "export.h"
 
@@ -39,7 +37,6 @@ class ProjectJournal;
 class Mixer;
 class Song;
 class Ladspa2LMMS;
-
 
 // Note: This class is called 'LmmsCore' instead of 'Engine' because of naming
 // conflicts caused by ZynAddSubFX. See https://github.com/LMMS/lmms/issues/2269
@@ -61,45 +58,24 @@ public:
 	static void destroy();
 
 	// core
-	static Mixer *mixer()
-	{
-		return s_mixer;
-	}
+	static Mixer * mixer() { return s_mixer; }
 
-	static FxMixer * fxMixer()
-	{
-		return s_fxMixer;
-	}
+	static FxMixer * fxMixer() { return s_fxMixer; }
 
-	static Song * getSong()
-	{
-		return s_song;
-	}
+	static Song * getSong() { return s_song; }
 
 	static BBTrackContainer * getBBTrackContainer()
 	{
 		return s_bbTrackContainer;
 	}
 
-	static ProjectJournal * projectJournal()
-	{
-		return s_projectJournal;
-	}
+	static ProjectJournal * projectJournal() { return s_projectJournal; }
 
-	static Ladspa2LMMS * getLADSPAManager()
-	{
-		return s_ladspaManager;
-	}
+	static Ladspa2LMMS * getLADSPAManager() { return s_ladspaManager; }
 
-	static DummyTrackContainer * dummyTrackContainer()
-	{
-		return s_dummyTC;
-	}
+	static DummyTrackContainer * dummyTrackContainer() { return s_dummyTC; }
 
-	static float framesPerTick()
-	{
-		return s_framesPerTick;
-	}
+	static float framesPerTick() { return s_framesPerTick; }
 	static void updateFramesPerTick();
 
 	static inline LmmsCore * inst()
@@ -112,14 +88,12 @@ public:
 	}
 
 signals:
-	void initProgress(const QString &msg);
-
+	void initProgress( const QString & msg );
 
 private:
-	// small helper function which sets the pointer to NULL before actually deleting
-	// the object it refers to
-	template<class T>
-	static inline void deleteHelper( T * * ptr )
+	// small helper function which sets the pointer to NULL before actually
+	// deleting the object it refers to
+	template <class T> static inline void deleteHelper( T ** ptr )
 	{
 		T * tmp = *ptr;
 		*ptr = NULL;
@@ -129,7 +103,7 @@ private:
 	static float s_framesPerTick;
 
 	// core
-	static Mixer *s_mixer;
+	static Mixer * s_mixer;
 	static FxMixer * s_fxMixer;
 	static Song * s_song;
 	static BBTrackContainer * s_bbTrackContainer;
@@ -138,12 +112,11 @@ private:
 
 	static Ladspa2LMMS * s_ladspaManager;
 
-	// even though most methods are static, an instance is needed for Qt slots/signals
+	// even though most methods are static, an instance is needed for Qt
+	// slots/signals
 	static LmmsCore * s_instanceOfMe;
 
 	friend class GuiApplication;
 };
 
-
 #endif
-

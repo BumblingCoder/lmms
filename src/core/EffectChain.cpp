@@ -23,56 +23,43 @@
  *
  */
 
-
 #include <QDomElement>
 
-#include "EffectChain.h"
-#include "Effect.h"
 #include "DummyEffect.h"
+#include "Effect.h"
+#include "EffectChain.h"
 #include "MixHelpers.h"
 #include "Song.h"
 
-
-EffectChain::EffectChain( Model * _parent ) :
-	Model( _parent ),
-	SerializingObject(),
-	m_enabledModel( false, NULL, tr( "Effects enabled" ) )
+EffectChain::EffectChain( Model * _parent )
+    : Model( _parent ),
+      SerializingObject(),
+      m_enabledModel( false, NULL, tr( "Effects enabled" ) )
 {
 }
 
-
-
-
-EffectChain::~EffectChain()
-{
-	clear();
-}
-
-
-
+EffectChain::~EffectChain() { clear(); }
 
 void EffectChain::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
 	_this.setAttribute( "enabled", m_enabledModel.value() );
 	_this.setAttribute( "numofeffects", m_effects.count() );
 
-	for( Effect* effect : m_effects)
+	for( Effect * effect : m_effects )
 	{
-		if( DummyEffect* dummy = dynamic_cast<DummyEffect*>(effect) )
+		if( DummyEffect * dummy = dynamic_cast<DummyEffect *>( effect ) )
 		{
 			_this.appendChild( dummy->originalPluginData() );
 		}
 		else
 		{
 			QDomElement ef = effect->saveState( _doc, _this );
-			ef.setAttribute( "name", QString::fromUtf8( effect->descriptor()->name ) );
+			ef.setAttribute( "name",
+			                 QString::fromUtf8( effect->descriptor()->name ) );
 			ef.appendChild( effect->key().saveXML( _doc ) );
 		}
 	}
 }
-
-
-
 
 void EffectChain::loadSettings( const QDomElement & _this )
 {
@@ -93,9 +80,10 @@ void EffectChain::loadSettings( const QDomElement & _this )
 			QDomElement effectData = node.toElement();
 
 			const QString name = effectData.attribute( "name" );
-			EffectKey key( effectData.elementsByTagName( "key" ).item( 0 ).toElement() );
+			EffectKey key(
+			    effectData.elementsByTagName( "key" ).item( 0 ).toElement() );
 
-			Effect* e = Effect::instantiate( name.toUtf8(), this, &key );
+			Effect * e = Effect::instantiate( name.toUtf8(), this, &key );
 
 			if( e != NULL && e->isOkay() && e->nodeName() == node.nodeName() )
 			{
@@ -116,9 +104,6 @@ void EffectChain::loadSettings( const QDomElement & _this )
 	emit dataChanged();
 }
 
-
-
-
 void EffectChain::appendEffect( Effect * _effect )
 {
 	Engine::mixer()->requestChangeInModel();
@@ -127,9 +112,6 @@ void EffectChain::appendEffect( Effect * _effect )
 
 	emit dataChanged();
 }
-
-
-
 
 void EffectChain::removeEffect( Effect * _effect )
 {
@@ -147,16 +129,13 @@ void EffectChain::removeEffect( Effect * _effect )
 	emit dataChanged();
 }
 
-
-
-
 void EffectChain::moveDown( Effect * _effect )
 {
 	if( _effect != m_effects.last() )
 	{
 		int i = 0;
-		for( EffectList::Iterator it = m_effects.begin();
-					it != m_effects.end(); it++, i++ )
+		for( EffectList::Iterator it = m_effects.begin(); it != m_effects.end();
+		     it++, i++ )
 		{
 			if( *it == _effect )
 			{
@@ -170,16 +149,13 @@ void EffectChain::moveDown( Effect * _effect )
 	}
 }
 
-
-
-
 void EffectChain::moveUp( Effect * _effect )
 {
 	if( _effect != m_effects.first() )
 	{
 		int i = 0;
-		for( EffectList::Iterator it = m_effects.begin();
-					it != m_effects.end(); it++, i++ )
+		for( EffectList::Iterator it = m_effects.begin(); it != m_effects.end();
+		     it++, i++ )
 		{
 			if( *it == _effect )
 			{
@@ -193,10 +169,8 @@ void EffectChain::moveUp( Effect * _effect )
 	}
 }
 
-
-
-
-bool EffectChain::processAudioBuffer( sampleFrame * _buf, const fpp_t _frames, bool hasInputNoise )
+bool EffectChain::processAudioBuffer( sampleFrame * _buf, const fpp_t _frames,
+                                      bool hasInputNoise )
 {
 	if( m_enabledModel.value() == false )
 	{
@@ -209,7 +183,8 @@ bool EffectChain::processAudioBuffer( sampleFrame * _buf, const fpp_t _frames, b
 	}
 
 	bool moreEffects = false;
-	for( EffectList::Iterator it = m_effects.begin(); it != m_effects.end(); ++it )
+	for( EffectList::Iterator it = m_effects.begin(); it != m_effects.end();
+	     ++it )
 	{
 		if( hasInputNoise || ( *it )->isRunning() )
 		{
@@ -224,9 +199,6 @@ bool EffectChain::processAudioBuffer( sampleFrame * _buf, const fpp_t _frames, b
 	return moreEffects;
 }
 
-
-
-
 void EffectChain::startRunning()
 {
 	if( m_enabledModel.value() == false )
@@ -234,15 +206,12 @@ void EffectChain::startRunning()
 		return;
 	}
 
-	for( EffectList::Iterator it = m_effects.begin();
-						it != m_effects.end(); it++ )
+	for( EffectList::Iterator it = m_effects.begin(); it != m_effects.end();
+	     it++ )
 	{
 		( *it )->startRunning();
 	}
 }
-
-
-
 
 void EffectChain::clear()
 {

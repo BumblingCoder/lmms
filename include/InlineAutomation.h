@@ -28,16 +28,10 @@
 #include "AutomationPattern.h"
 #include "shared_object.h"
 
-
 class InlineAutomation : public FloatModel, public sharedObject
 {
 public:
-	InlineAutomation() :
-		FloatModel(),
-		sharedObject(),
-		m_autoPattern( NULL )
-	{
-	}
+	InlineAutomation() : FloatModel(), sharedObject(), m_autoPattern( NULL ) {}
 
 	virtual ~InlineAutomation()
 	{
@@ -51,14 +45,14 @@ public:
 
 	bool hasAutomation() const
 	{
-		if( m_autoPattern != NULL && m_autoPattern->getTimeMap().isEmpty() == false )
+		if( m_autoPattern != NULL &&
+		    m_autoPattern->getTimeMap().isEmpty() == false )
 		{
-			// prevent saving inline automation if there's just one value which equals value
-			// of model which is going to be saved anyways
-			if( isAtInitValue() &&
-				m_autoPattern->getTimeMap().size() == 1 &&
-				m_autoPattern->getTimeMap().keys().first() == 0 &&
-				m_autoPattern->getTimeMap().values().first() == value() )
+			// prevent saving inline automation if there's just one value which
+			// equals value of model which is going to be saved anyways
+			if( isAtInitValue() && m_autoPattern->getTimeMap().size() == 1 &&
+			    m_autoPattern->getTimeMap().keys().first() == 0 &&
+			    m_autoPattern->getTimeMap().values().first() == value() )
 			{
 				return false;
 			}
@@ -82,11 +76,8 @@ public:
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
 
-
 private:
 	AutomationPattern * m_autoPattern;
-
-} ;
-
+};
 
 #endif

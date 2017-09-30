@@ -27,8 +27,8 @@
 #define EFFECT_VIEW_H
 
 #include "AutomatableModel.h"
-#include "PluginView.h"
 #include "Effect.h"
+#include "PluginView.h"
 
 class QGroupBox;
 class QLabel;
@@ -40,7 +40,6 @@ class Knob;
 class LedCheckBox;
 class TempoSyncKnob;
 
-
 class EffectView : public PluginView
 {
 	Q_OBJECT
@@ -48,15 +47,8 @@ public:
 	EffectView( Effect * _model, QWidget * _parent );
 	virtual ~EffectView();
 
-	inline Effect * effect()
-	{
-		return castModel<Effect>();
-	}
-	inline const Effect * effect() const
-	{
-		return castModel<Effect>();
-	}
-
+	inline Effect * effect() { return castModel<Effect>(); }
+	inline const Effect * effect() const { return castModel<Effect>(); }
 
 public slots:
 	void editControls();
@@ -66,18 +58,15 @@ public slots:
 	void displayHelp();
 	void closeEffects();
 
-
 signals:
 	void moveUp( EffectView * _plugin );
 	void moveDown( EffectView * _plugin );
 	void deletePlugin( EffectView * _plugin );
 
-
 protected:
 	virtual void contextMenuEvent( QContextMenuEvent * _me );
 	virtual void paintEvent( QPaintEvent * _pe );
 	virtual void modelChanged();
-
 
 private:
 	QPixmap m_bg;
@@ -87,7 +76,6 @@ private:
 	Knob * m_gate;
 	QMdiSubWindow * m_subWindow;
 	EffectControlDialog * m_controlView;
-
-} ;
+};
 
 #endif

@@ -31,11 +31,9 @@
 
 class AutomationPattern;
 
-
 class AutomationPatternView : public TrackContentObjectView
 {
 	Q_OBJECT
-
 
 public:
 	AutomationPatternView( AutomationPattern * _pat, TrackView * _parent );
@@ -44,7 +42,6 @@ public:
 public slots:
 	/// Opens this view's pattern in the global automation editor
 	void openInAutomationEditor();
-
 
 protected slots:
 	void resetName();
@@ -56,22 +53,20 @@ protected slots:
 
 protected:
 	virtual void constructContextMenu( QMenu * );
-	virtual void mouseDoubleClickEvent(QMouseEvent * me );
+	virtual void mouseDoubleClickEvent( QMouseEvent * me );
 	virtual void paintEvent( QPaintEvent * pe );
 	virtual void dragEnterEvent( QDragEnterEvent * _dee );
 	virtual void dropEvent( QDropEvent * _de );
 
-
 private:
 	AutomationPattern * m_pat;
 	QPixmap m_paintPixmap;
-	
+
 	QStaticText m_staticTextName;
-	
+
 	static QPixmap * s_pat_rec;
 
 	void scaleTimemapToFit( float oldMin, float oldMax );
-} ;
-
+};
 
 #endif

@@ -31,18 +31,15 @@
 #include <QtCore/QWaitCondition>
 #include <samplerate.h>
 
-
-#include "lmms_basics.h"
 #include "LocklessList.h"
+#include "MixerProfiler.h"
 #include "Note.h"
 #include "fifo_buffer.h"
-#include "MixerProfiler.h"
-
+#include "lmms_basics.h"
 
 class AudioDevice;
 class MidiClient;
 class AudioPort;
-
 
 const fpp_t MINIMUM_BUFFER_SIZE = 32;
 const fpp_t DEFAULT_BUFFER_SIZE = 256;
@@ -54,17 +51,13 @@ const int BYTES_PER_SURROUND_FRAME = sizeof( surroundSampleFrame );
 
 const float OUTPUT_SAMPLE_MULTIPLIER = 32767.0f;
 
-
 const float BaseFreq = 440.0f;
 const Keys BaseKey = Key_A;
 const Octaves BaseOctave = DefaultOctave;
 
-
 #include "PlayHandle.h"
 
-
 class MixerWorkerThread;
-
 
 class EXPORT Mixer : public QObject
 {
@@ -77,7 +70,7 @@ public:
 			Mode_Draft,
 			Mode_HighQuality,
 			Mode_FinalMix
-		} ;
+		};
 
 		enum Interpolation
 		{
@@ -85,7 +78,7 @@ public:
 			Interpolation_SincFastest,
 			Interpolation_SincMedium,
 			Interpolation_SincBest
-		} ;
+		};
 
 		enum Oversampling
 		{
@@ -93,7 +86,7 @@ public:
 			Oversampling_2x,
 			Oversampling_4x,
 			Oversampling_8x
-		} ;
+		};
 
 		Interpolation interpolation;
 		Oversampling oversampling;
@@ -107,8 +100,7 @@ public:
 					oversampling = Oversampling_None;
 					break;
 				case Mode_HighQuality:
-					interpolation =
-						Interpolation_SincFastest;
+					interpolation = Interpolation_SincFastest;
 					oversampling = Oversampling_2x;
 					break;
 				case Mode_FinalMix:
@@ -118,9 +110,8 @@ public:
 			}
 		}
 
-		qualitySettings( Interpolation _i, Oversampling _o ) :
-			interpolation( _i ),
-			oversampling( _o )
+		qualitySettings( Interpolation _i, Oversampling _o )
+		    : interpolation( _i ), oversampling( _o )
 		{
 		}
 
@@ -128,10 +119,14 @@ public:
 		{
 			switch( oversampling )
 			{
-				case Oversampling_None: return 1;
-				case Oversampling_2x: return 2;
-				case Oversampling_4x: return 4;
-				case Oversampling_8x: return 8;
+				case Oversampling_None:
+					return 1;
+				case Oversampling_2x:
+					return 2;
+				case Oversampling_4x:
+					return 4;
+				case Oversampling_8x:
+					return 8;
 			}
 			return 1;
 		}
@@ -151,35 +146,23 @@ public:
 			}
 			return SRC_LINEAR;
 		}
-	} ;
+	};
 
 	void initDevices();
 	void clear();
-
 
 	// audio-device-stuff
 
 	// Returns the current audio device's name. This is not necessarily
 	// the user's preferred audio device, in case you were thinking that.
-	inline const QString & audioDevName() const
-	{
-		return m_audioDevName;
-	}
-	inline bool audioDevStartFailed() const
-	{
-		return m_audioDevStartFailed;
-	}
+	inline const QString & audioDevName() const { return m_audioDevName; }
+	inline bool audioDevStartFailed() const { return m_audioDevStartFailed; }
 
 	void setAudioDevice( AudioDevice * _dev );
-	void setAudioDevice( AudioDevice * _dev,
-				const struct qualitySettings & _qs,
-							bool _needs_fifo );
+	void setAudioDevice( AudioDevice * _dev, const struct qualitySettings & _qs,
+	                     bool _needs_fifo );
 	void restoreAudioDevice();
-	inline AudioDevice * audioDev()
-	{
-		return m_audioDev;
-	}
-
+	inline AudioDevice * audioDev() { return m_audioDev; }
 
 	// audio-port-stuff
 	inline void addAudioPort( AudioPort * _port )
@@ -191,71 +174,40 @@ public:
 
 	void removeAudioPort( AudioPort * _port );
 
-
 	// MIDI-client-stuff
-	inline const QString & midiClientName() const
-	{
-		return m_midiClientName;
-	}
+	inline const QString & midiClientName() const { return m_midiClientName; }
 
-	inline MidiClient * midiClient()
-	{
-		return m_midiClient;
-	}
-
+	inline MidiClient * midiClient() { return m_midiClient; }
 
 	// play-handle stuff
-	bool addPlayHandle( PlayHandle* handle );
+	bool addPlayHandle( PlayHandle * handle );
 
-	void removePlayHandle( PlayHandle* handle );
+	void removePlayHandle( PlayHandle * handle );
 
-	inline PlayHandleList& playHandles()
-	{
-		return m_playHandles;
-	}
+	inline PlayHandleList & playHandles() { return m_playHandles; }
 
 	void removePlayHandlesOfTypes( Track * _track, const quint8 types );
 
-
 	// methods providing information for other classes
-	inline fpp_t framesPerPeriod() const
-	{
-		return m_framesPerPeriod;
-	}
+	inline fpp_t framesPerPeriod() const { return m_framesPerPeriod; }
 
+	MixerProfiler & profiler() { return m_profiler; }
 
-	MixerProfiler& profiler()
-	{
-		return m_profiler;
-	}
-
-	int cpuLoad() const
-	{
-		return m_profiler.cpuLoad();
-	}
+	int cpuLoad() const { return m_profiler.cpuLoad(); }
 
 	const qualitySettings & currentQualitySettings() const
 	{
 		return m_qualitySettings;
 	}
 
-
 	sample_rate_t baseSampleRate() const;
 	sample_rate_t outputSampleRate() const;
 	sample_rate_t inputSampleRate() const;
 	sample_rate_t processingSampleRate() const;
 
+	inline float masterGain() const { return m_masterGain; }
 
-	inline float masterGain() const
-	{
-		return m_masterGain;
-	}
-
-	inline void setMasterGain( const float _mo )
-	{
-		m_masterGain = _mo;
-	}
-
+	inline void setMasterGain( const float _mo ) { m_masterGain = _mo; }
 
 	static inline sample_t clip( const sample_t _s )
 	{
@@ -270,27 +222,23 @@ public:
 		return _s;
 	}
 
-
-	void getPeakValues( sampleFrame * _ab, const f_cnt_t _frames, float & peakLeft, float & peakRight ) const;
-
+	void getPeakValues( sampleFrame * _ab, const f_cnt_t _frames,
+	                    float & peakLeft, float & peakRight ) const;
 
 	bool criticalXRuns() const;
 
-	inline bool hasFifoWriter() const
-	{
-		return m_fifoWriter != NULL;
-	}
+	inline bool hasFifoWriter() const { return m_fifoWriter != NULL; }
 
 	void pushInputFrames( sampleFrame * _ab, const f_cnt_t _frames );
 
 	inline const sampleFrame * inputBuffer()
 	{
-		return m_inputBuffer[ m_inputBufferRead ];
+		return m_inputBuffer[m_inputBufferRead];
 	}
 
 	inline f_cnt_t inputBufferFrames() const
 	{
-		return m_inputBufferFrames[ m_inputBufferRead ];
+		return m_inputBufferFrames[m_inputBufferRead];
 	}
 
 	inline const surroundSampleFrame * nextBuffer()
@@ -301,17 +249,18 @@ public:
 	void changeQuality( const struct qualitySettings & _qs );
 
 	inline bool isMetronomeActive() const { return m_metronomeActive; }
-	inline void setMetronomeActive(bool value = true) { m_metronomeActive = value; }
+	inline void setMetronomeActive( bool value = true )
+	{
+		m_metronomeActive = value;
+	}
 
 	void requestChangeInModel();
 	void doneChangeInModel();
-
 
 signals:
 	void qualitySettingsChanged();
 	void sampleRateChanged();
 	void nextAudioBuffer( const surroundSampleFrame * buffer );
-
 
 private:
 	typedef fifoBuffer<surroundSampleFrame *> fifo;
@@ -323,7 +272,6 @@ private:
 
 		void finish();
 
-
 	private:
 		Mixer * m_mixer;
 		fifo * m_fifo;
@@ -332,9 +280,7 @@ private:
 		virtual void run();
 
 		void write( surroundSampleFrame * buffer );
-
-	} ;
-
+	};
 
 	Mixer( bool renderOnly );
 	virtual ~Mixer();
@@ -342,10 +288,8 @@ private:
 	void startProcessing( bool _needs_fifo = true );
 	void stopProcessing();
 
-
 	AudioDevice * tryAudioDevices();
 	MidiClient * tryMidiClients();
-
 
 	const surroundSampleFrame * renderNextBuffer();
 
@@ -382,7 +326,6 @@ private:
 	// place where new playhandles are added temporarily
 	LocklessList<PlayHandle *> m_newPlayHandles;
 	ConstPlayHandleList m_playHandlesToRemove;
-
 
 	struct qualitySettings m_qualitySettings;
 	float m_masterGain;
@@ -422,8 +365,6 @@ private:
 	friend class LmmsCore;
 	friend class MixerWorkerThread;
 	friend class ProjectRenderer;
-
-} ;
-
+};
 
 #endif

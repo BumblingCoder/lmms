@@ -30,62 +30,45 @@
 #include "MicroTimer.h"
 #include "Mixer.h"
 
-
 class AudioDummy : public AudioDevice, public QThread
 {
 public:
-	AudioDummy( bool & _success_ful, Mixer* mixer ) :
-		AudioDevice( DEFAULT_CHANNELS, mixer )
+	AudioDummy( bool & _success_ful, Mixer * mixer )
+	    : AudioDevice( DEFAULT_CHANNELS, mixer )
 	{
 		_success_ful = true;
 	}
 
-	virtual ~AudioDummy()
-	{
-		stopProcessing();
-	}
+	virtual ~AudioDummy() { stopProcessing(); }
 
 	inline static QString name()
 	{
 		return QT_TRANSLATE_NOOP( "setupWidget", "Dummy (no sound output)" );
 	}
 
-
 	class setupWidget : public AudioDeviceSetupWidget
 	{
 	public:
-		setupWidget( QWidget * _parent ) :
-			AudioDeviceSetupWidget( AudioDummy::name(), _parent )
+		setupWidget( QWidget * _parent )
+		    : AudioDeviceSetupWidget( AudioDummy::name(), _parent )
 		{
 		}
 
-		virtual ~setupWidget()
-		{
-		}
+		virtual ~setupWidget() {}
 
-		virtual void saveSettings()
-		{
-		}
+		virtual void saveSettings() {}
 
 		virtual void show()
 		{
 			parentWidget()->hide();
 			QWidget::show();
 		}
-
-	} ;
-
+	};
 
 private:
-	virtual void startProcessing()
-	{
-		start();
-	}
+	virtual void startProcessing() { start(); }
 
-	virtual void stopProcessing()
-	{
-		stopProcessingThread( this );
-	}
+	virtual void stopProcessing() { stopProcessingThread( this ); }
 
 	virtual void run()
 	{
@@ -93,7 +76,7 @@ private:
 		while( true )
 		{
 			timer.reset();
-			const surroundSampleFrame* b = mixer()->nextBuffer();
+			const surroundSampleFrame * b = mixer()->nextBuffer();
 			if( !b )
 			{
 				break;
@@ -103,15 +86,16 @@ private:
 				delete[] b;
 			}
 
-			const int microseconds = static_cast<int>( mixer()->framesPerPeriod() * 1000000.0f / mixer()->processingSampleRate() - timer.elapsed() );
+			const int microseconds =
+			    static_cast<int>( mixer()->framesPerPeriod() * 1000000.0f /
+			                          mixer()->processingSampleRate() -
+			                      timer.elapsed() );
 			if( microseconds > 0 )
 			{
 				usleep( microseconds );
 			}
 		}
 	}
-
-} ;
-
+};
 
 #endif

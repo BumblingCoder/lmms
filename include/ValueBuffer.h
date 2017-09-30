@@ -36,18 +36,18 @@ class EXPORT ValueBuffer : public std::vector<float>
 	MM_OPERATORS
 public:
 	ValueBuffer();
-	ValueBuffer(int length);
+	ValueBuffer( int length );
 
-	void fill(float value);
+	void fill( float value );
 
-	float value(int offset ) const;
+	float value( int offset ) const;
 
 	const float * values() const;
 	float * values();
-	
+
 	int length() const;
 
-	void interpolate(float start, float end);
+	void interpolate( float start, float end );
 };
 
 #endif

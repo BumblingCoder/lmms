@@ -23,28 +23,24 @@
  *
  */
 
-
 #include "MemoryManager.h"
 #include <QReadWriteLock>
-
 
 MemoryPoolVector MemoryManager::s_memoryPools;
 QReadWriteLock MemoryManager::s_poolMutex;
 PointerInfoMap MemoryManager::s_pointerInfo;
 QMutex MemoryManager::s_pointerMutex;
 
-
 bool MemoryManager::init()
 {
 	s_memoryPools.reserve( 64 );
 	s_pointerInfo.reserve( 4096 );
 	// construct first MemoryPool and allocate memory
-	MemoryPool m ( MM_INITIAL_CHUNKS );
+	MemoryPool m( MM_INITIAL_CHUNKS );
 	m.m_pool = MemoryHelper::alignedMalloc( MM_INITIAL_CHUNKS * MM_CHUNK_SIZE );
 	s_memoryPools.append( m );
 	return true;
 }
-
 
 void * MemoryManager::alloc( size_t size )
 {
@@ -53,7 +49,8 @@ void * MemoryManager::alloc( size_t size )
 		return NULL;
 	}
 
-	int requiredChunks = size / MM_CHUNK_SIZE + ( size % MM_CHUNK_SIZE > 0 ? 1 : 0 );
+	int requiredChunks =
+	    size / MM_CHUNK_SIZE + ( size % MM_CHUNK_SIZE > 0 ? 1 : 0 );
 
 	MemoryPool * mp = NULL;
 	void * ptr = NULL;
@@ -76,8 +73,8 @@ void * MemoryManager::alloc( size_t size )
 	{
 		s_pointerMutex.lock();
 		PtrInfo p;
-			p.chunks = requiredChunks;
-			p.memPool = mp;
+		p.chunks = requiredChunks;
+		p.memPool = mp;
 		s_pointerInfo[ptr] = p;
 		s_pointerMutex.unlock();
 		return ptr;
@@ -94,30 +91,33 @@ void * MemoryManager::alloc( size_t size )
 	{
 		s_pointerMutex.lock();
 		PtrInfo p;
-			p.chunks = requiredChunks;
-			p.memPool = mp;
+		p.chunks = requiredChunks;
+		p.memPool = mp;
 		s_pointerInfo[ptr] = p;
 		s_pointerMutex.unlock();
 		return ptr;
 	}
 	// still no luck? something is horribly wrong
-	qFatal( "MemoryManager.cpp: Couldn't allocate memory: %d chunks asked", requiredChunks );
+	qFatal( "MemoryManager.cpp: Couldn't allocate memory: %d chunks asked",
+	        requiredChunks );
 	return NULL;
 }
-
 
 void MemoryManager::free( void * ptr )
 {
 	if( !ptr )
 	{
-		return; // Null pointer deallocations are OK but do not need to be handled
+		return; // Null pointer deallocations are OK but do not need to be
+		        // handled
 	}
 
 	// fetch info on the ptr and remove
 	s_pointerMutex.lock();
-	if( ! s_pointerInfo.contains( ptr ) ) // if we have no info on ptr, fail loudly
+	if( !s_pointerInfo.contains(
+	        ptr ) ) // if we have no info on ptr, fail loudly
 	{
-		qFatal( "MemoryManager: Couldn't find pointer info for pointer: %p", ptr );
+		qFatal( "MemoryManager: Couldn't find pointer info for pointer: %p",
+		        ptr );
 	}
 	PtrInfo p = s_pointerInfo[ptr];
 	s_pointerInfo.remove( ptr );
@@ -126,10 +126,9 @@ void MemoryManager::free( void * ptr )
 	p.memPool->releaseChunks( ptr, p.chunks );
 }
 
-
 int MemoryManager::extend( int chunks )
 {
-	MemoryPool m ( chunks );
+	MemoryPool m( chunks );
 	m.m_pool = MemoryHelper::alignedMalloc( chunks * MM_CHUNK_SIZE );
 
 	s_poolMutex.lockForWrite();
@@ -140,16 +139,15 @@ int MemoryManager::extend( int chunks )
 	return i;
 }
 
-
 void MemoryManager::cleanup()
 {
-	for( MemoryPoolVector::iterator it = s_memoryPools.begin(); it != s_memoryPools.end(); ++it )
+	for( MemoryPoolVector::iterator it = s_memoryPools.begin();
+	     it != s_memoryPools.end(); ++it )
 	{
 		MemoryHelper::alignedFree( ( *it ).m_pool );
 		MemoryHelper::alignedFree( ( *it ).m_free );
 	}
 }
-
 
 void * MemoryPool::getChunks( int chunksNeeded )
 {
@@ -195,27 +193,27 @@ void * MemoryPool::getChunks( int chunksNeeded )
 		// set chunk flags to false so we know the chunks are in use
 		for( intptr_t i = 0; i < chunksNeeded; ++i )
 		{
-			m_free[ index + i ] = 0;
+			m_free[index + i] = 0;
 		}
 		m_mutex.unlock();
-		return (char*)m_pool + ( index * MM_CHUNK_SIZE );
+		return (char *) m_pool + ( index * MM_CHUNK_SIZE );
 	}
 	m_mutex.unlock();
 	return NULL; // out of stock, come again tomorrow!
 }
 
-
 void MemoryPool::releaseChunks( void * ptr, int chunks )
 {
 	m_mutex.lock();
 
-	intptr_t start = ( (intptr_t)ptr - (intptr_t)m_pool ) / MM_CHUNK_SIZE;
+	intptr_t start = ( (intptr_t) ptr - (intptr_t) m_pool ) / MM_CHUNK_SIZE;
 	if( start < 0 )
 	{
-		qFatal( "MemoryManager: error at releaseChunks() - corrupt pointer info?" );
+		qFatal(
+		    "MemoryManager: error at releaseChunks() - corrupt pointer info?" );
 	}
 
-	memset( &m_free[ start ], 1, chunks );
+	memset( &m_free[start], 1, chunks );
 
 	m_mutex.unlock();
 }

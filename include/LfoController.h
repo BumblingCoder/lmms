@@ -2,7 +2,7 @@
  * LfoController.h - A LFO-based controller and dialog
  *
  * Copyright (c) 2008 Paul Giblock <drfaygo/at/gmail.com>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -27,12 +27,12 @@
 
 #include <QWidget>
 
-#include "Model.h"
 #include "AutomatableModel.h"
 #include "Controller.h"
 #include "ControllerDialog.h"
-#include "TempoSyncKnobModel.h"
+#include "Model.h"
 #include "Oscillator.h"
+#include "TempoSyncKnobModel.h"
 
 class automatableButtonGroup;
 class Knob;
@@ -40,8 +40,7 @@ class LedCheckBox;
 class TempoSyncKnob;
 class PixmapButton;
 
-
-class LfoController : public Controller 
+class LfoController : public Controller
 {
 	Q_OBJECT
 public:
@@ -53,10 +52,8 @@ public:
 	virtual void loadSettings( const QDomElement & _this );
 	virtual QString nodeName() const;
 
-
 public slots:
 	virtual ControllerDialog * createDialog( QWidget * _parent );
-
 
 protected:
 	// The internal per-controller value updating function
@@ -73,7 +70,7 @@ protected:
 	float m_phaseOffset;
 	float m_currentPhase;
 
-	sample_t (*m_sampleFunction)( const float );
+	sample_t ( *m_sampleFunction )( const float );
 
 private:
 	SampleBuffer * m_userDefSampleBuffer;
@@ -84,10 +81,7 @@ protected slots:
 	void updateDuration();
 
 	friend class LfoControllerDialog;
-
-} ;
-
-
+};
 
 class LfoControllerDialog : public ControllerDialog
 {
@@ -95,7 +89,6 @@ class LfoControllerDialog : public ControllerDialog
 public:
 	LfoControllerDialog( Controller * _controller, QWidget * _parent );
 	virtual ~LfoControllerDialog();
-
 
 protected:
 	virtual void contextMenuEvent( QContextMenuEvent * _me );
@@ -111,13 +104,11 @@ protected:
 	automatableButtonGroup * m_waveBtnGrp;
 	automatableButtonGroup * m_multiplierBtnGrp;
 
-
 private:
 	PixmapButton * m_userWaveBtn;
 
 private slots:
 	void askUserDefWave();
-
-} ;
+};
 
 #endif

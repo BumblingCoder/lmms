@@ -29,12 +29,13 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 
-#include "EffectChain.h"
 #include "Effect.h"
+#include "EffectChain.h"
 
-
-namespace Ui { class EffectSelectDialog; }
-
+namespace Ui
+{
+class EffectSelectDialog;
+}
 
 class EffectSelectDialog : public QDialog
 {
@@ -45,13 +46,11 @@ public:
 
 	Effect * instantiateSelectedPlugin( EffectChain * _parent );
 
-
 protected slots:
 	void acceptSelection();
 	void rowChanged( const QModelIndex &, const QModelIndex & );
 	void sortAgain();
 	void updateSelection();
-
 
 private:
 	Ui::EffectSelectDialog * ui;
@@ -62,9 +61,6 @@ private:
 	QStandardItemModel m_sourceModel;
 	QSortFilterProxyModel m_model;
 	QWidget * m_descriptionWidget;
-
-} ;
-
-
+};
 
 #endif

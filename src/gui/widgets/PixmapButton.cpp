@@ -3,7 +3,7 @@
  *                     checkboxes/radiobuttons etc)
  *
  * Copyright (c) 2004-2013 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -22,36 +22,25 @@
  * Boston, MA 02110-1301 USA.
  *
  */
- 
 
 #include <QMouseEvent>
 #include <QPainter>
 
-#include "PixmapButton.h"
 #include "MainWindow.h"
+#include "PixmapButton.h"
 #include "embed.h"
 
-
-
-PixmapButton::PixmapButton( QWidget * _parent, const QString & _name ) :
-	AutomatableButton( _parent, _name ),
-	m_activePixmap(),
-	m_inactivePixmap(),
-	m_pressed( false )
+PixmapButton::PixmapButton( QWidget * _parent, const QString & _name )
+    : AutomatableButton( _parent, _name ),
+      m_activePixmap(),
+      m_inactivePixmap(),
+      m_pressed( false )
 {
 	setActiveGraphic( embed::getIconPixmap( "led_yellow" ) );
 	setInactiveGraphic( embed::getIconPixmap( "led_off" ), false );
 }
 
-
-
-
-PixmapButton::~PixmapButton()
-{
-}
-
-
-
+PixmapButton::~PixmapButton() {}
 
 void PixmapButton::paintEvent( QPaintEvent * )
 {
@@ -70,10 +59,6 @@ void PixmapButton::paintEvent( QPaintEvent * )
 	}
 }
 
-
-
-
-
 void PixmapButton::mousePressEvent( QMouseEvent * _me )
 {
 	// Show pressing graphics if this isn't checkable
@@ -86,9 +71,6 @@ void PixmapButton::mousePressEvent( QMouseEvent * _me )
 	AutomatableButton::mousePressEvent( _me );
 }
 
-
-
-
 void PixmapButton::mouseReleaseEvent( QMouseEvent * _me )
 {
 	AutomatableButton::mouseReleaseEvent( _me );
@@ -100,26 +82,17 @@ void PixmapButton::mouseReleaseEvent( QMouseEvent * _me )
 	}
 }
 
-
-
-
 void PixmapButton::mouseDoubleClickEvent( QMouseEvent * _me )
 {
 	emit doubleClicked();
 	_me->accept();
 }
 
-
-
-
 void PixmapButton::setActiveGraphic( const QPixmap & _pm )
 {
 	m_activePixmap = _pm;
 	resize( m_activePixmap.width(), m_activePixmap.height() );
 }
-
-
-
 
 void PixmapButton::setInactiveGraphic( const QPixmap & _pm, bool _update )
 {
@@ -136,13 +109,8 @@ QSize PixmapButton::sizeHint() const
 	{
 		return m_activePixmap.size();
 	}
-	else 
+	else
 	{
 		return m_inactivePixmap.size();
 	}
 }
-
-
-
-
-

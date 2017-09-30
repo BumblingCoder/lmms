@@ -37,10 +37,10 @@ public:
 	static sampleFrame * acquire();
 	// audio-buffer-mgm
 	static void clear( sampleFrame * ab, const f_cnt_t frames,
-						const f_cnt_t offset = 0 );
+	                   const f_cnt_t offset = 0 );
 #ifndef LMMS_DISABLE_SURROUND
 	static void clear( surroundSampleFrame * ab, const f_cnt_t frames,
-						const f_cnt_t offset = 0 );
+	                   const f_cnt_t offset = 0 );
 #endif
 	static void release( sampleFrame * buf );
 };

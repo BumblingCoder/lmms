@@ -23,14 +23,13 @@
  *
  */
 
-
 #ifndef DATA_FILE_H
 #define DATA_FILE_H
 
 #include <QDomDocument>
 
-#include "export.h"
 #include "MemoryManager.h"
+#include "export.h"
 
 class QTextStream;
 
@@ -49,11 +48,11 @@ public:
 		JournalData,
 		EffectSettings,
 		TypeCount
-	} ;
+	};
 	typedef Types Type;
 
-	DataFile( const QString& fileName );
-	DataFile( const QByteArray& data );
+	DataFile( const QString & fileName );
+	DataFile( const QByteArray & data );
 	DataFile( Type type );
 
 	virtual ~DataFile();
@@ -64,25 +63,16 @@ public:
 	///
 	bool validate( QString extension );
 
-	QString nameWithExtension( const QString& fn ) const;
+	QString nameWithExtension( const QString & fn ) const;
 
-	void write( QTextStream& strm );
-	bool writeFile( const QString& fn );
+	void write( QTextStream & strm );
+	bool writeFile( const QString & fn );
 
-	QDomElement& content()
-	{
-		return m_content;
-	}
+	QDomElement & content() { return m_content; }
 
-	QDomElement& head()
-	{
-		return m_head;
-	}
+	QDomElement & head() { return m_head; }
 
-	Type type() const
-	{
-		return m_type;
-	}
+	Type type() const { return m_type; }
 
 	// small helper class for adjusting application's locale settings
 	// when loading or saving floating point values rendered to strings
@@ -99,12 +89,10 @@ public:
 
 		LocaleHelper( Mode mode );
 		~LocaleHelper();
-
 	};
 
-
 private:
-	static Type type( const QString& typeName );
+	static Type type( const QString & typeName );
 	static QString typeName( Type type );
 
 	void cleanMetaNodes( QDomElement de );
@@ -132,25 +120,21 @@ private:
 
 	void loadData( const QByteArray & _data, const QString & _sourceFile );
 
-
 	struct EXPORT typeDescStruct
 	{
 		Type m_type;
 		QString m_name;
-	} ;
+	};
 	static typeDescStruct s_types[TypeCount];
 
 	QDomElement m_content;
 	QDomElement m_head;
 	Type m_type;
-
-} ;
-
+};
 
 const int LDF_MAJOR_VERSION = 1;
 const int LDF_MINOR_VERSION = 0;
-const QString LDF_VERSION_STRING = QString::number( LDF_MAJOR_VERSION ) + "." + QString::number( LDF_MINOR_VERSION );
-
+const QString LDF_VERSION_STRING = QString::number( LDF_MAJOR_VERSION ) + "." +
+                                   QString::number( LDF_MINOR_VERSION );
 
 #endif
-

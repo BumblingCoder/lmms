@@ -37,7 +37,6 @@ public:
 	void * alloc();
 	void free( void * ptr );
 
-
 private:
 	char * m_pool;
 	size_t m_capacity;
@@ -48,36 +47,20 @@ private:
 
 	AtomicInt m_available;
 	AtomicInt m_startIndex;
+};
 
-} ;
-
-
-
-
-template<typename T>
-class LocklessAllocatorT : private LocklessAllocator
+template <typename T> class LocklessAllocatorT : private LocklessAllocator
 {
 public:
-	LocklessAllocatorT( size_t nmemb ) :
-		LocklessAllocator( nmemb, sizeof( T ) )
+	LocklessAllocatorT( size_t nmemb ) : LocklessAllocator( nmemb, sizeof( T ) )
 	{
 	}
 
-	virtual ~LocklessAllocatorT()
-	{
-	}
+	virtual ~LocklessAllocatorT() {}
 
-	T * alloc()
-	{
-		return (T *)LocklessAllocator::alloc();
-	}
+	T * alloc() { return (T *) LocklessAllocator::alloc(); }
 
-	void free( T * ptr )
-	{
-		LocklessAllocator::free( ptr );
-	}
-
-} ;
-
+	void free( T * ptr ) { LocklessAllocator::free( ptr ); }
+};
 
 #endif

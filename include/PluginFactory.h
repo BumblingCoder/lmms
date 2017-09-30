@@ -30,8 +30,8 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QList>
 
-#include "export.h"
 #include "Plugin.h"
+#include "export.h"
 
 class QLibrary;
 
@@ -40,42 +40,42 @@ class EXPORT PluginFactory
 public:
 	struct PluginInfo
 	{
-		PluginInfo() : library(nullptr), descriptor(nullptr) {}
+		PluginInfo() : library( nullptr ), descriptor( nullptr ) {}
 
 		const QString name() const;
 		QFileInfo file;
 		std::shared_ptr<QLibrary> library;
-		Plugin::Descriptor* descriptor;
+		Plugin::Descriptor * descriptor;
 
-		bool isNull() const {return ! library;}
+		bool isNull() const { return !library; }
 	};
 	typedef QList<PluginInfo> PluginInfoList;
-	typedef QMultiMap<Plugin::PluginTypes, Plugin::Descriptor*> DescriptorMap;
+	typedef QMultiMap<Plugin::PluginTypes, Plugin::Descriptor *> DescriptorMap;
 
 	PluginFactory();
 	~PluginFactory();
 
 	/// Returns the singleton instance of PluginFactory. You won't need to call
 	/// this directly, use pluginFactory instead.
-	static PluginFactory* instance();
+	static PluginFactory * instance();
 
 	/// Returns a list of all found plugins' descriptors.
 	const Plugin::DescriptorList descriptors() const;
-	const Plugin::DescriptorList descriptors(Plugin::PluginTypes type) const;
+	const Plugin::DescriptorList descriptors( Plugin::PluginTypes type ) const;
 
 	/// Returns a list of all found plugins' PluginFactory::PluginInfo objects.
-	const PluginInfoList& pluginInfos() const;
+	const PluginInfoList & pluginInfos() const;
 	/// Returns a plugin that support the given file extension
-	const PluginInfo pluginSupportingExtension(const QString& ext);
+	const PluginInfo pluginSupportingExtension( const QString & ext );
 
 	/// Returns the PluginInfo object of the plugin with the given name.
 	/// If the plugin is not found, an empty PluginInfo is returned (use
 	/// PluginInfo::isNull() to check this).
-	const PluginInfo pluginInfo(const char* name) const;
+	const PluginInfo pluginInfo( const char * name ) const;
 
-	/// When loading a library fails during discovery, the error string is saved.
-	/// It can be retrieved by calling this function.
-	QString errorString(QString pluginName) const;
+	/// When loading a library fails during discovery, the error string is
+	/// saved. It can be retrieved by calling this function.
+	QString errorString( QString pluginName ) const;
 
 public slots:
 	void discoverPlugins();

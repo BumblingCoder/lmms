@@ -38,15 +38,13 @@ class TempoSyncKnob;
 class InstrumentFunctionArpeggio;
 class InstrumentFunctionNoteStacking;
 
-
-
 class InstrumentFunctionNoteStackingView : public QWidget, public ModelView
 {
 	Q_OBJECT
 public:
-	InstrumentFunctionNoteStackingView( InstrumentFunctionNoteStacking* cc, QWidget* parent = NULL );
+	InstrumentFunctionNoteStackingView( InstrumentFunctionNoteStacking * cc,
+	                                    QWidget * parent = NULL );
 	virtual ~InstrumentFunctionNoteStackingView();
-
 
 private:
 	virtual void modelChanged();
@@ -56,20 +54,15 @@ private:
 	GroupBox * m_chordsGroupBox;
 	ComboBox * m_chordsComboBox;
 	Knob * m_chordRangeKnob;
-
-} ;
-
-
-
-
+};
 
 class InstrumentFunctionArpeggioView : public QWidget, public ModelView
 {
 	Q_OBJECT
 public:
-	InstrumentFunctionArpeggioView( InstrumentFunctionArpeggio* arp, QWidget* parent = NULL );
+	InstrumentFunctionArpeggioView( InstrumentFunctionArpeggio * arp,
+	                                QWidget * parent = NULL );
 	virtual ~InstrumentFunctionArpeggioView();
-
 
 private:
 	virtual void modelChanged();
@@ -86,8 +79,6 @@ private:
 
 	ComboBox * m_arpDirectionComboBox;
 	ComboBox * m_arpModeComboBox;
-
-} ;
-
+};
 
 #endif

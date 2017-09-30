@@ -39,14 +39,11 @@
 #include "ConfigManager.h"
 #include "gui_templates.h"
 
-
-MidiSndio::MidiSndio( void ) :
-	MidiClientRaw(),
-	m_quit( FALSE )
+MidiSndio::MidiSndio( void ) : MidiClientRaw(), m_quit( FALSE )
 {
 	QString dev = probeDevice();
 
-	if (dev == "")
+	if( dev == "" )
 	{
 		m_hdl = mio_open( NULL, MIO_IN | MIO_OUT, 0 );
 	}
@@ -64,7 +61,6 @@ MidiSndio::MidiSndio( void ) :
 	start( QThread::LowPriority );
 }
 
-
 MidiSndio::~MidiSndio()
 {
 	if( isRunning() )
@@ -75,20 +71,14 @@ MidiSndio::~MidiSndio()
 	}
 }
 
-
 QString MidiSndio::probeDevice( void )
 {
 	QString dev = ConfigManager::inst()->value( "MidiSndio", "device" );
 
-	return dev ;
+	return dev;
 }
 
-
-void MidiSndio::sendByte( const unsigned char c )
-{
-	mio_write( m_hdl, &c, 1 );
-}
-
+void MidiSndio::sendByte( const unsigned char c ) { mio_write( m_hdl, &c, 1 ); }
 
 void MidiSndio::run( void )
 {
@@ -101,20 +91,18 @@ void MidiSndio::run( void )
 	{
 		nfds = mio_pollfd( m_hdl, &pfd, POLLIN );
 		ret = poll( &pfd, nfds, 100 );
-		if ( ret < 0 )
-			break;
-		if ( !ret || !( mio_revents( m_hdl, &pfd ) & POLLIN ) )
-			continue;
-		n = mio_read( m_hdl, buf, sizeof(buf) );
-		if ( !n )
+		if( ret < 0 ) break;
+		if( !ret || !( mio_revents( m_hdl, &pfd ) & POLLIN ) ) continue;
+		n = mio_read( m_hdl, buf, sizeof( buf ) );
+		if( !n )
 		{
 			break;
 		}
-		for (p = buf; n > 0; n--, p++)
+		for( p = buf; n > 0; n--, p++ )
 		{
 			parseData( *p );
 		}
 	}
 }
 
-#endif	/* LMMS_HAVE_SNDIO */
+#endif /* LMMS_HAVE_SNDIO */

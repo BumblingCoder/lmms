@@ -27,9 +27,8 @@
 
 #include <QtCore/QStack>
 
-#include "lmms_basics.h"
 #include "SerializingObject.h"
-
+#include "lmms_basics.h"
 
 class EXPORT JournallingObject : public SerializingObject
 {
@@ -37,10 +36,7 @@ public:
 	JournallingObject();
 	virtual ~JournallingObject();
 
-	inline jo_id_t id() const
-	{
-		return m_id;
-	}
+	inline jo_id_t id() const { return m_id; }
 
 	void saveJournallingState( const bool newState )
 	{
@@ -50,7 +46,7 @@ public:
 
 	void restoreJournallingState()
 	{
-		if( !isJournallingStateStackEmpty())
+		if( !isJournallingStateStackEmpty() )
 		{
 			m_journalling = m_journallingStateStack.pop();
 		}
@@ -58,20 +54,13 @@ public:
 
 	void addJournalCheckPoint();
 
-	virtual QDomElement saveState( QDomDocument & _doc,
-									QDomElement & _parent );
+	virtual QDomElement saveState( QDomDocument & _doc, QDomElement & _parent );
 
 	virtual void restoreState( const QDomElement & _this );
 
-	inline bool isJournalling() const
-	{
-		return m_journalling;
-	}
+	inline bool isJournalling() const { return m_journalling; }
 
-	inline void setJournalling( const bool _sr )
-	{
-		m_journalling = _sr;
-	}
+	inline void setJournalling( const bool _sr ) { m_journalling = _sr; }
 
 	inline bool testAndSetJournalling( const bool newState )
 	{
@@ -88,16 +77,12 @@ public:
 protected:
 	void changeID( jo_id_t _id );
 
-
 private:
 	jo_id_t m_id;
 
 	bool m_journalling;
 
 	QStack<bool> m_journallingStateStack;
-
-} ;
-
+};
 
 #endif
-

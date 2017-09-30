@@ -27,61 +27,40 @@
 #include "AutomationTrack.h"
 #include "AutomationPattern.h"
 #include "Engine.h"
-#include "embed.h"
 #include "ProjectJournal.h"
 #include "StringPairDrag.h"
 #include "TrackContainerView.h"
 #include "TrackLabelButton.h"
+#include "embed.h"
 
-
-AutomationTrack::AutomationTrack( TrackContainer* tc, bool _hidden ) :
-	Track( _hidden ? HiddenAutomationTrack : Track::AutomationTrack, tc )
+AutomationTrack::AutomationTrack( TrackContainer * tc, bool _hidden )
+    : Track( _hidden ? HiddenAutomationTrack : Track::AutomationTrack, tc )
 {
 	setName( tr( "Automation track" ) );
 }
 
-
-
-
-AutomationTrack::~AutomationTrack()
-{
-}
-
-
-
+AutomationTrack::~AutomationTrack() {}
 
 bool AutomationTrack::play( const MidiTime & time_start, const fpp_t _frames,
-							const f_cnt_t _frame_base, int _tco_num )
+                            const f_cnt_t _frame_base, int _tco_num )
 {
 	return false;
 }
 
-
-
-
-TrackView * AutomationTrack::createView( TrackContainerView* tcv )
+TrackView * AutomationTrack::createView( TrackContainerView * tcv )
 {
 	return new AutomationTrackView( this, tcv );
 }
-
-
-
 
 TrackContentObject * AutomationTrack::createTCO( const MidiTime & )
 {
 	return new AutomationPattern( this );
 }
 
-
-
-
 void AutomationTrack::saveTrackSpecificSettings( QDomDocument & _doc,
-							QDomElement & _this )
+                                                 QDomElement & _this )
 {
 }
-
-
-
 
 void AutomationTrack::loadTrackSpecificSettings( const QDomElement & _this )
 {
@@ -92,39 +71,25 @@ void AutomationTrack::loadTrackSpecificSettings( const QDomElement & _this )
 	}
 }
 
-
-
-
-
-AutomationTrackView::AutomationTrackView( AutomationTrack * _at, TrackContainerView* tcv ) :
-	TrackView( _at, tcv )
+AutomationTrackView::AutomationTrackView( AutomationTrack * _at,
+                                          TrackContainerView * tcv )
+    : TrackView( _at, tcv )
 {
-        setFixedHeight( 32 );
-	TrackLabelButton * tlb = new TrackLabelButton( this,
-						getTrackSettingsWidget() );
+	setFixedHeight( 32 );
+	TrackLabelButton * tlb =
+	    new TrackLabelButton( this, getTrackSettingsWidget() );
 	tlb->setIcon( embed::getIconPixmap( "automation_track" ) );
 	tlb->move( 3, 1 );
 	tlb->show();
 	setModel( _at );
 }
 
-
-
-
-AutomationTrackView::~AutomationTrackView()
-{
-}
-
-
-
+AutomationTrackView::~AutomationTrackView() {}
 
 void AutomationTrackView::dragEnterEvent( QDragEnterEvent * _dee )
 {
 	StringPairDrag::processDragEnterEvent( _dee, "automatable_model" );
 }
-
-
-
 
 void AutomationTrackView::dropEvent( QDropEvent * _de )
 {
@@ -133,17 +98,16 @@ void AutomationTrackView::dropEvent( QDropEvent * _de )
 	if( type == "automatable_model" )
 	{
 		AutomatableModel * mod = dynamic_cast<AutomatableModel *>(
-				Engine::projectJournal()->
-					journallingObject( val.toInt() ) );
+		    Engine::projectJournal()->journallingObject( val.toInt() ) );
 		if( mod != NULL )
 		{
-			MidiTime pos = MidiTime( trackContainerView()->
-							currentPosition() +
-				( _de->pos().x() -
-					getTrackContentWidget()->x() ) *
-						MidiTime::ticksPerTact() /
-		static_cast<int>( trackContainerView()->pixelsPerTact() ) )
-				.toAbsoluteTact();
+			MidiTime pos =
+			    MidiTime( trackContainerView()->currentPosition() +
+			              ( _de->pos().x() - getTrackContentWidget()->x() ) *
+			                  MidiTime::ticksPerTact() /
+			                  static_cast<int>(
+			                      trackContainerView()->pixelsPerTact() ) )
+			        .toAbsoluteTact();
 
 			if( pos.getTicks() < 0 )
 			{
@@ -159,5 +123,3 @@ void AutomationTrackView::dropEvent( QDropEvent * _de )
 
 	update();
 }
-
-

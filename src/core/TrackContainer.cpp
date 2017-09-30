@@ -23,41 +23,28 @@
  *
  */
 
-
 #include <QApplication>
-#include <QProgressDialog>
 #include <QDomElement>
+#include <QProgressDialog>
 #include <QWriteLocker>
 
 #include "AutomationPattern.h"
 #include "AutomationTrack.h"
 #include "BBTrack.h"
 #include "BBTrackContainer.h"
-#include "TrackContainer.h"
 #include "InstrumentTrack.h"
 #include "Song.h"
+#include "TrackContainer.h"
 
 #include "GuiApplication.h"
 #include "MainWindow.h"
 
-TrackContainer::TrackContainer() :
-	Model( NULL ),
-	JournallingObject(),
-	m_tracksMutex(),
-	m_tracks()
+TrackContainer::TrackContainer()
+    : Model( NULL ), JournallingObject(), m_tracksMutex(), m_tracks()
 {
 }
 
-
-
-
-TrackContainer::~TrackContainer()
-{
-	clearAllTracks();
-}
-
-
-
+TrackContainer::~TrackContainer() { clearAllTracks(); }
 
 void TrackContainer::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
@@ -73,9 +60,6 @@ void TrackContainer::saveSettings( QDomDocument & _doc, QDomElement & _this )
 	m_tracksMutex.unlock();
 }
 
-
-
-
 void TrackContainer::loadSettings( const QDomElement & _this )
 {
 	bool journalRestore = _this.parentNode().nodeName() == "journaldata";
@@ -90,10 +74,9 @@ void TrackContainer::loadSettings( const QDomElement & _this )
 	{
 		if( pd == NULL )
 		{
-			pd = new QProgressDialog( tr( "Loading project..." ),
-						tr( "Cancel" ), 0,
-						Engine::getSong()->getLoadingTrackCount(),
-						gui->mainWindow() );
+			pd = new QProgressDialog(
+			    tr( "Loading project..." ), tr( "Cancel" ), 0,
+			    Engine::getSong()->getLoadingTrackCount(), gui->mainWindow() );
 			pd->setWindowModality( Qt::ApplicationModal );
 			pd->setWindowTitle( tr( "Please wait..." ) );
 			pd->show();
@@ -106,8 +89,8 @@ void TrackContainer::loadSettings( const QDomElement & _this )
 		if( pd != NULL )
 		{
 			pd->setValue( pd->value() + 1 );
-			QCoreApplication::instance()->processEvents(
-						QEventLoop::AllEvents, 100 );
+			QCoreApplication::instance()->processEvents( QEventLoop::AllEvents,
+			                                             100 );
 			if( pd->wasCanceled() )
 			{
 				break;
@@ -115,15 +98,19 @@ void TrackContainer::loadSettings( const QDomElement & _this )
 		}
 
 		if( node.isElement() &&
-			!node.toElement().attribute( "metadata" ).toInt() )
+		    !node.toElement().attribute( "metadata" ).toInt() )
 		{
-			QString trackName = node.toElement().hasAttribute( "name" ) ?
-						node.toElement().attribute( "name" ) :
-						node.firstChild().toElement().attribute( "name" );
+			QString trackName =
+			    node.toElement().hasAttribute( "name" )
+			        ? node.toElement().attribute( "name" )
+			        : node.firstChild().toElement().attribute( "name" );
 			if( pd != NULL )
 			{
-				pd->setLabelText( tr("Loading Track %1 (%2/Total %3)").arg( trackName ).
-						  arg( pd->value() + 1 ).arg( Engine::getSong()->getLoadingTrackCount() ) );
+				pd->setLabelText(
+				    tr( "Loading Track %1 (%2/Total %3)" )
+				        .arg( trackName )
+				        .arg( pd->value() + 1 )
+				        .arg( Engine::getSong()->getLoadingTrackCount() ) );
 			}
 			Track::create( node.toElement(), this );
 		}
@@ -140,9 +127,6 @@ void TrackContainer::loadSettings( const QDomElement & _this )
 	}
 }
 
-
-
-
 int TrackContainer::countTracks( Track::TrackTypes _tt ) const
 {
 	int cnt = 0;
@@ -155,11 +139,8 @@ int TrackContainer::countTracks( Track::TrackTypes _tt ) const
 		}
 	}
 	m_tracksMutex.unlock();
-	return( cnt );
+	return ( cnt );
 }
-
-
-
 
 void TrackContainer::addTrack( Track * _track )
 {
@@ -174,21 +155,23 @@ void TrackContainer::addTrack( Track * _track )
 	}
 }
 
-
-
-
 void TrackContainer::removeTrack( Track * _track )
 {
-	// need a read locker to ensure that m_tracks doesn't change after reading index.
-	//   After checking that index != -1, we need to upgrade the lock to a write locker before changing m_tracks.
-	//   But since Qt offers no function to promote a read lock to a write lock, we must start with the write locker.
-	QWriteLocker lockTracksAccess(&m_tracksMutex);
+	// need a read locker to ensure that m_tracks doesn't change after reading
+	// index.
+	//   After checking that index != -1, we need to upgrade the lock to a write
+	//   locker before changing m_tracks. But since Qt offers no function to
+	//   promote a read lock to a write lock, we must start with the write
+	//   locker.
+	QWriteLocker lockTracksAccess( &m_tracksMutex );
 	int index = m_tracks.indexOf( _track );
 	if( index != -1 )
 	{
-		// If the track is solo, all other tracks are muted. Change this before removing the solo track:
-		if (_track->isSolo()) {
-			_track->setSolo(false);
+		// If the track is solo, all other tracks are muted. Change this before
+		// removing the solo track:
+		if( _track->isSolo() )
+		{
+			_track->setSolo( false );
 		}
 		m_tracks.remove( index );
 		lockTracksAccess.unlock();
@@ -200,33 +183,22 @@ void TrackContainer::removeTrack( Track * _track )
 	}
 }
 
-
-
-
-void TrackContainer::updateAfterTrackAdd()
-{
-}
-
-
-
+void TrackContainer::updateAfterTrackAdd() {}
 
 void TrackContainer::clearAllTracks()
 {
-	//m_tracksMutex.lockForWrite();
+	// m_tracksMutex.lockForWrite();
 	while( !m_tracks.isEmpty() )
 	{
 		delete m_tracks.first();
 	}
-	//m_tracksMutex.unlock();
+	// m_tracksMutex.unlock();
 }
-
-
-
 
 bool TrackContainer::isEmpty() const
 {
-	for( TrackList::const_iterator it = m_tracks.begin();
-						it != m_tracks.end(); ++it )
+	for( TrackList::const_iterator it = m_tracks.begin(); it != m_tracks.end();
+	     ++it )
 	{
 		if( !( *it )->getTCOs().isEmpty() )
 		{
@@ -236,76 +208,86 @@ bool TrackContainer::isEmpty() const
 	return true;
 }
 
-
-
-AutomatedValueMap TrackContainer::automatedValuesAt(MidiTime time, int tcoNum) const
+AutomatedValueMap TrackContainer::automatedValuesAt( MidiTime time,
+                                                     int tcoNum ) const
 {
-	return automatedValuesFromTracks(tracks(), time, tcoNum);
+	return automatedValuesFromTracks( tracks(), time, tcoNum );
 }
 
-
-AutomatedValueMap TrackContainer::automatedValuesFromTracks(const TrackList &tracks, MidiTime time, int tcoNum)
+AutomatedValueMap
+TrackContainer::automatedValuesFromTracks( const TrackList & tracks,
+                                           MidiTime time, int tcoNum )
 {
 	Track::tcoVector tcos;
 
-	for (Track* track: tracks)
+	for( Track * track : tracks )
 	{
-		if (track->isMuted()) {
+		if( track->isMuted() )
+		{
 			continue;
 		}
 
-		switch(track->type())
+		switch( track->type() )
 		{
-		case Track::AutomationTrack:
-		case Track::HiddenAutomationTrack:
-		case Track::BBTrack:
-			if (tcoNum < 0) {
-				track->getTCOsInRange(tcos, 0, time);
-			} else {
-				Q_ASSERT(track->numOfTCOs() > tcoNum);
-				tcos << track->getTCO(tcoNum);
-			}
-		default:
-			break;
+			case Track::AutomationTrack:
+			case Track::HiddenAutomationTrack:
+			case Track::BBTrack:
+				if( tcoNum < 0 )
+				{
+					track->getTCOsInRange( tcos, 0, time );
+				}
+				else
+				{
+					Q_ASSERT( track->numOfTCOs() > tcoNum );
+					tcos << track->getTCO( tcoNum );
+				}
+			default:
+				break;
 		}
 	}
 
 	AutomatedValueMap valueMap;
 
-	Q_ASSERT(std::is_sorted(tcos.begin(), tcos.end(), TrackContentObject::comparePosition));
+	Q_ASSERT( std::is_sorted( tcos.begin(), tcos.end(),
+	                          TrackContentObject::comparePosition ) );
 
-	for(TrackContentObject* tco : tcos)
+	for( TrackContentObject * tco : tcos )
 	{
-		if (tco->isMuted() || tco->startPosition() > time) {
+		if( tco->isMuted() || tco->startPosition() > time )
+		{
 			continue;
 		}
 
-		if (auto* p = dynamic_cast<AutomationPattern *>(tco))
+		if( auto * p = dynamic_cast<AutomationPattern *>( tco ) )
 		{
-			if (! p->hasAutomation()) {
+			if( !p->hasAutomation() )
+			{
 				continue;
 			}
 			MidiTime relTime = time - p->startPosition();
-			float value = p->valueAt(relTime);
+			float value = p->valueAt( relTime );
 
-			for (AutomatableModel* model : p->objects())
+			for( AutomatableModel * model : p->objects() )
 			{
 				valueMap[model] = value;
 			}
 		}
-		else if (auto* bb = dynamic_cast<BBTCO *>(tco))
+		else if( auto * bb = dynamic_cast<BBTCO *>( tco ) )
 		{
-			auto bbIndex = dynamic_cast<class BBTrack*>(bb->getTrack())->index();
+			auto bbIndex =
+			    dynamic_cast<class BBTrack *>( bb->getTrack() )->index();
 			auto bbContainer = Engine::getBBTrackContainer();
 
 			MidiTime bbTime = time - tco->startPosition();
-			bbTime = std::min(bbTime, tco->length());
-			bbTime = bbTime % (bbContainer->lengthOfBB(bbIndex) * MidiTime::ticksPerTact());
+			bbTime = std::min( bbTime, tco->length() );
+			bbTime = bbTime % ( bbContainer->lengthOfBB( bbIndex ) *
+			                    MidiTime::ticksPerTact() );
 
-			auto bbValues = bbContainer->automatedValuesAt(bbTime, bbIndex);
-			for (auto it=bbValues.begin(); it != bbValues.end(); it++)
+			auto bbValues = bbContainer->automatedValuesAt( bbTime, bbIndex );
+			for( auto it = bbValues.begin(); it != bbValues.end(); it++ )
 			{
-				// override old values, bb track with the highest index takes precedence
+				// override old values, bb track with the highest index takes
+				// precedence
 				valueMap[it.key()] = it.value();
 			}
 		}
@@ -318,21 +300,11 @@ AutomatedValueMap TrackContainer::automatedValuesFromTracks(const TrackList &tra
 	return valueMap;
 };
 
-
-
-DummyTrackContainer::DummyTrackContainer() :
-	TrackContainer(),
-	m_dummyInstrumentTrack( NULL )
+DummyTrackContainer::DummyTrackContainer()
+    : TrackContainer(), m_dummyInstrumentTrack( NULL )
 {
 	setJournalling( false );
 	m_dummyInstrumentTrack = dynamic_cast<InstrumentTrack *>(
-				Track::create( Track::InstrumentTrack,
-							this ) );
+	    Track::create( Track::InstrumentTrack, this ) );
 	m_dummyInstrumentTrack->setJournalling( false );
 }
-
-
-
-
-
-

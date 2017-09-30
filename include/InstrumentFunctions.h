@@ -25,17 +25,14 @@
 #ifndef INSTRUMENT_FUNCTIONS_H
 #define INSTRUMENT_FUNCTIONS_H
 
-#include "JournallingObject.h"
-#include "lmms_basics.h"
 #include "AutomatableModel.h"
-#include "TempoSyncKnobModel.h"
 #include "ComboBoxModel.h"
-
+#include "JournallingObject.h"
+#include "TempoSyncKnobModel.h"
+#include "lmms_basics.h"
 
 class InstrumentTrack;
 class NotePlayHandle;
-
-
 
 class InstrumentFunctionNoteStacking : public Model, public JournallingObject
 {
@@ -45,23 +42,18 @@ public:
 	static const int MAX_CHORD_POLYPHONY = 13;
 
 private:
-	typedef int8_t ChordSemiTones [MAX_CHORD_POLYPHONY];
+	typedef int8_t ChordSemiTones[MAX_CHORD_POLYPHONY];
 
 public:
 	InstrumentFunctionNoteStacking( Model * _parent );
 	virtual ~InstrumentFunctionNoteStacking();
 
-	void processNote( NotePlayHandle* n );
-
+	void processNote( NotePlayHandle * n );
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
 
-	inline virtual QString nodeName() const
-	{
-		return "chordcreator";
-	}
-
+	inline virtual QString nodeName() const { return "chordcreator"; }
 
 	struct Chord
 	{
@@ -75,39 +67,20 @@ public:
 
 		Chord( const char * n, const ChordSemiTones & semi_tones );
 
-		int size() const
-		{
-			return m_size;
-		}
+		int size() const { return m_size; }
 
-		bool isScale() const
-		{
-			return size() > 6;
-		}
+		bool isScale() const { return size() > 6; }
 
-		bool isEmpty() const
-		{
-			return size() == 0;
-		}
+		bool isEmpty() const { return size() == 0; }
 
 		bool hasSemiTone( int8_t semiTone ) const;
 
-		int8_t last() const
-		{
-			return m_semiTones[size() - 1];
-		}
+		int8_t last() const { return m_semiTones[size() - 1]; }
 
-		const QString & getName() const
-		{
-			return m_name;
-		}
+		const QString & getName() const { return m_name; }
 
-		int8_t operator [] ( int n ) const
-		{
-			return m_semiTones[n];
-		}
+		int8_t operator[]( int n ) const { return m_semiTones[n]; }
 	};
-
 
 	struct ChordTable : public QVector<Chord>
 	{
@@ -129,7 +102,8 @@ public:
 			return inst;
 		}
 
-		const Chord & getByName( const QString & name, bool is_scale = false ) const;
+		const Chord & getByName( const QString & name,
+		                         bool is_scale = false ) const;
 
 		const Chord & getScaleByName( const QString & name ) const
 		{
@@ -142,19 +116,13 @@ public:
 		}
 	};
 
-
 private:
 	BoolModel m_chordsEnabledModel;
 	ComboBoxModel m_chordsModel;
 	FloatModel m_chordRangeModel;
 
-
 	friend class InstrumentFunctionNoteStackingView;
-
-} ;
-
-
-
+};
 
 class InstrumentFunctionArpeggio : public Model, public JournallingObject
 {
@@ -168,22 +136,17 @@ public:
 		ArpDirDownAndUp,
 		ArpDirRandom,
 		NumArpDirections
-	} ;
+	};
 
 	InstrumentFunctionArpeggio( Model * _parent );
 	virtual ~InstrumentFunctionArpeggio();
 
-	void processNote( NotePlayHandle* n );
-
+	void processNote( NotePlayHandle * n );
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
 
-	inline virtual QString nodeName() const
-	{
-		return "arpeggiator";
-	}
-
+	inline virtual QString nodeName() const { return "arpeggiator"; }
 
 private:
 	enum ArpModes
@@ -191,7 +154,7 @@ private:
 		FreeMode,
 		SortMode,
 		SyncMode
-	} ;
+	};
 
 	BoolModel m_arpEnabledModel;
 	ComboBoxModel m_arpModel;
@@ -204,11 +167,8 @@ private:
 	ComboBoxModel m_arpDirectionModel;
 	ComboBoxModel m_arpModeModel;
 
-
 	friend class InstrumentTrack;
 	friend class InstrumentFunctionArpeggioView;
-
-} ;
-
+};
 
 #endif

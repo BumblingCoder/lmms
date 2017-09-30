@@ -25,33 +25,32 @@
 #include "PluginBrowser.h"
 
 #include <QLabel>
-#include <QPainter>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QScrollArea>
 #include <QStyleOption>
 
-#include "embed.h"
-#include "templates.h"
-#include "gui_templates.h"
-#include "StringPairDrag.h"
 #include "PluginFactory.h"
+#include "StringPairDrag.h"
+#include "embed.h"
+#include "gui_templates.h"
+#include "templates.h"
 
-
-static bool pluginBefore( const Plugin::Descriptor* d1, const Plugin::Descriptor* d2 )
+static bool pluginBefore( const Plugin::Descriptor * d1,
+                          const Plugin::Descriptor * d2 )
 {
 	return qstricmp( d1->displayName, d2->displayName ) < 0 ? true : false;
 }
 
-
-
-
-PluginBrowser::PluginBrowser( QWidget * _parent ) :
-	SideBarWidget( tr( "Instrument Plugins" ),
-				embed::getIconPixmap( "plugins" ).transformed( QTransform().rotate( 90 ) ), _parent )
+PluginBrowser::PluginBrowser( QWidget * _parent )
+    : SideBarWidget( tr( "Instrument Plugins" ),
+                     embed::getIconPixmap( "plugins" )
+                         .transformed( QTransform().rotate( 90 ) ),
+                     _parent )
 {
 	setWindowTitle( tr( "Instrument browser" ) );
 	m_view = new QWidget( contentParent() );
-	//m_view->setFrameShape( QFrame::NoFrame );
+	// m_view->setFrameShape( QFrame::NoFrame );
 
 	addContentWidget( m_view );
 
@@ -59,62 +58,50 @@ PluginBrowser::PluginBrowser( QWidget * _parent ) :
 	view_layout->setMargin( 5 );
 	view_layout->setSpacing( 5 );
 
-
 	QLabel * hint = new QLabel( tr( "Drag an instrument "
-					"into either the Song-Editor, the "
-					"Beat+Bassline Editor or into an "
-					"existing instrument track." ),
-								m_view );
+	                                "into either the Song-Editor, the "
+	                                "Beat+Bassline Editor or into an "
+	                                "existing instrument track." ),
+	                            m_view );
 	hint->setWordWrap( true );
 
-	QScrollArea* scrollarea = new QScrollArea( m_view );
-	PluginDescList* descList = new PluginDescList( m_view );
-	scrollarea->setWidget(descList);
-	scrollarea->setWidgetResizable(true);
+	QScrollArea * scrollarea = new QScrollArea( m_view );
+	PluginDescList * descList = new PluginDescList( m_view );
+	scrollarea->setWidget( descList );
+	scrollarea->setWidgetResizable( true );
 
-	view_layout->addWidget(hint);
-	view_layout->addWidget(scrollarea);
+	view_layout->addWidget( hint );
+	view_layout->addWidget( scrollarea );
 }
 
+PluginBrowser::~PluginBrowser() {}
 
-
-
-PluginBrowser::~PluginBrowser()
+PluginDescList::PluginDescList( QWidget * parent ) : QWidget( parent )
 {
-}
+	QVBoxLayout * layout = new QVBoxLayout( this );
 
-
-
-
-PluginDescList::PluginDescList(QWidget *parent) :
-	QWidget(parent)
-{
-	QVBoxLayout* layout = new QVBoxLayout(this);
-
-	QList<Plugin::Descriptor*> descs = pluginFactory->descriptors(Plugin::Instrument);
-	std::sort(descs.begin(), descs.end(), pluginBefore);
-	for (const Plugin::Descriptor* desc : descs)
+	QList<Plugin::Descriptor *> descs =
+	    pluginFactory->descriptors( Plugin::Instrument );
+	std::sort( descs.begin(), descs.end(), pluginBefore );
+	for( const Plugin::Descriptor * desc : descs )
 	{
-		PluginDescWidget* p = new PluginDescWidget( *desc, this );
+		PluginDescWidget * p = new PluginDescWidget( *desc, this );
 		p->show();
-		layout->addWidget(p);
+		layout->addWidget( p );
 	}
 
-	setLayout(layout);
+	setLayout( layout );
 	layout->addStretch();
 }
 
-
-
-
 PluginDescWidget::PluginDescWidget( const Plugin::Descriptor & _pd,
-							QWidget * _parent ) :
-	QWidget( _parent ),
-	m_updateTimer( this ),
-	m_pluginDescriptor( _pd ),
-	m_logo( _pd.logo->pixmap() ),
-	m_mouseOver( false ),
-	m_targetHeight( 24 )
+                                    QWidget * _parent )
+    : QWidget( _parent ),
+      m_updateTimer( this ),
+      m_pluginDescriptor( _pd ),
+      m_logo( _pd.logo->pixmap() ),
+      m_mouseOver( false ),
+      m_targetHeight( 24 )
 {
 	connect( &m_updateTimer, SIGNAL( timeout() ), SLOT( updateHeight() ) );
 	setFixedHeight( m_targetHeight );
@@ -122,15 +109,7 @@ PluginDescWidget::PluginDescWidget( const Plugin::Descriptor & _pd,
 	setCursor( Qt::PointingHandCursor );
 }
 
-
-
-
-PluginDescWidget::~PluginDescWidget()
-{
-}
-
-
-
+PluginDescWidget::~PluginDescWidget() {}
 
 void PluginDescWidget::paintEvent( QPaintEvent * e )
 {
@@ -143,41 +122,37 @@ void PluginDescWidget::paintEvent( QPaintEvent * e )
 	style()->drawPrimitive( QStyle::PE_Widget, &o, &p, this );
 
 	// Draw the rest
-	const int s = 16 + ( 32 * ( tLimit( height(), 24, 60 ) - 24 ) ) /
-								( 60 - 24 );
+	const int s =
+	    16 + ( 32 * ( tLimit( height(), 24, 60 ) - 24 ) ) / ( 60 - 24 );
 	const QSize logo_size( s, s );
 	QPixmap logo = m_logo.scaled( logo_size, Qt::KeepAspectRatio,
-						Qt::SmoothTransformation );
+	                              Qt::SmoothTransformation );
 	p.drawPixmap( 4, 4, logo );
 
 	QFont f = p.font();
-	if ( m_mouseOver )
+	if( m_mouseOver )
 	{
 		f.setBold( true );
 	}
 
 	p.setFont( f );
-	p.drawText( 10 + logo_size.width(), 15,
-					m_pluginDescriptor.displayName );
+	p.drawText( 10 + logo_size.width(), 15, m_pluginDescriptor.displayName );
 
 	if( height() > 24 || m_mouseOver )
 	{
 		f.setBold( false );
 		p.setFont( f );
 		QRect br;
-		p.drawText( 10 + logo_size.width(), 20, width() - 58 - 5, 999,
-								Qt::TextWordWrap,
-								qApp->translate( "pluginBrowser", m_pluginDescriptor.description ),
-								&br );
+		p.drawText(
+		    10 + logo_size.width(), 20, width() - 58 - 5, 999, Qt::TextWordWrap,
+		    qApp->translate( "pluginBrowser", m_pluginDescriptor.description ),
+		    &br );
 		if( m_mouseOver )
 		{
 			m_targetHeight = qMax( 60, 25 + br.height() );
 		}
 	}
 }
-
-
-
 
 void PluginDescWidget::enterEvent( QEvent * _e )
 {
@@ -187,9 +162,6 @@ void PluginDescWidget::enterEvent( QEvent * _e )
 	QWidget::enterEvent( _e );
 }
 
-
-
-
 void PluginDescWidget::leaveEvent( QEvent * _e )
 {
 	m_mouseOver = false;
@@ -198,21 +170,15 @@ void PluginDescWidget::leaveEvent( QEvent * _e )
 	QWidget::leaveEvent( _e );
 }
 
-
-
-
 void PluginDescWidget::mousePressEvent( QMouseEvent * _me )
 {
 	if( _me->button() == Qt::LeftButton )
 	{
-		new StringPairDrag( "instrument", m_pluginDescriptor.name,
-								m_logo, this );
+		new StringPairDrag( "instrument", m_pluginDescriptor.name, m_logo,
+		                    this );
 		leaveEvent( _me );
 	}
 }
-
-
-
 
 void PluginDescWidget::updateHeight()
 {
@@ -235,10 +201,3 @@ void PluginDescWidget::updateHeight()
 		m_updateTimer.start( 10 );
 	}
 }
-
-
-
-
-
-
-

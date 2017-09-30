@@ -40,12 +40,15 @@ class Editor : public QMainWindow
 {
 	Q_OBJECT
 public:
-	void setPauseIcon(bool displayPauseIcon=true);
-	QAction *playAction() const;
+	void setPauseIcon( bool displayPauseIcon = true );
+	QAction * playAction() const;
+
 protected:
-	DropToolBar * addDropToolBarToTop(QString const & windowTitle);
-	DropToolBar * addDropToolBar(Qt::ToolBarArea whereToAdd, QString const & windowTitle);
-	DropToolBar * addDropToolBar(QWidget * parent, Qt::ToolBarArea whereToAdd, QString const & windowTitle);
+	DropToolBar * addDropToolBarToTop( QString const & windowTitle );
+	DropToolBar * addDropToolBar( Qt::ToolBarArea whereToAdd,
+	                              QString const & windowTitle );
+	DropToolBar * addDropToolBar( QWidget * parent, Qt::ToolBarArea whereToAdd,
+	                              QString const & windowTitle );
 
 protected slots:
 	virtual void play() {}
@@ -64,34 +67,32 @@ protected:
 	///
 	/// \param	record	If set true, the editor's toolbar will contain record
 	///					buttons in addition to the play and stop buttons.
-	Editor(bool record = false);
+	Editor( bool record = false );
 	virtual ~Editor();
 
+	DropToolBar * m_toolBar;
 
-	DropToolBar* m_toolBar;
-
-	QAction* m_playAction;
-	QAction* m_recordAction;
-	QAction* m_recordAccompanyAction;
-	QAction* m_stopAction;
+	QAction * m_playAction;
+	QAction * m_recordAction;
+	QAction * m_recordAccompanyAction;
+	QAction * m_stopAction;
 };
 
-
-/// Small helper class: A QToolBar that accepts and exposes drop events as signals
+/// Small helper class: A QToolBar that accepts and exposes drop events as
+/// signals
 class DropToolBar : public QToolBar
 {
 	Q_OBJECT
 public:
-	DropToolBar(QWidget* parent=0);
+	DropToolBar( QWidget * parent = 0 );
 
 signals:
-	void dragEntered(QDragEnterEvent* event);
-	void dropped(QDropEvent* event);
+	void dragEntered( QDragEnterEvent * event );
+	void dropped( QDropEvent * event );
 
 protected:
-	void dragEnterEvent(QDragEnterEvent* event);
-	void dropEvent(QDropEvent* event);
+	void dragEnterEvent( QDragEnterEvent * event );
+	void dropEvent( QDropEvent * event );
 };
-
 
 #endif

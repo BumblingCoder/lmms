@@ -26,20 +26,18 @@
 #ifndef INSTRUMENT_H
 #define INSTRUMENT_H
 
-#include <QString>
-#include "export.h"
-#include "lmms_basics.h"
 #include "MemoryManager.h"
 #include "MidiTime.h"
 #include "Plugin.h"
-
+#include "export.h"
+#include "lmms_basics.h"
+#include <QString>
 
 // forward-declarations
 class InstrumentTrack;
 class MidiEvent;
 class NotePlayHandle;
 class Track;
-
 
 class EXPORT Instrument : public Plugin
 {
@@ -48,15 +46,18 @@ public:
 	enum Flag
 	{
 		NoFlags = 0x00,
-		IsSingleStreamed = 0x01,	/*! Instrument provides a single audio stream for all notes */
-		IsMidiBased = 0x02,			/*! Instrument is controlled by MIDI events rather than NotePlayHandles */
-		IsNotBendable = 0x04,		/*! Instrument can't react to pitch bend changes */
+		IsSingleStreamed =
+		    0x01, /*! Instrument provides a single audio stream for all notes */
+		IsMidiBased = 0x02, /*! Instrument is controlled by MIDI events rather
+		                       than NotePlayHandles */
+		IsNotBendable =
+		    0x04, /*! Instrument can't react to pitch bend changes */
 	};
 
-	Q_DECLARE_FLAGS(Flags, Flag);
+	Q_DECLARE_FLAGS( Flags, Flag );
 
 	Instrument( InstrumentTrack * _instrument_track,
-					const Descriptor * _descriptor );
+	            const Descriptor * _descriptor );
 	virtual ~Instrument();
 
 	// --------------------------------------------------------------------
@@ -70,7 +71,7 @@ public:
 
 	// to be implemented by actual plugin
 	virtual void playNote( NotePlayHandle * /* _note_to_play */,
-					sampleFrame * /* _working_buf */ )
+	                       sampleFrame * /* _working_buf */ )
 	{
 	}
 
@@ -85,24 +86,19 @@ public:
 	// the length of the longest envelope (if one active).
 	virtual f_cnt_t beatLen( NotePlayHandle * _n ) const;
 
-
 	// some instruments need a certain number of release-frames even
 	// if no envelope is active - such instruments can re-implement this
 	// method for returning how many frames they at least like to have for
 	// release
-	virtual f_cnt_t desiredReleaseFrames() const
-	{
-		return 0;
-	}
+	virtual f_cnt_t desiredReleaseFrames() const { return 0; }
 
-	virtual Flags flags() const
-	{
-		return NoFlags;
-	}
+	virtual Flags flags() const { return NoFlags; }
 
 	// sub-classes can re-implement this for receiving all incoming
 	// MIDI-events
-	inline virtual bool handleMidiEvent( const MidiEvent&, const MidiTime& = MidiTime(), f_cnt_t offset = 0 )
+	inline virtual bool handleMidiEvent( const MidiEvent &,
+	                                     const MidiTime & = MidiTime(),
+	                                     f_cnt_t offset = 0 )
 	{
 		return true;
 	}
@@ -116,7 +112,7 @@ public:
 	// instantiate instrument-plugin with given name or return NULL
 	// on failure
 	static Instrument * instantiate( const QString & _plugin_name,
-									InstrumentTrack * _instrument_track );
+	                                 InstrumentTrack * _instrument_track );
 
 	virtual bool isFromTrack( const Track * _track ) const;
 
@@ -125,19 +121,16 @@ public:
 		return m_instrumentTrack;
 	}
 
-
 protected:
 	// instruments may use this to apply a soft fade out at the end of
 	// notes - method does this only if really less or equal
 	// desiredReleaseFrames() frames are left
 	void applyRelease( sampleFrame * buf, const NotePlayHandle * _n );
 
-
 private:
 	InstrumentTrack * m_instrumentTrack;
+};
 
-} ;
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Instrument::Flags)
+Q_DECLARE_OPERATORS_FOR_FLAGS( Instrument::Flags )
 
 #endif

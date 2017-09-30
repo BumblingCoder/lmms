@@ -25,11 +25,11 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
-#include <QtCore/QBasicTimer>
-#include <QtCore/QTimer>
-#include <QtCore/QList>
 #include <QMainWindow>
 #include <QThread>
+#include <QtCore/QBasicTimer>
+#include <QtCore/QList>
+#include <QtCore/QTimer>
 
 #include "ConfigManager.h"
 #include "SubWindow.h"
@@ -43,27 +43,20 @@ class ConfigManager;
 class PluginView;
 class ToolButton;
 
-
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 public:
-	QMdiArea* workspace()
-	{
-		return m_workspace;
-	}
+	QMdiArea * workspace() { return m_workspace; }
 
-	QWidget* toolBar()
-	{
-		return m_toolBar;
-	}
+	QWidget * toolBar() { return m_toolBar; }
 
 	int addWidgetToToolBar( QWidget * _w, int _row = -1, int _col = -1 );
 	void addSpacingToToolBar( int _size );
 
 	// wrap the widget with a window decoration and add it to the workspace
-	EXPORT SubWindow* addWindowedWidget(QWidget *w, Qt::WindowFlags windowFlags=0);
-
+	EXPORT SubWindow * addWindowedWidget( QWidget * w,
+	                                      Qt::WindowFlags windowFlags = 0 );
 
 	///
 	/// \brief	Asks whether changes made to the project are to be saved.
@@ -76,23 +69,27 @@ public:
 	/// opens another file...) must call this before and may only proceed if
 	/// this function returns true.
 	///
-	/// \param	stopPlayback whether playback should be stopped upon prompting.  If set to false, the caller should ensure that Engine::getSong()->stop() is called before unloading/loading a song.
+	/// \param	stopPlayback whether playback should be stopped upon
+	/// prompting.  If set to false, the caller should ensure that
+	/// Engine::getSong()->stop() is called before unloading/loading a song.
 	///
 	/// \return	true if the user allows the software to proceed, false if they
 	///         cancel the action.
 	///
-	bool mayChangeProject(bool stopPlayback);
+	bool mayChangeProject( bool stopPlayback );
 
 	// Auto save timer intervals. The slider in SetupDialog.cpp wants
 	// minutes and the rest milliseconds.
 	static const int DEFAULT_SAVE_INTERVAL_MINUTES = 2;
-	static const int DEFAULT_AUTO_SAVE_INTERVAL = DEFAULT_SAVE_INTERVAL_MINUTES * 60 * 1000;
+	static const int DEFAULT_AUTO_SAVE_INTERVAL =
+	    DEFAULT_SAVE_INTERVAL_MINUTES * 60 * 1000;
 
 	static const int m_autoSaveShortTime = 10 * 1000; // 10s short loop
 
-	void autoSaveTimerReset( int msec = ConfigManager::inst()->
-					value( "ui", "saveinterval" ).toInt()
-						* 60 * 1000 )
+	void autoSaveTimerReset( int msec = ConfigManager::inst()
+	                                        ->value( "ui", "saveinterval" )
+	                                        .toInt() *
+	                                    60 * 1000 )
 	{
 		if( msec < m_autoSaveShortTime ) // No 'saveinterval' in .lmmsrc.xml
 		{
@@ -101,10 +98,7 @@ public:
 		m_autoSaveTimer.start( msec );
 	}
 
-	int getAutoSaveTimerInterval()
-	{
-		return m_autoSaveTimer.interval();
-	}
+	int getAutoSaveTimerInterval() { return m_autoSaveTimer.interval(); }
 
 	enum SessionState
 	{
@@ -112,34 +106,19 @@ public:
 		Recover
 	};
 
-	void setSession( SessionState session )
-	{
-		m_session = session;
-	}
+	void setSession( SessionState session ) { m_session = session; }
 
-	SessionState getSession()
-	{
-		return m_session;
-	}
+	SessionState getSession() { return m_session; }
 
 	void sessionCleanup();
 
 	void clearKeyModifiers();
 
-	bool isCtrlPressed()
-	{
-		return m_keyMods.m_ctrl;
-	}
+	bool isCtrlPressed() { return m_keyMods.m_ctrl; }
 
-	bool isShiftPressed()
-	{
-		return m_keyMods.m_shift;
-	}
+	bool isShiftPressed() { return m_keyMods.m_shift; }
 
-	bool isAltPressed()
-	{
-		return m_keyMods.m_alt;
-	}
+	bool isAltPressed() { return m_keyMods.m_alt; }
 
 	static void saveWidgetState( QWidget * _w, QDomElement & _de );
 	static void restoreWidgetState( QWidget * _w, const QDomElement & _de );
@@ -182,7 +161,6 @@ protected:
 	virtual void keyReleaseEvent( QKeyEvent * _ke );
 	virtual void timerEvent( QTimerEvent * _ev );
 
-
 private:
 	MainWindow();
 	MainWindow( const MainWindow & );
@@ -190,7 +168,7 @@ private:
 
 	void finalize();
 
-	void toggleWindow( QWidget *window, bool forceShow = false );
+	void toggleWindow( QWidget * window, bool forceShow = false );
 	void refocus();
 
 	QMdiArea * m_workspace;
@@ -204,12 +182,7 @@ private:
 
 	struct keyModifiers
 	{
-		keyModifiers() :
-			m_ctrl( false ),
-			m_shift( false ),
-			m_alt( false )
-		{
-		}
+		keyModifiers() : m_ctrl( false ), m_shift( false ), m_alt( false ) {}
 		bool m_ctrl;
 		bool m_shift;
 		bool m_alt;
@@ -242,18 +215,16 @@ private slots:
 	void updateConfig( QAction * _who );
 	void onToggleMetronome();
 
-
 signals:
 	void periodicUpdate();
-	void initProgress(const QString &msg);
-
-} ;
+	void initProgress( const QString & msg );
+};
 
 class AutoSaveThread : public QThread
 {
 	Q_OBJECT
 public:
 	void run();
-} ;
+};
 
 #endif

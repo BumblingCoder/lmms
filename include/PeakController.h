@@ -2,7 +2,7 @@
  * PeakController.h - peak-controller class
  *
  * Copyright (c) 2008-2009 Paul Giblock <drfaygo/at/gmail.com>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -25,9 +25,9 @@
 #ifndef PEAK_CONTROLLER_H
 #define PEAK_CONTROLLER_H
 
-#include "Model.h"
 #include "Controller.h"
 #include "ControllerDialog.h"
+#include "Model.h"
 
 class QWidget;
 
@@ -35,14 +35,12 @@ class PeakControllerEffect;
 
 typedef QVector<PeakControllerEffect *> PeakControllerEffectVector;
 
-
 class EXPORT PeakController : public Controller
 {
 	Q_OBJECT
 public:
 	PeakController( Model * _parent,
-		PeakControllerEffect *_peak_effect = NULL );
-
+	                PeakControllerEffect * _peak_effect = NULL );
 
 	virtual ~PeakController();
 
@@ -55,10 +53,9 @@ public:
 
 	static PeakControllerEffectVector s_effects;
 
-
 public slots:
 	virtual ControllerDialog * createDialog( QWidget * _parent );
-	void handleDestroyedEffect( );
+	void handleDestroyedEffect();
 	void updateCoeffs();
 
 protected:
@@ -71,17 +68,15 @@ protected:
 
 private:
 	float m_currentSample;
-	//backward compatibility for <= 0.4.15
+	// backward compatibility for <= 0.4.15
 	static int m_getCount;
 	static int m_loadCount;
 	static bool m_buggedFile;
-	
+
 	float m_attackCoeff;
 	float m_decayCoeff;
 	bool m_coeffNeedsUpdate;
-} ;
-
-
+};
 
 class PeakControllerDialog : public ControllerDialog
 {
@@ -96,7 +91,6 @@ protected:
 	virtual void modelChanged();
 
 	PeakController * m_peakController;
-
-} ;
+};
 
 #endif

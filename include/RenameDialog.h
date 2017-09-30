@@ -23,15 +23,12 @@
  *
  */
 
-
 #ifndef RENAME_DIALOG_H
 #define RENAME_DIALOG_H
 
 #include <QDialog>
 
-
 class QLineEdit;
-
 
 class RenameDialog : public QDialog
 {
@@ -40,22 +37,17 @@ public:
 	RenameDialog( QString & _string );
 	~RenameDialog();
 
-
 protected:
 	void keyPressEvent( QKeyEvent * _ke );
-	virtual void resizeEvent(QResizeEvent * event);
-
+	virtual void resizeEvent( QResizeEvent * event );
 
 protected slots:
 	void textChanged( const QString & _new_string );
-
 
 private:
 	QString & m_stringToEdit;
 	QString m_originalString;
 	QLineEdit * m_stringLE;
-
-} ;
-
+};
 
 #endif

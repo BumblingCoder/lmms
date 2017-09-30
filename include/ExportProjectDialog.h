@@ -23,13 +23,12 @@
  *
  */
 
-
 #ifndef EXPORT_PROJECT_DIALOG_H
 #define EXPORT_PROJECT_DIALOG_H
 
+#include "ui_export_project.h"
 #include <QDialog>
 #include <vector>
-#include "ui_export_project.h"
 
 #include "ProjectRenderer.h"
 #include "RenderManager.h"
@@ -38,14 +37,13 @@ class ExportProjectDialog : public QDialog, public Ui::ExportProjectDialog
 {
 	Q_OBJECT
 public:
-	ExportProjectDialog( const QString & _file_name, QWidget * _parent, bool multi_export );
+	ExportProjectDialog( const QString & _file_name, QWidget * _parent,
+	                     bool multi_export );
 	virtual ~ExportProjectDialog();
-
 
 protected:
 	virtual void reject( void );
 	virtual void closeEvent( QCloseEvent * _ce );
-
 
 private slots:
 	void startBtnClicked( void );
@@ -53,7 +51,7 @@ private slots:
 	void accept();
 	void startExport();
 
-	void onFileFormatChanged(int);
+	void onFileFormatChanged( int );
 
 private:
 	QString m_fileName;
@@ -62,7 +60,7 @@ private:
 	bool m_multiExport;
 
 	ProjectRenderer::ExportFileFormats m_ft;
-	RenderManager* m_renderManager;
-} ;
+	RenderManager * m_renderManager;
+};
 
 #endif

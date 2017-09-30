@@ -34,8 +34,6 @@ class EXPORT ToolPluginView : public PluginView
 {
 public:
 	ToolPluginView( ToolPlugin * _toolPlugin );
-
-} ;
-
+};
 
 #endif

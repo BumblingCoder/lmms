@@ -2,7 +2,7 @@
  * Note.cpp - implementation of class note
  *
  * Copyright (c) 2004-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -22,29 +22,26 @@
  *
  */
 
-
 #include <QDomElement>
 
 #include <math.h>
 
-#include "Note.h"
 #include "DetuningHelper.h"
+#include "Note.h"
 
-
-Note::Note( const MidiTime & length, const MidiTime & pos,
-		int key, volume_t volume, panning_t panning,
-						DetuningHelper * detuning ) :
-	m_selected( false ),
-	m_oldKey( qBound( 0, key, NumKeys ) ),
-	m_oldPos( pos ),
-	m_oldLength( length ),
-	m_isPlaying( false ),
-	m_key( qBound( 0, key, NumKeys ) ),
-	m_volume( qBound( MinVolume, volume, MaxVolume ) ),
-	m_panning( qBound( PanningLeft, panning, PanningRight ) ),
-	m_length( length ),
-	m_pos( pos ),
-	m_detuning( NULL )
+Note::Note( const MidiTime & length, const MidiTime & pos, int key,
+            volume_t volume, panning_t panning, DetuningHelper * detuning )
+    : m_selected( false ),
+      m_oldKey( qBound( 0, key, NumKeys ) ),
+      m_oldPos( pos ),
+      m_oldLength( length ),
+      m_isPlaying( false ),
+      m_key( qBound( 0, key, NumKeys ) ),
+      m_volume( qBound( MinVolume, volume, MaxVolume ) ),
+      m_panning( qBound( PanningLeft, panning, PanningRight ) ),
+      m_length( length ),
+      m_pos( pos ),
+      m_detuning( NULL )
 {
 	if( detuning )
 	{
@@ -56,31 +53,25 @@ Note::Note( const MidiTime & length, const MidiTime & pos,
 	}
 }
 
-
-
-
-Note::Note( const Note & note ) :
-	SerializingObject( note ),
-	m_selected( note.m_selected ),
-	m_oldKey( note.m_oldKey ),
-	m_oldPos( note.m_oldPos ),
-	m_oldLength( note.m_oldLength ),
-	m_isPlaying( note.m_isPlaying ),
-	m_key( note.m_key),
-	m_volume( note.m_volume ),
-	m_panning( note.m_panning ),
-	m_length( note.m_length ),
-	m_pos( note.m_pos ),
-	m_detuning( NULL )
+Note::Note( const Note & note )
+    : SerializingObject( note ),
+      m_selected( note.m_selected ),
+      m_oldKey( note.m_oldKey ),
+      m_oldPos( note.m_oldPos ),
+      m_oldLength( note.m_oldLength ),
+      m_isPlaying( note.m_isPlaying ),
+      m_key( note.m_key ),
+      m_volume( note.m_volume ),
+      m_panning( note.m_panning ),
+      m_length( note.m_length ),
+      m_pos( note.m_pos ),
+      m_detuning( NULL )
 {
 	if( note.m_detuning )
 	{
 		m_detuning = sharedObject::ref( note.m_detuning );
 	}
 }
-
-
-
 
 Note::~Note()
 {
@@ -90,24 +81,9 @@ Note::~Note()
 	}
 }
 
+void Note::setLength( const MidiTime & length ) { m_length = length; }
 
-
-
-void Note::setLength( const MidiTime & length )
-{
-	m_length = length;
-}
-
-
-
-
-void Note::setPos( const MidiTime & pos )
-{
-	m_pos = pos;
-}
-
-
-
+void Note::setPos( const MidiTime & pos ) { m_pos = pos; }
 
 void Note::setKey( const int key )
 {
@@ -115,26 +91,17 @@ void Note::setKey( const int key )
 	m_key = k;
 }
 
-
-
-
 void Note::setVolume( volume_t volume )
 {
 	const volume_t v = qBound( MinVolume, volume, MaxVolume );
 	m_volume = v;
 }
 
-
-
-
 void Note::setPanning( panning_t panning )
 {
 	const panning_t p = qBound( PanningLeft, panning, PanningRight );
 	m_panning = p;
 }
-
-
-
 
 MidiTime Note::quantized( const MidiTime & m, const int qGrid )
 {
@@ -146,9 +113,6 @@ MidiTime Note::quantized( const MidiTime & m, const int qGrid )
 	return static_cast<int>( p + 1 ) * qGrid;
 }
 
-
-
-
 void Note::quantizeLength( const int qGrid )
 {
 	setLength( quantized( length(), qGrid ) );
@@ -158,16 +122,10 @@ void Note::quantizeLength( const int qGrid )
 	}
 }
 
-
-
-
 void Note::quantizePos( const int qGrid )
 {
 	setPos( quantized( pos(), qGrid ) );
 }
-
-
-
 
 void Note::saveSettings( QDomDocument & doc, QDomElement & parent )
 {
@@ -183,12 +141,10 @@ void Note::saveSettings( QDomDocument & doc, QDomElement & parent )
 	}
 }
 
-
-
-
 void Note::loadSettings( const QDomElement & _this )
 {
-	const int oldKey = _this.attribute( "tone" ).toInt() + _this.attribute( "oct" ).toInt() * KeysPerOctave;
+	const int oldKey = _this.attribute( "tone" ).toInt() +
+	                   _this.attribute( "oct" ).toInt() * KeysPerOctave;
 	m_key = qMax( oldKey, _this.attribute( "key" ).toInt() );
 	m_volume = _this.attribute( "vol" ).toInt();
 	m_panning = _this.attribute( "pan" ).toInt();
@@ -202,10 +158,6 @@ void Note::loadSettings( const QDomElement & _this )
 	}
 }
 
-
-
-
-
 void Note::createDetuning()
 {
 	if( m_detuning == NULL )
@@ -213,22 +165,18 @@ void Note::createDetuning()
 		m_detuning = new DetuningHelper;
 		(void) m_detuning->automationPattern();
 		m_detuning->setRange( -MaxDetuning, MaxDetuning, 0.5f );
-		m_detuning->automationPattern()->setProgressionType( AutomationPattern::LinearProgression );
+		m_detuning->automationPattern()->setProgressionType(
+		    AutomationPattern::LinearProgression );
 	}
 }
-
-
-
 
 bool Note::hasDetuningInfo() const
 {
 	return m_detuning && m_detuning->hasAutomation();
 }
 
-
-
-bool Note::withinRange(int tickStart, int tickEnd) const
+bool Note::withinRange( int tickStart, int tickEnd ) const
 {
-	return pos().getTicks() >= tickStart && pos().getTicks() <= tickEnd
-		&& length().getTicks() != 0;
+	return pos().getTicks() >= tickStart && pos().getTicks() <= tickEnd &&
+	       length().getTicks() != 0;
 }

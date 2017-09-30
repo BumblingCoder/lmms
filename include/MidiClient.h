@@ -28,14 +28,11 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVector>
 
-
 #include "MidiEvent.h"
 #include "MidiEventProcessor.h"
 #include "TabWidget.h"
 
-
 class MidiPort;
-
 
 // base-class for all MIDI-clients
 class MidiClient
@@ -45,9 +42,8 @@ public:
 	virtual ~MidiClient();
 
 	// to be implemented by sub-classes
-	virtual void processOutEvent( const MidiEvent & _me,
-						const MidiTime & _time,
-						const MidiPort * _port ) = 0;
+	virtual void processOutEvent( const MidiEvent & _me, const MidiTime & _time,
+	                              const MidiPort * _port ) = 0;
 
 	// inheriting classes can re-implement this for being able to update
 	// their internal port-structures etc.
@@ -59,23 +55,13 @@ public:
 	// re-implemented methods HAVE to call removePort() of base-class!!
 	virtual void removePort( MidiPort * _port );
 
-
 	// returns whether client works with raw-MIDI, only needs to be
 	// re-implemented by MidiClientRaw for returning true
-	virtual bool isRaw() const
-	{
-		return false;
-	}
+	virtual bool isRaw() const { return false; }
 
 	// if not raw-client, return all readable/writable ports
-	virtual QStringList readablePorts() const
-	{
-		return QStringList();
-	}
-	virtual QStringList writablePorts() const
-	{
-		return QStringList();
-	}
+	virtual QStringList readablePorts() const { return QStringList(); }
+	virtual QStringList writablePorts() const { return QStringList(); }
 
 	// return name of port which specified MIDI event came from
 	virtual QString sourcePortName( const MidiEvent & ) const
@@ -83,24 +69,17 @@ public:
 		return QString();
 	}
 
-
 	// (un)subscribe given MidiPort to/from destination-port
-	virtual void subscribeReadablePort( MidiPort * _port,
-						const QString & _dest,
-						bool _subscribe = true );
-	virtual void subscribeWritablePort( MidiPort * _port,
-						const QString & _dest,
-						bool _subscribe = true );
+	virtual void subscribeReadablePort( MidiPort * _port, const QString & _dest,
+	                                    bool _subscribe = true );
+	virtual void subscribeWritablePort( MidiPort * _port, const QString & _dest,
+	                                    bool _subscribe = true );
 
 	// qobject-derived classes can use this for make a slot being
 	// connected to signal of non-raw-MIDI-client if port-lists change
-	virtual void connectRPChanged( QObject *, const char * )
-	{
-	}
+	virtual void connectRPChanged( QObject *, const char * ) {}
 
-	virtual void connectWPChanged( QObject *, const char * )
-	{
-	}
+	virtual void connectWPChanged( QObject *, const char * ) {}
 
 	// tries to open either MIDI-driver from config-file or (if it fails)
 	// any other working
@@ -108,14 +87,9 @@ public:
 
 protected:
 	QVector<MidiPort *> m_midiPorts;
-
-} ;
-
-
-
+};
 
 const uint32_t RAW_MIDI_PARSE_BUF_SIZE = 16;
-
 
 class MidiClientRaw : public MidiClient
 {
@@ -124,11 +98,7 @@ public:
 	virtual ~MidiClientRaw();
 
 	// we are raw-clients for sure!
-	virtual bool isRaw() const
-	{
-		return true;
-	}
-
+	virtual bool isRaw() const { return true; }
 
 protected:
 	// generic raw-MIDI-parser which generates appropriate MIDI-events
@@ -137,36 +107,33 @@ protected:
 	// to be implemented by actual client-implementation
 	virtual void sendByte( const unsigned char c ) = 0;
 
-
 private:
 	// this does MIDI-event-process
 	void processParsedEvent();
-	virtual void processOutEvent( const MidiEvent& event, const MidiTime& time, const MidiPort* port );
+	virtual void processOutEvent( const MidiEvent & event,
+	                              const MidiTime & time,
+	                              const MidiPort * port );
 
 	// small helper function returning length of a certain event - this
 	// is necessary for parsing raw-MIDI-data
 	static int eventLength( const unsigned char event );
 
-
 	// data being used for parsing
 	struct midiParserData
 	{
-		uint8_t m_status;		// identifies the type of event, that
-					// is currently received ('Noteon',
-					// 'Pitch Bend' etc).
-		uint8_t m_channel;	// The channel of the event that is
-					// received (in case of a channel event)
-		uint32_t m_bytes;		// How many bytes have been read for
-					// the current event?
-		uint32_t m_bytesTotal;	// How many bytes does the current
-					// event type include?
+		uint8_t m_status;      // identifies the type of event, that
+		                       // is currently received ('Noteon',
+		                       // 'Pitch Bend' etc).
+		uint8_t m_channel;     // The channel of the event that is
+		                       // received (in case of a channel event)
+		uint32_t m_bytes;      // How many bytes have been read for
+		                       // the current event?
+		uint32_t m_bytesTotal; // How many bytes does the current
+		                       // event type include?
 		uint32_t m_buffer[RAW_MIDI_PARSE_BUF_SIZE];
-					// buffer for incoming data
-		MidiEvent m_midiEvent;	// midi-event
+		// buffer for incoming data
+		MidiEvent m_midiEvent; // midi-event
 	} m_midiParseData;
-
-} ;
-
+};
 
 #endif
-

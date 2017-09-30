@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef KNOB_H
 #define KNOB_H
 
@@ -32,53 +31,56 @@
 #include "AutomatableModelView.h"
 #include "templates.h"
 
-
 class QPixmap;
 class TextFloat;
 
 enum knobTypes
 {
-	knobDark_28, knobBright_26, knobSmall_17, knobVintage_32, knobStyled
-} ;
-
-
+	knobDark_28,
+	knobBright_26,
+	knobSmall_17,
+	knobVintage_32,
+	knobStyled
+};
 
 class EXPORT Knob : public QWidget, public FloatModelView
 {
 	Q_OBJECT
 	Q_ENUMS( knobTypes )
 
-	Q_PROPERTY(float innerRadius READ innerRadius WRITE setInnerRadius)
-	Q_PROPERTY(float outerRadius READ outerRadius WRITE setOuterRadius)
+	Q_PROPERTY( float innerRadius READ innerRadius WRITE setInnerRadius )
+	Q_PROPERTY( float outerRadius READ outerRadius WRITE setOuterRadius )
 
-	Q_PROPERTY(float centerPointX READ centerPointX WRITE setCenterPointX)
-	Q_PROPERTY(float centerPointY READ centerPointY WRITE setCenterPointY)
+	Q_PROPERTY( float centerPointX READ centerPointX WRITE setCenterPointX )
+	Q_PROPERTY( float centerPointY READ centerPointY WRITE setCenterPointY )
 
-	Q_PROPERTY(float lineWidth READ lineWidth WRITE setLineWidth)
+	Q_PROPERTY( float lineWidth READ lineWidth WRITE setLineWidth )
 
 	// Unfortunately, the gradient syntax doesn't create our gradient
 	// correctly so we need to do this:
-	Q_PROPERTY(QColor outerColor READ outerColor WRITE setOuterColor)
-	Q_PROPERTY(QColor lineColor READ lineColor WRITE setlineColor)
-	Q_PROPERTY(QColor arcColor READ arcColor WRITE setarcColor)
-	mapPropertyFromModel(bool,isVolumeKnob,setVolumeKnob,m_volumeKnob);
-	mapPropertyFromModel(float,volumeRatio,setVolumeRatio,m_volumeRatio);
+	Q_PROPERTY( QColor outerColor READ outerColor WRITE setOuterColor )
+	Q_PROPERTY( QColor lineColor READ lineColor WRITE setlineColor )
+	Q_PROPERTY( QColor arcColor READ arcColor WRITE setarcColor )
+	mapPropertyFromModel( bool, isVolumeKnob, setVolumeKnob, m_volumeKnob );
+	mapPropertyFromModel( float, volumeRatio, setVolumeRatio, m_volumeRatio );
 
-	Q_PROPERTY(knobTypes knobNum READ knobNum WRITE setknobNum)
-	
-	Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
+	Q_PROPERTY( knobTypes knobNum READ knobNum WRITE setknobNum )
+
+	Q_PROPERTY( QColor textColor READ textColor WRITE setTextColor )
 
 	void initUi( const QString & _name ); //!< to be called by ctors
 	void onKnobNumUpdated(); //!< to be called when you updated @a m_knobNum
 
 public:
-	Knob( knobTypes _knob_num, QWidget * _parent = NULL, const QString & _name = QString() );
-	Knob( QWidget * _parent = NULL, const QString & _name = QString() ); //!< default ctor
+	Knob( knobTypes _knob_num, QWidget * _parent = NULL,
+	      const QString & _name = QString() );
+	Knob( QWidget * _parent = NULL,
+	      const QString & _name = QString() ); //!< default ctor
 	virtual ~Knob();
 
 	// TODO: remove
 	inline void setHintText( const QString & _txt_before,
-						const QString & _txt_after )
+	                         const QString & _txt_after )
 	{
 		setDescription( _txt_before );
 		setUnit( _txt_after );
@@ -112,16 +114,14 @@ public:
 	void setlineColor( const QColor & c );
 	QColor arcColor() const;
 	void setarcColor( const QColor & c );
-	
+
 	QColor textColor() const;
 	void setTextColor( const QColor & c );
-
 
 signals:
 	void sliderPressed();
 	void sliderReleased();
 	void sliderMoved( float value );
-
 
 protected:
 	virtual void contextMenuEvent( QContextMenuEvent * _me );
@@ -149,22 +149,24 @@ private:
 	virtual void doConnections();
 
 	QLineF calculateLine( const QPointF & _mid, float _radius,
-						float _innerRadius = 1) const;
+	                      float _innerRadius = 1 ) const;
 
 	void drawKnob( QPainter * _p );
 	void setPosition( const QPoint & _p );
 	bool updateAngle();
 
-	int angleFromValue( float value, float minValue, float maxValue, float totalAngle ) const
+	int angleFromValue( float value, float minValue, float maxValue,
+	                    float totalAngle ) const
 	{
-		return static_cast<int>( ( value - 0.5 * ( minValue + maxValue ) ) / ( maxValue - minValue ) * m_totalAngle ) % 360;
+		return static_cast<int>( ( value - 0.5 * ( minValue + maxValue ) ) /
+		                         ( maxValue - minValue ) * m_totalAngle ) %
+		       360;
 	}
 
 	inline float pageSize() const
 	{
 		return ( model()->maxValue() - model()->minValue() ) / 100.0f;
 	}
-
 
 	static TextFloat * s_textFloat;
 
@@ -190,12 +192,11 @@ private:
 	float m_lineWidth;
 	QColor m_outerColor;
 	QColor m_lineColor; //!< unused yet
-	QColor m_arcColor; //!< unused yet
-	
+	QColor m_arcColor;  //!< unused yet
+
 	QColor m_textColor;
 
 	knobTypes m_knobNum;
-
-} ;
+};
 
 #endif

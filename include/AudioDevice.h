@@ -30,28 +30,19 @@
 
 #include "lmms_basics.h"
 
-
 class AudioPort;
 class Mixer;
 class QThread;
 
-
 class AudioDevice
 {
 public:
-	AudioDevice( const ch_cnt_t _channels, Mixer* mixer );
+	AudioDevice( const ch_cnt_t _channels, Mixer * mixer );
 	virtual ~AudioDevice();
 
-	inline void lock()
-	{
-		m_devMutex.lock();
-	}
+	inline void lock() { m_devMutex.lock(); }
 
-	inline void unlock()
-	{
-		m_devMutex.unlock();
-	}
-
+	inline void unlock() { m_devMutex.unlock(); }
 
 	// if audio-driver supports ports, classes inherting AudioPort
 	// (e.g. channel-tracks) can register themselves for making
@@ -61,41 +52,26 @@ public:
 	virtual void unregisterPort( AudioPort * _port );
 	virtual void renamePort( AudioPort * _port );
 
+	inline bool supportsCapture() const { return m_supportsCapture; }
 
-	inline bool supportsCapture() const
-	{
-		return m_supportsCapture;
-	}
+	inline sample_rate_t sampleRate() const { return m_sampleRate; }
 
-	inline sample_rate_t sampleRate() const
-	{
-		return m_sampleRate;
-	}
-
-	ch_cnt_t channels() const
-	{
-		return m_channels;
-	}
+	ch_cnt_t channels() const { return m_channels; }
 
 	void processNextBuffer();
 
-	virtual void startProcessing()
-	{
-		m_inProcess = true;
-	}
+	virtual void startProcessing() { m_inProcess = true; }
 
 	virtual void stopProcessing();
 
 	virtual void applyQualitySettings();
 
-
-
 protected:
 	// subclasses can re-implement this for being used in conjunction with
 	// processNextBuffer()
 	virtual void writeBuffer( const surroundSampleFrame * /* _buf*/,
-						const fpp_t /*_frames*/,
-						const float /*_master_gain*/ )
+	                          const fpp_t /*_frames*/,
+	                          const float /*_master_gain*/ )
 	{
 	}
 
@@ -104,46 +80,36 @@ protected:
 
 	// convert a given audio-buffer to a buffer in signed 16-bit samples
 	// returns num of bytes in outbuf
-	int convertToS16( const surroundSampleFrame * _ab,
-						const fpp_t _frames,
-						const float _master_gain,
-						int_sample_t * _output_buffer,
-						const bool _convert_endian = false );
+	int convertToS16( const surroundSampleFrame * _ab, const fpp_t _frames,
+	                  const float _master_gain, int_sample_t * _output_buffer,
+	                  const bool _convert_endian = false );
 
 	// clear given signed-int-16-buffer
-	void clearS16Buffer( int_sample_t * _outbuf,
-							const fpp_t _frames );
+	void clearS16Buffer( int_sample_t * _outbuf, const fpp_t _frames );
 
 	// resample given buffer from samplerate _src_sr to samplerate _dst_sr
-	void resample( const surroundSampleFrame * _src,
-					const fpp_t _frames,
-					surroundSampleFrame * _dst,
-					const sample_rate_t _src_sr,
-					const sample_rate_t _dst_sr );
+	void resample( const surroundSampleFrame * _src, const fpp_t _frames,
+	               surroundSampleFrame * _dst, const sample_rate_t _src_sr,
+	               const sample_rate_t _dst_sr );
 
 	inline void setSampleRate( const sample_rate_t _new_sr )
 	{
 		m_sampleRate = _new_sr;
 	}
 
-	Mixer* mixer()
-	{
-		return m_mixer;
-	}
+	Mixer * mixer() { return m_mixer; }
 
 	bool hqAudio() const;
 
 	static void stopProcessingThread( QThread * thread );
 
-
 protected:
 	bool m_supportsCapture;
-
 
 private:
 	sample_rate_t m_sampleRate;
 	ch_cnt_t m_channels;
-	Mixer* m_mixer;
+	Mixer * m_mixer;
 	bool m_inProcess;
 
 	QMutex m_devMutex;
@@ -152,8 +118,6 @@ private:
 	SRC_STATE * m_srcState;
 
 	surroundSampleFrame * m_buffer;
-
-} ;
-
+};
 
 #endif

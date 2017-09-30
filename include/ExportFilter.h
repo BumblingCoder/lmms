@@ -28,39 +28,30 @@
 
 #include <QtCore/QFile>
 
-#include "TrackContainer.h"
 #include "Plugin.h"
-
+#include "TrackContainer.h"
 
 class EXPORT ExportFilter : public Plugin
 {
 public:
-	ExportFilter( const Descriptor * _descriptor ) : Plugin( _descriptor, NULL ) {}
+	ExportFilter( const Descriptor * _descriptor ) : Plugin( _descriptor, NULL )
+	{
+	}
 	virtual ~ExportFilter() {}
 
+	virtual bool tryExport( const TrackContainer::TrackList & tracks,
+	                        const TrackContainer::TrackList & tracksBB,
+	                        int tempo, int masterPitch,
+	                        const QString & filename ) = 0;
 
-	virtual bool tryExport(const TrackContainer::TrackList &tracks,
-				const TrackContainer::TrackList &tracksBB,
-				int tempo, int masterPitch, const QString &filename ) = 0;
 protected:
+	virtual void saveSettings( QDomDocument &, QDomElement & ) {}
 
-	virtual void saveSettings( QDomDocument &, QDomElement & )
-	{
-	}
+	virtual void loadSettings( const QDomElement & ) {}
 
-	virtual void loadSettings( const QDomElement & )
-	{
-	}
-
-	virtual QString nodeName() const
-	{
-		return "import_filter";
-	}
-
+	virtual QString nodeName() const { return "import_filter"; }
 
 private:
-
-} ;
-
+};
 
 #endif

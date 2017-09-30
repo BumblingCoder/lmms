@@ -24,65 +24,45 @@
 
 #include <QFileInfo>
 
-#include "PresetPreviewPlayHandle.h"
 #include "Engine.h"
 #include "Instrument.h"
 #include "InstrumentTrack.h"
 #include "Mixer.h"
 #include "PluginFactory.h"
+#include "PresetPreviewPlayHandle.h"
 #include "ProjectJournal.h"
 #include "TrackContainer.h"
-
-
 
 // invisible track-container which is needed as parent for preview-channels
 class PreviewTrackContainer : public TrackContainer
 {
 public:
-	PreviewTrackContainer() :
-		m_previewInstrumentTrack( NULL ),
-		m_previewNote( NULL ),
-		m_dataMutex()
+	PreviewTrackContainer()
+	    : m_previewInstrumentTrack( NULL ), m_previewNote( NULL ), m_dataMutex()
 	{
 		setJournalling( false );
-		m_previewInstrumentTrack = dynamic_cast<InstrumentTrack *>( Track::create( Track::InstrumentTrack, this ) );
+		m_previewInstrumentTrack = dynamic_cast<InstrumentTrack *>(
+		    Track::create( Track::InstrumentTrack, this ) );
 		m_previewInstrumentTrack->setJournalling( false );
 		m_previewInstrumentTrack->setPreviewMode( true );
 	}
 
-	virtual ~PreviewTrackContainer()
-	{
-	}
+	virtual ~PreviewTrackContainer() {}
 
-	virtual QString nodeName() const
-	{
-		return "previewtrackcontainer";
-	}
+	virtual QString nodeName() const { return "previewtrackcontainer"; }
 
-	InstrumentTrack* previewInstrumentTrack()
+	InstrumentTrack * previewInstrumentTrack()
 	{
 		return m_previewInstrumentTrack;
 	}
 
-	NotePlayHandle* previewNote()
-	{
-		return m_previewNote;
-	}
+	NotePlayHandle * previewNote() { return m_previewNote; }
 
-	void setPreviewNote( NotePlayHandle * _note )
-	{
-		m_previewNote = _note;
-	}
+	void setPreviewNote( NotePlayHandle * _note ) { m_previewNote = _note; }
 
-	void lockData()
-	{
-		m_dataMutex.lock();
-	}
+	void lockData() { m_dataMutex.lock(); }
 
-	void unlockData()
-	{
-		m_dataMutex.unlock();
-	}
+	void unlockData() { m_dataMutex.unlock(); }
 
 	bool isPreviewing()
 	{
@@ -94,24 +74,20 @@ public:
 		return ret;
 	}
 
-
 private:
-	InstrumentTrack* m_previewInstrumentTrack;
-	NotePlayHandle* m_previewNote;
+	InstrumentTrack * m_previewInstrumentTrack;
+	NotePlayHandle * m_previewNote;
 	QMutex m_dataMutex;
 
 	friend class PresetPreviewPlayHandle;
-
-} ;
-
+};
 
 PreviewTrackContainer * PresetPreviewPlayHandle::s_previewTC;
 
-
-
-PresetPreviewPlayHandle::PresetPreviewPlayHandle( const QString & _preset_file, bool _load_by_plugin, DataFile *dataFile ) :
-	PlayHandle( TypePresetPreviewHandle ),
-	m_previewNote( NULL )
+PresetPreviewPlayHandle::PresetPreviewPlayHandle( const QString & _preset_file,
+                                                  bool _load_by_plugin,
+                                                  DataFile * dataFile )
+    : PlayHandle( TypePresetPreviewHandle ), m_previewNote( NULL )
 {
 	s_previewTC->lockData();
 
@@ -122,19 +98,17 @@ PresetPreviewPlayHandle::PresetPreviewPlayHandle( const QString & _preset_file, 
 		s_previewTC->previewNote()->mute();
 	}
 
-
 	const bool j = Engine::projectJournal()->isJournalling();
 	Engine::projectJournal()->setJournalling( false );
 
 	if( _load_by_plugin )
 	{
 		Instrument * i = s_previewTC->previewInstrumentTrack()->instrument();
-		const QString ext = QFileInfo( _preset_file ).
-							suffix().toLower();
+		const QString ext = QFileInfo( _preset_file ).suffix().toLower();
 		if( i == NULL || !i->descriptor()->supportsFileType( ext ) )
 		{
-			i = s_previewTC->previewInstrumentTrack()->
-				loadInstrument(pluginFactory->pluginSupportingExtension(ext).name());
+			i = s_previewTC->previewInstrumentTrack()->loadInstrument(
+			    pluginFactory->pluginSupportingExtension( ext ).name() );
 		}
 		if( i != NULL )
 		{
@@ -152,15 +126,15 @@ PresetPreviewPlayHandle::PresetPreviewPlayHandle( const QString & _preset_file, 
 
 		// vestige previews are bug prone; fallback on 3xosc with volume of 0
 		// without an instrument in preview track, it will segfault
-		if(dataFile->content().elementsByTagName( "vestige" ).length() == 0 )
+		if( dataFile->content().elementsByTagName( "vestige" ).length() == 0 )
 		{
-			s_previewTC->previewInstrumentTrack()->
-					loadTrackSpecificSettings(
-						dataFile->content().firstChild().toElement() );
+			s_previewTC->previewInstrumentTrack()->loadTrackSpecificSettings(
+			    dataFile->content().firstChild().toElement() );
 		}
 		else
 		{
-			s_previewTC->previewInstrumentTrack()->loadInstrument("tripleoscillator");
+			s_previewTC->previewInstrumentTrack()->loadInstrument(
+			    "tripleoscillator" );
 			s_previewTC->previewInstrumentTrack()->setVolume( 0 );
 		}
 		if( dataFileCreated )
@@ -171,14 +145,13 @@ PresetPreviewPlayHandle::PresetPreviewPlayHandle( const QString & _preset_file, 
 	dataFile = 0;
 	// make sure, our preset-preview-track does not appear in any MIDI-
 	// devices list, so just disable receiving/sending MIDI-events at all
-	s_previewTC->previewInstrumentTrack()->
-				midiPort()->setMode( MidiPort::Disabled );
+	s_previewTC->previewInstrumentTrack()->midiPort()->setMode(
+	    MidiPort::Disabled );
 
 	// create note-play-handle for it
 	m_previewNote = NotePlayHandleManager::acquire(
-			s_previewTC->previewInstrumentTrack(), 0,
-			typeInfo<f_cnt_t>::max() / 2,
-				Note( 0, 0, DefaultKey, 100 ) );
+	    s_previewTC->previewInstrumentTrack(), 0, typeInfo<f_cnt_t>::max() / 2,
+	    Note( 0, 0, DefaultKey, 100 ) );
 
 	setAudioPort( s_previewTC->previewInstrumentTrack()->audioPort() );
 
@@ -189,9 +162,6 @@ PresetPreviewPlayHandle::PresetPreviewPlayHandle( const QString & _preset_file, 
 	s_previewTC->unlockData();
 	Engine::projectJournal()->setJournalling( j );
 }
-
-
-
 
 PresetPreviewPlayHandle::~PresetPreviewPlayHandle()
 {
@@ -206,33 +176,21 @@ PresetPreviewPlayHandle::~PresetPreviewPlayHandle()
 	s_previewTC->unlockData();
 }
 
-
-
-
 void PresetPreviewPlayHandle::play( sampleFrame * _working_buffer )
 {
 	// Do nothing; the preview instrument is played by m_previewNote, which
 	// has been added to the mixer
 }
 
-
-
-
 bool PresetPreviewPlayHandle::isFinished() const
 {
 	return m_previewNote->isMuted();
 }
 
-
-
-
 bool PresetPreviewPlayHandle::isFromTrack( const Track * _track ) const
 {
 	return s_previewTC->previewInstrumentTrack() == _track;
 }
-
-
-
 
 void PresetPreviewPlayHandle::init()
 {
@@ -242,25 +200,19 @@ void PresetPreviewPlayHandle::init()
 	}
 }
 
-
-
-
 void PresetPreviewPlayHandle::cleanup()
 {
 	delete s_previewTC;
 	s_previewTC = NULL;
 }
 
-
-
-
-ConstNotePlayHandleList PresetPreviewPlayHandle::nphsOfInstrumentTrack(
-						const InstrumentTrack * _it )
+ConstNotePlayHandleList
+PresetPreviewPlayHandle::nphsOfInstrumentTrack( const InstrumentTrack * _it )
 {
 	ConstNotePlayHandleList cnphv;
 	s_previewTC->lockData();
 	if( s_previewTC->previewNote() != NULL &&
-		s_previewTC->previewNote()->instrumentTrack() == _it )
+	    s_previewTC->previewNote()->instrumentTrack() == _it )
 	{
 		cnphv.push_back( s_previewTC->previewNote() );
 	}
@@ -268,16 +220,11 @@ ConstNotePlayHandleList PresetPreviewPlayHandle::nphsOfInstrumentTrack(
 	return cnphv;
 }
 
-
-
-
 bool PresetPreviewPlayHandle::isPreviewing()
 {
-	if (s_previewTC) {
+	if( s_previewTC )
+	{
 		return s_previewTC->isPreviewing();
 	}
 	return false;
 }
-
-
-

@@ -29,22 +29,20 @@
 
 #ifdef LMMS_HAVE_PULSEAUDIO
 
-#include <pulse/pulseaudio.h>
 #include <QSemaphore>
 #include <QThread>
+#include <pulse/pulseaudio.h>
 
 #include "AudioDevice.h"
 #include "AudioDeviceSetupWidget.h"
 
-
 class LcdSpinBox;
 class QLineEdit;
-
 
 class AudioPulseAudio : public AudioDevice, public QThread
 {
 public:
-	AudioPulseAudio( bool & _success_ful, Mixer* mixer );
+	AudioPulseAudio( bool & _success_ful, Mixer * mixer );
 	virtual ~AudioPulseAudio();
 
 	inline static QString name()
@@ -53,7 +51,6 @@ public:
 	}
 
 	static QString probeDevice();
-
 
 	class setupWidget : public AudioDeviceSetupWidget
 	{
@@ -66,9 +63,7 @@ public:
 	private:
 		QLineEdit * m_device;
 		LcdSpinBox * m_channels;
-
-	} ;
-
+	};
 
 	void streamWriteCallback( pa_stream * s, size_t length );
 
@@ -76,7 +71,6 @@ public:
 
 	pa_stream * m_s;
 	pa_sample_spec m_sampleSpec;
-
 
 private:
 	virtual void startProcessing();
@@ -90,8 +84,7 @@ private:
 
 	bool m_connected;
 	QSemaphore m_connectedSemaphore;
-
-} ;
+};
 
 #endif
 

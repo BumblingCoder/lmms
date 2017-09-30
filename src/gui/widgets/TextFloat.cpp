@@ -22,21 +22,17 @@
  *
  */
 
-#include <QTimer>
 #include <QPainter>
 #include <QStyleOption>
+#include <QTimer>
 
-#include "TextFloat.h"
-#include "gui_templates.h"
 #include "GuiApplication.h"
 #include "MainWindow.h"
+#include "TextFloat.h"
+#include "gui_templates.h"
 
-
-TextFloat::TextFloat() :
-	QWidget( gui->mainWindow(), Qt::ToolTip ),
-	m_title(),
-	m_text(),
-	m_pixmap()
+TextFloat::TextFloat()
+    : QWidget( gui->mainWindow(), Qt::ToolTip ), m_title(), m_text(), m_pixmap()
 {
 	resize( 20, 20 );
 	hide();
@@ -46,17 +42,11 @@ TextFloat::TextFloat() :
 	setFont( pointSize<8>( font() ) );
 }
 
-
-
-
 void TextFloat::setTitle( const QString & _title )
 {
 	m_title = _title;
 	updateSize();
 }
-
-
-
 
 void TextFloat::setText( const QString & _text )
 {
@@ -64,17 +54,11 @@ void TextFloat::setText( const QString & _text )
 	updateSize();
 }
 
-
-
-
 void TextFloat::setPixmap( const QPixmap & _pixmap )
 {
 	m_pixmap = _pixmap;
 	updateSize();
 }
-
-
-
 
 void TextFloat::setVisibilityTimeOut( int _msecs )
 {
@@ -82,11 +66,8 @@ void TextFloat::setVisibilityTimeOut( int _msecs )
 	show();
 }
 
-
-
-
 TextFloat * TextFloat::displayMessage( const QString & _msg, int _timeout,
-					QWidget * _parent, int _add_y_margin )
+                                       QWidget * _parent, int _add_y_margin )
 {
 	QWidget * mw = gui->mainWindow();
 	TextFloat * tf = new TextFloat;
@@ -96,7 +77,8 @@ TextFloat * TextFloat::displayMessage( const QString & _msg, int _timeout,
 	}
 	else
 	{
-		tf->moveGlobal( mw, QPoint( 32, mw->height() - tf->height() - 8 - _add_y_margin ) );
+		tf->moveGlobal(
+		    mw, QPoint( 32, mw->height() - tf->height() - 8 - _add_y_margin ) );
 	}
 	tf->setText( _msg );
 	tf->show();
@@ -105,41 +87,35 @@ TextFloat * TextFloat::displayMessage( const QString & _msg, int _timeout,
 		tf->setAttribute( Qt::WA_DeleteOnClose, true );
 		QTimer::singleShot( _timeout, tf, SLOT( close() ) );
 	}
-	return( tf );
+	return ( tf );
 }
 
-
-
-
 TextFloat * TextFloat::displayMessage( const QString & _title,
-					const QString & _msg,
-					const QPixmap & _pixmap,
-					int _timeout, QWidget * _parent )
+                                       const QString & _msg,
+                                       const QPixmap & _pixmap, int _timeout,
+                                       QWidget * _parent )
 {
 	TextFloat * tf = displayMessage( _msg, _timeout, _parent, 16 );
 	tf->setTitle( _title );
 	tf->setPixmap( _pixmap );
-	return( tf );
+	return ( tf );
 }
-
-
-
 
 void TextFloat::paintEvent( QPaintEvent * _pe )
 {
 	QStyleOption opt;
-    opt.init( this );
+	opt.init( this );
 	QPainter p( this );
 	p.fillRect( 0, 0, width(), height(), QColor( 0, 0, 0, 0 ) );
 
-/*	p.setPen( p.pen().brush().color() );
-	p.setBrush( p.background() );*/
+	/*	p.setPen( p.pen().brush().color() );
+	  p.setBrush( p.background() );*/
 
 	p.setFont( pointSize<8>( p.font() ) );
-	
+
 	style()->drawPrimitive( QStyle::PE_Widget, &opt, &p, this );
 
-/*	p.drawRect( 0, 0, rect().right(), rect().bottom() );*/
+	/*	p.drawRect( 0, 0, rect().right(), rect().bottom() );*/
 
 	if( m_title.isEmpty() )
 	{
@@ -162,16 +138,7 @@ void TextFloat::paintEvent( QPaintEvent * _pe )
 	}
 }
 
-
-
-
-void TextFloat::mousePressEvent( QMouseEvent * )
-{
-	close();
-}
-
-
-
+void TextFloat::mousePressEvent( QMouseEvent * ) { close(); }
 
 void TextFloat::updateSize()
 {
@@ -192,11 +159,7 @@ void TextFloat::updateSize()
 	{
 		textBound.setWidth( textBound.width() + m_pixmap.width() + 10 );
 	}
-	resize( textBound.width() + 5, textBound.height()+2 );
-	//move( QPoint( parentWidget()->width() + 5, 5 ) );
+	resize( textBound.width() + 5, textBound.height() + 2 );
+	// move( QPoint( parentWidget()->width() + 5, 5 ) );
 	update();
 }
-
-
-
-

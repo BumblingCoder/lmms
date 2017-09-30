@@ -29,25 +29,21 @@
 
 #include "LocklessAllocator.h"
 
-template<typename T>
-class LocklessList
+template <typename T> class LocklessList
 {
 public:
 	struct Element
 	{
 		T value;
 		Element * next;
-	} ;
+	};
 
 	LocklessList( size_t size )
 	{
 		m_allocator = new LocklessAllocatorT<Element>( size );
 	}
 
-	~LocklessList()
-	{
-		delete m_allocator;
-	}
+	~LocklessList() { delete m_allocator; }
 
 	void push( T value )
 	{
@@ -61,14 +57,10 @@ public:
 #else
 			e->next = m_first;
 #endif
-		}
-		while( !m_first.testAndSetOrdered( e->next, e ) );
+		} while( !m_first.testAndSetOrdered( e->next, e ) );
 	}
 
-	Element * popList()
-	{
-		return m_first.fetchAndStoreOrdered( NULL );
-	}
+	Element * popList() { return m_first.fetchAndStoreOrdered( NULL ); }
 
 	Element * first()
 	{
@@ -88,17 +80,11 @@ public:
 #endif
 	}
 
-	void free( Element * e )
-	{
-		m_allocator->free( e );
-	}
-
+	void free( Element * e ) { m_allocator->free( e ); }
 
 private:
 	QAtomicPointer<Element> m_first;
 	LocklessAllocatorT<Element> * m_allocator;
-
-} ;
-
+};
 
 #endif

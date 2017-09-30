@@ -28,53 +28,55 @@
 #include "ConfigManager.h"
 #include "Engine.h"
 #include "Mixer.h"
-#include "VstSyncController.h"
 #include "RemotePlugin.h"
+#include "VstSyncController.h"
 
 #ifndef USE_QT_SHMEM
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/types.h>
 #endif
 
-
-VstSyncController::VstSyncController() :
-	m_syncData( NULL ),
-	m_shmID( -1 ),
-	m_shm( "/usr/bin/lmms" )
+VstSyncController::VstSyncController()
+    : m_syncData( NULL ), m_shmID( -1 ), m_shm( "/usr/bin/lmms" )
 {
 	if( ConfigManager::inst()->value( "ui", "syncvstplugins" ).toInt() )
 	{
-		connect( Engine::mixer(), SIGNAL( sampleRateChanged() ), this, SLOT( updateSampleRate() ) );
+		connect( Engine::mixer(), SIGNAL( sampleRateChanged() ), this,
+		         SLOT( updateSampleRate() ) );
 
 #ifdef USE_QT_SHMEM
-		if ( m_shm.create( sizeof( VstSyncData ) ) )
+		if( m_shm.create( sizeof( VstSyncData ) ) )
 		{
-			m_syncData = (VstSyncData*) m_shm.data();
+			m_syncData = (VstSyncData *) m_shm.data();
 		}
 		else
 		{
-			qWarning() << QString( "Failed to allocate shared memory for VST sync: %1" ).arg( m_shm.errorString() );
+			qWarning()
+			    << QString(
+			           "Failed to allocate shared memory for VST sync: %1" )
+			           .arg( m_shm.errorString() );
 		}
 #else
 		key_t key; // make the key:
 		if( ( key = ftok( VST_SNC_SHM_KEY_FILE, 'R' ) ) == -1 )
 		{
-				qWarning( "VstSyncController: ftok() failed" );
+			qWarning( "VstSyncController: ftok() failed" );
 		}
 		else
-		{	// connect to shared memory segment
-			if( ( m_shmID = shmget( key, sizeof( VstSyncData ), 0644 | IPC_CREAT ) ) == -1 )
+		{ // connect to shared memory segment
+			if( ( m_shmID = shmget( key, sizeof( VstSyncData ),
+			                        0644 | IPC_CREAT ) ) == -1 )
 			{
 				qWarning( "VstSyncController: shmget() failed" );
 			}
 			else
-			{		// attach segment
-				m_syncData = (VstSyncData *)shmat( m_shmID, 0, 0 );
-				if( m_syncData == (VstSyncData *)( -1 ) )
+			{ // attach segment
+				m_syncData = (VstSyncData *) shmat( m_shmID, 0, 0 );
+				if( m_syncData == (VstSyncData *) ( -1 ) )
 				{
 					qWarning( "VstSyncController: shmat() failed" );
 				}
@@ -105,8 +107,6 @@ VstSyncController::VstSyncController() :
 	updateSampleRate();
 }
 
-
-
 VstSyncController::~VstSyncController()
 {
 	if( m_syncData->hasSHM == false )
@@ -134,61 +134,48 @@ VstSyncController::~VstSyncController()
 	}
 }
 
-
-
 void VstSyncController::setAbsolutePosition( int ticks )
 {
 #ifdef VST_SNC_LATENCY
-	m_syncData->ppqPos = ( ( ticks + 0 ) / (float)48 ) - m_syncData->m_latency;
+	m_syncData->ppqPos = ( ( ticks + 0 ) / (float) 48 ) - m_syncData->m_latency;
 #else
-	m_syncData->ppqPos = ( ( ticks + 0 ) / (float)48 );
+	m_syncData->ppqPos = ( ( ticks + 0 ) / (float) 48 );
 #endif
 }
-
-
 
 void VstSyncController::setTempo( int newTempo )
 {
 	m_syncData->m_bpm = newTempo;
 
 #ifdef VST_SNC_LATENCY
-	m_syncData->m_latency = m_syncData->m_bufferSize * newTempo / ( (float) m_syncData->m_sampleRate * 60 );
+	m_syncData->m_latency = m_syncData->m_bufferSize * newTempo /
+	                        ( (float) m_syncData->m_sampleRate * 60 );
 #endif
-
 }
-
-
 
 void VstSyncController::startCycle( int startTick, int endTick )
 {
 	m_syncData->isCycle = true;
-	m_syncData->cycleStart = startTick / (float)48;
-	m_syncData->cycleEnd = endTick / (float)48;
+	m_syncData->cycleStart = startTick / (float) 48;
+	m_syncData->cycleEnd = endTick / (float) 48;
 }
-
-
 
 void VstSyncController::update()
 {
 	m_syncData->m_bufferSize = Engine::mixer()->framesPerPeriod();
 
 #ifdef VST_SNC_LATENCY
-	m_syncData->m_latency = m_syncData->m_bufferSize * m_syncData->m_bpm / ( (float) m_syncData->m_sampleRate * 60 );
+	m_syncData->m_latency = m_syncData->m_bufferSize * m_syncData->m_bpm /
+	                        ( (float) m_syncData->m_sampleRate * 60 );
 #endif
 }
-
-
 
 void VstSyncController::updateSampleRate()
 {
 	m_syncData->m_sampleRate = Engine::mixer()->processingSampleRate();
 
 #ifdef VST_SNC_LATENCY
-	m_syncData->m_latency = m_syncData->m_bufferSize * m_syncData->m_bpm / ( (float) m_syncData->m_sampleRate * 60 );
+	m_syncData->m_latency = m_syncData->m_bufferSize * m_syncData->m_bpm /
+	                        ( (float) m_syncData->m_sampleRate * 60 );
 #endif
 }
-
-
-
-
-

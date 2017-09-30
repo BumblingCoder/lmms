@@ -22,20 +22,19 @@
  *
  */
 
-#include <QList>
-#include <QUrl>
 #include <QDesktopServices>
+#include <QList>
 #include <QListView>
+#include <QUrl>
 
 #include "ConfigManager.h"
 #include "FileDialog.h"
 
-
-FileDialog::FileDialog( QWidget *parent, const QString &caption,
-					   const QString &directory, const QString &filter ) :
-	QFileDialog( parent, caption, directory, filter )
+FileDialog::FileDialog( QWidget * parent, const QString & caption,
+                        const QString & directory, const QString & filter )
+    : QFileDialog( parent, caption, directory, filter )
 {
-#if (QT_VERSION >= 0x040806 && QT_VERSION < 0x050000) || QT_VERSION > 0x050200
+#if( QT_VERSION >= 0x040806 && QT_VERSION < 0x050000 ) || QT_VERSION > 0x050200
 	setOption( QFileDialog::DontUseCustomDirectoryIcons );
 #endif
 
@@ -44,47 +43,49 @@ FileDialog::FileDialog( QWidget *parent, const QString &caption,
 	// Add additional locations to the sidebar
 	QList<QUrl> urls = sidebarUrls();
 #if QT_VERSION >= 0x050000
-	urls << QUrl::fromLocalFile( QStandardPaths::writableLocation( QStandardPaths::DesktopLocation ) );
+	urls << QUrl::fromLocalFile(
+	    QStandardPaths::writableLocation( QStandardPaths::DesktopLocation ) );
 #else
-	urls << QUrl::fromLocalFile( QDesktopServices::storageLocation( QDesktopServices::DesktopLocation ) );
+	urls << QUrl::fromLocalFile( QDesktopServices::storageLocation(
+	    QDesktopServices::DesktopLocation ) );
 #endif
 	// Find downloads directory
 	QDir downloadDir( QDir::homePath() + "/Downloads" );
-	if ( ! downloadDir.exists() )
+	if( !downloadDir.exists() )
 #if QT_VERSION >= 0x050000
-		downloadDir = QStandardPaths::writableLocation( QStandardPaths::DownloadLocation );
+		downloadDir = QStandardPaths::writableLocation(
+		    QStandardPaths::DownloadLocation );
 #else
-		downloadDir = QDesktopServices::storageLocation( QDesktopServices::DocumentsLocation ) + "/Downloads";
+		downloadDir = QDesktopServices::storageLocation(
+		                  QDesktopServices::DocumentsLocation ) +
+		              "/Downloads";
 #endif
-	if ( downloadDir.exists() )
+	if( downloadDir.exists() )
 		urls << QUrl::fromLocalFile( downloadDir.absolutePath() );
 
 #if QT_VERSION >= 0x050000
-	urls << QUrl::fromLocalFile( QStandardPaths::writableLocation( QStandardPaths::MusicLocation ) );
+	urls << QUrl::fromLocalFile(
+	    QStandardPaths::writableLocation( QStandardPaths::MusicLocation ) );
 #else
-	urls << QUrl::fromLocalFile( QDesktopServices::storageLocation( QDesktopServices::MusicLocation ) );
+	urls << QUrl::fromLocalFile(
+	    QDesktopServices::storageLocation( QDesktopServices::MusicLocation ) );
 #endif
 	urls << QUrl::fromLocalFile( ConfigManager::inst()->workingDir() );
 
 	// Add `/Volumes` directory on OS X systems, this allows the user to browse
 	// external disk drives.
 #ifdef LMMS_BUILD_APPLE
-	QDir volumesDir( QDir("/Volumes") );
-	if ( volumesDir.exists() )
+	QDir volumesDir( QDir( "/Volumes" ) );
+	if( volumesDir.exists() )
 		urls << QUrl::fromLocalFile( volumesDir.absolutePath() );
 #endif
 
-	setSidebarUrls(urls);
+	setSidebarUrls( urls );
 }
-
-
 
 void FileDialog::clearSelection()
 {
-    QListView *view = findChild<QListView*>();
+	QListView * view = findChild<QListView *>();
 	Q_ASSERT( view );
 	view->clearSelection();
 }
-
-
-

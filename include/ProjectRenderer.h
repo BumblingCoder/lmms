@@ -26,22 +26,21 @@
 #define PROJECT_RENDERER_H
 
 #include "AudioFileDevice.h"
-#include "lmmsconfig.h"
 #include "Mixer.h"
 #include "OutputSettings.h"
-
+#include "lmmsconfig.h"
 
 class ProjectRenderer : public QThread
 {
 	Q_OBJECT
 public:
-	enum ExportFileFormats: int
+	enum ExportFileFormats : int
 	{
 		WaveFile,
 		OggFile,
 		MP3File,
 		NumFileFormats
-	} ;
+	};
 
 	struct FileEncodeDevice
 	{
@@ -51,22 +50,16 @@ public:
 		const char * m_description;
 		const char * m_extension;
 		AudioFileDeviceInstantiaton m_getDevInst;
-	} ;
-
+	};
 
 	ProjectRenderer( const Mixer::qualitySettings & _qs,
-				const OutputSettings & _os,
-				ExportFileFormats _file_format,
-				const QString & _out_file );
+	                 const OutputSettings & _os, ExportFileFormats _file_format,
+	                 const QString & _out_file );
 	virtual ~ProjectRenderer();
 
-	bool isReady() const
-	{
-		return m_fileDev != NULL;
-	}
+	bool isReady() const { return m_fileDev != NULL; }
 
-	static ExportFileFormats getFileFormatFromExtension(
-							const QString & _ext );
+	static ExportFileFormats getFileFormatFromExtension( const QString & _ext );
 
 	static QString getFileExtensionFromFormat( ExportFileFormats fmt );
 
@@ -78,10 +71,8 @@ public slots:
 
 	void updateConsoleProgress();
 
-
 signals:
 	void progressChanged( int );
-
 
 private:
 	virtual void run();
@@ -92,7 +83,6 @@ private:
 
 	volatile int m_progress;
 	volatile bool m_abort;
-
-} ;
+};
 
 #endif

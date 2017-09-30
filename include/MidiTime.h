@@ -23,7 +23,6 @@
  *
  */
 
-
 #ifndef MIDI_TIME_H
 #define MIDI_TIME_H
 
@@ -37,7 +36,6 @@ const int DefaultTicksPerTact = 192;
 const int DefaultStepsPerTact = 16;
 const int DefaultBeatsPerTact = DefaultTicksPerTact / DefaultStepsPerTact;
 
-
 class MeterModel;
 
 class EXPORT TimeSig
@@ -46,16 +44,17 @@ public:
 	// in a time signature,
 	// the numerator represents the number of beats in a measure.
 	// the denominator indicates which type of note represents a beat.
-	// example: 6/8 means 6 beats in a measure, where each beat has duration equal to one 8th-note.
+	// example: 6/8 means 6 beats in a measure, where each beat has duration
+	// equal to one 8th-note.
 	TimeSig( int num, int denom );
-	TimeSig( const MeterModel &model );
+	TimeSig( const MeterModel & model );
 	int numerator() const;
 	int denominator() const;
+
 private:
 	int m_num;
 	int m_denom;
 };
-
 
 class EXPORT MidiTime
 {
@@ -66,8 +65,8 @@ public:
 	MidiTime toNearestTact() const;
 	MidiTime toAbsoluteTact() const;
 
-	MidiTime& operator+=( const MidiTime& time );
-	MidiTime& operator-=( const MidiTime& time );
+	MidiTime & operator+=( const MidiTime & time );
+	MidiTime & operator-=( const MidiTime & time );
 
 	// return the tact, rounded down and 0-based
 	tact_t getTact() const;
@@ -79,20 +78,21 @@ public:
 
 	operator int() const;
 
-	tick_t ticksPerBeat( const TimeSig &sig ) const;
+	tick_t ticksPerBeat( const TimeSig & sig ) const;
 	// Remainder ticks after bar is removed
-	tick_t getTickWithinBar( const TimeSig &sig ) const;
+	tick_t getTickWithinBar( const TimeSig & sig ) const;
 	// Returns the beat position inside the bar, 0-based
-	tick_t getBeatWithinBar( const TimeSig &sig ) const;
+	tick_t getBeatWithinBar( const TimeSig & sig ) const;
 	// Remainder ticks after bar and beat are removed
-	tick_t getTickWithinBeat( const TimeSig &sig ) const;
+	tick_t getTickWithinBeat( const TimeSig & sig ) const;
 
 	// calculate number of frame that are needed this time
 	f_cnt_t frames( const float framesPerTick ) const;
 
-	static MidiTime fromFrames( const f_cnt_t frames, const float framesPerTick );
+	static MidiTime fromFrames( const f_cnt_t frames,
+	                            const float framesPerTick );
 	static tick_t ticksPerTact();
-	static tick_t ticksPerTact( const TimeSig &sig );
+	static tick_t ticksPerTact( const TimeSig & sig );
 	static int stepsPerTact();
 	static void setTicksPerTact( tick_t tpt );
 	static MidiTime stepPosition( int step );
@@ -101,9 +101,6 @@ private:
 	tick_t m_ticks;
 
 	static tick_t s_ticksPerTact;
-
-} ;
-
+};
 
 #endif
-

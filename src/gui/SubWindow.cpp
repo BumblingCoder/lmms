@@ -32,15 +32,14 @@
 
 #include "embed.h"
 
-
-
-SubWindow::SubWindow( QWidget *parent, Qt::WindowFlags windowFlags ) :
-	QMdiSubWindow( parent, windowFlags ),
-	m_buttonSize( 17, 17 ),
-	m_titleBarHeight( 24 )
+SubWindow::SubWindow( QWidget * parent, Qt::WindowFlags windowFlags )
+    : QMdiSubWindow( parent, windowFlags ),
+      m_buttonSize( 17, 17 ),
+      m_titleBarHeight( 24 )
 {
-	// initialize the tracked geometry to whatever Qt thinks the normal geometry currently is.
-	// this should always work, since QMdiSubWindows will not start as maximized
+	// initialize the tracked geometry to whatever Qt thinks the normal geometry
+	// currently is. this should always work, since QMdiSubWindows will not
+	// start as maximized
 	m_trackedNormalGeom = normalGeometry();
 
 	// inits the colors
@@ -49,7 +48,8 @@ SubWindow::SubWindow( QWidget *parent, Qt::WindowFlags windowFlags ) :
 	m_borderColor = Qt::black;
 
 	// close, maximize and restore (after maximizing) buttons
-	m_closeBtn = new QPushButton( embed::getIconPixmap( "close" ), QString::null, this );
+	m_closeBtn =
+	    new QPushButton( embed::getIconPixmap( "close" ), QString::null, this );
 	m_closeBtn->resize( m_buttonSize );
 	m_closeBtn->setFocusPolicy( Qt::NoFocus );
 	m_closeBtn->setCursor( Qt::ArrowCursor );
@@ -57,21 +57,25 @@ SubWindow::SubWindow( QWidget *parent, Qt::WindowFlags windowFlags ) :
 	m_closeBtn->setToolTip( tr( "Close" ) );
 	connect( m_closeBtn, SIGNAL( clicked( bool ) ), this, SLOT( close() ) );
 
-	m_maximizeBtn = new QPushButton( embed::getIconPixmap( "maximize" ), QString::null, this );
+	m_maximizeBtn = new QPushButton( embed::getIconPixmap( "maximize" ),
+	                                 QString::null, this );
 	m_maximizeBtn->resize( m_buttonSize );
 	m_maximizeBtn->setFocusPolicy( Qt::NoFocus );
 	m_maximizeBtn->setCursor( Qt::ArrowCursor );
 	m_maximizeBtn->setAttribute( Qt::WA_NoMousePropagation );
 	m_maximizeBtn->setToolTip( tr( "Maximize" ) );
-	connect( m_maximizeBtn, SIGNAL( clicked( bool ) ), this, SLOT( showMaximized() ) );
+	connect( m_maximizeBtn, SIGNAL( clicked( bool ) ), this,
+	         SLOT( showMaximized() ) );
 
-	m_restoreBtn = new QPushButton( embed::getIconPixmap( "restore" ), QString::null, this );
+	m_restoreBtn = new QPushButton( embed::getIconPixmap( "restore" ),
+	                                QString::null, this );
 	m_restoreBtn->resize( m_buttonSize );
 	m_restoreBtn->setFocusPolicy( Qt::NoFocus );
 	m_restoreBtn->setCursor( Qt::ArrowCursor );
 	m_restoreBtn->setAttribute( Qt::WA_NoMousePropagation );
 	m_restoreBtn->setToolTip( tr( "Restore" ) );
-	connect( m_restoreBtn, SIGNAL( clicked( bool ) ), this, SLOT( showNormal() ) );
+	connect( m_restoreBtn, SIGNAL( clicked( bool ) ), this,
+	         SLOT( showNormal() ) );
 
 	// QLabel for the window title and the shadow effect
 	m_shadow = new QGraphicsDropShadowEffect();
@@ -86,12 +90,9 @@ SubWindow::SubWindow( QWidget *parent, Qt::WindowFlags windowFlags ) :
 
 	// disable the minimize button
 	setWindowFlags( Qt::SubWindow | Qt::WindowMaximizeButtonHint |
-		Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint |
-		Qt::CustomizeWindowHint );
+	                Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint |
+	                Qt::CustomizeWindowHint );
 }
-
-
-
 
 void SubWindow::paintEvent( QPaintEvent * )
 {
@@ -114,10 +115,7 @@ void SubWindow::paintEvent( QPaintEvent * )
 	p.drawPixmap( 3, 3, m_buttonSize.width(), m_buttonSize.height(), winicon );
 }
 
-
-
-
-void SubWindow::changeEvent( QEvent *event )
+void SubWindow::changeEvent( QEvent * event )
 {
 	QMdiSubWindow::changeEvent( event );
 
@@ -125,13 +123,9 @@ void SubWindow::changeEvent( QEvent *event )
 	{
 		adjustTitleBar();
 	}
-
 }
 
-
-
-
-void SubWindow::elideText( QLabel *label, QString text )
+void SubWindow::elideText( QLabel * label, QString text )
 {
 	QFontMetrics metrix( label->font() );
 	int width = label->width() - 2;
@@ -139,16 +133,20 @@ void SubWindow::elideText( QLabel *label, QString text )
 	label->setText( clippedText );
 }
 
-
-
-
 bool SubWindow::isMaximized()
 {
 #ifdef LMMS_BUILD_APPLE
-	// check if subwindow size is identical to the MdiArea size, accounting for scrollbars
-	int hScrollBarHeight = mdiArea()->horizontalScrollBar()->isVisible() ? mdiArea()->horizontalScrollBar()->size().height() : 0;
-	int vScrollBarWidth = mdiArea()->verticalScrollBar()->isVisible() ? mdiArea()->verticalScrollBar()->size().width() : 0;
-	QSize areaSize( this->mdiArea()->size().width() - vScrollBarWidth, this->mdiArea()->size().height() - hScrollBarHeight );
+	// check if subwindow size is identical to the MdiArea size, accounting for
+	// scrollbars
+	int hScrollBarHeight =
+	    mdiArea()->horizontalScrollBar()->isVisible()
+	        ? mdiArea()->horizontalScrollBar()->size().height()
+	        : 0;
+	int vScrollBarWidth = mdiArea()->verticalScrollBar()->isVisible()
+	                          ? mdiArea()->verticalScrollBar()->size().width()
+	                          : 0;
+	QSize areaSize( this->mdiArea()->size().width() - vScrollBarWidth,
+	                this->mdiArea()->size().height() - hScrollBarHeight );
 
 	return areaSize == this->size();
 #else
@@ -156,64 +154,22 @@ bool SubWindow::isMaximized()
 #endif
 }
 
+QRect SubWindow::getTrueNormalGeometry() const { return m_trackedNormalGeom; }
 
+QBrush SubWindow::activeColor() const { return m_activeColor; }
 
+QColor SubWindow::textShadowColor() const { return m_textShadowColor; }
 
-QRect SubWindow::getTrueNormalGeometry() const
-{
-	return m_trackedNormalGeom;
-}
+QColor SubWindow::borderColor() const { return m_borderColor; }
 
-
-
-
-QBrush SubWindow::activeColor() const
-{
-	return m_activeColor;
-}
-
-
-
-
-QColor SubWindow::textShadowColor() const
-{
-	return m_textShadowColor;
-}
-
-
-
-
-QColor SubWindow::borderColor() const
-{
-	return m_borderColor;
-}
-
-
-
-
-void SubWindow::setActiveColor( const QBrush & b )
-{
-	m_activeColor = b;
-}
-
-
-
+void SubWindow::setActiveColor( const QBrush & b ) { m_activeColor = b; }
 
 void SubWindow::setTextShadowColor( const QColor & c )
 {
 	m_textShadowColor = c;
 }
 
-
-
-
-void SubWindow::setBorderColor( const QColor &c )
-{
-	m_borderColor = c;
-}
-
-
-
+void SubWindow::setBorderColor( const QColor & c ) { m_borderColor = c; }
 
 void SubWindow::moveEvent( QMoveEvent * event )
 {
@@ -226,9 +182,6 @@ void SubWindow::moveEvent( QMoveEvent * event )
 	}
 }
 
-
-
-
 void SubWindow::adjustTitleBar()
 {
 	// button adjustments
@@ -240,8 +193,11 @@ void SubWindow::adjustTitleBar()
 	const int menuButtonSpace = 24;
 
 	QPoint rightButtonPos( width() - rightSpace - m_buttonSize.width(), 3 );
-	QPoint middleButtonPos( width() - rightSpace - ( 2 * m_buttonSize.width() ) - buttonGap, 3 );
-	QPoint leftButtonPos( width() - rightSpace - ( 3 * m_buttonSize.width() ) - ( 2 * buttonGap ), 3 );
+	QPoint middleButtonPos(
+	    width() - rightSpace - ( 2 * m_buttonSize.width() ) - buttonGap, 3 );
+	QPoint leftButtonPos( width() - rightSpace - ( 3 * m_buttonSize.width() ) -
+	                          ( 2 * buttonGap ),
+	                      3 );
 
 	// the buttonBarWidth depends on the number of buttons.
 	// we need it to calculate the width of window title label
@@ -267,15 +223,18 @@ void SubWindow::adjustTitleBar()
 
 	// title QLabel adjustments
 	m_windowTitle->setAlignment( Qt::AlignHCenter );
-	m_windowTitle->setFixedWidth( widget()->width() - ( menuButtonSpace + buttonBarWidth ) );
+	m_windowTitle->setFixedWidth( widget()->width() -
+	                              ( menuButtonSpace + buttonBarWidth ) );
 	m_windowTitle->move( menuButtonSpace,
-		( m_titleBarHeight / 2 ) - ( m_windowTitle->sizeHint().height() / 2 ) - 1 );
+	                     ( m_titleBarHeight / 2 ) -
+	                         ( m_windowTitle->sizeHint().height() / 2 ) - 1 );
 
-	// if minimized we can't use widget()->width(). We have to hard code the width,
-	// as the width of all minimized windows is the same.
+	// if minimized we can't use widget()->width(). We have to hard code the
+	// width, as the width of all minimized windows is the same.
 	if( isMinimized() )
 	{
-		m_restoreBtn->move( m_maximizeBtn->isHidden() ?  middleButtonPos : leftButtonPos );
+		m_restoreBtn->move( m_maximizeBtn->isHidden() ? middleButtonPos
+		                                              : leftButtonPos );
 		m_windowTitle->setFixedWidth( 120 );
 	}
 
@@ -284,9 +243,6 @@ void SubWindow::adjustTitleBar()
 	m_windowTitle->setTextInteractionFlags( Qt::NoTextInteraction );
 	m_windowTitle->adjustSize();
 }
-
-
-
 
 void SubWindow::resizeEvent( QResizeEvent * event )
 {

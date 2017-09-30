@@ -22,55 +22,44 @@
  *
  */
 
-
 #ifndef TRACK_CONTAINER_VIEW_H
 #define TRACK_CONTAINER_VIEW_H
 
-#include <QtCore/QVector>
 #include <QScrollArea>
-#include <QWidget>
 #include <QThread>
+#include <QWidget>
+#include <QtCore/QVector>
 
-#include "Track.h"
-#include "JournallingObject.h"
 #include "InstrumentTrack.h"
-
+#include "JournallingObject.h"
+#include "Track.h"
 
 class QVBoxLayout;
 class TrackContainer;
 
-
-class TrackContainerView : public QWidget, public ModelView,
-						public JournallingObject,
-						public SerializingObjectHook
+class TrackContainerView : public QWidget,
+                           public ModelView,
+                           public JournallingObject,
+                           public SerializingObjectHook
 {
 	Q_OBJECT
 public:
-	TrackContainerView( TrackContainer* tc );
+	TrackContainerView( TrackContainer * tc );
 	virtual ~TrackContainerView();
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _this );
 	virtual void loadSettings( const QDomElement & _this );
 
-	QScrollArea * contentWidget()
-	{
-		return( m_scrollArea );
-	}
+	QScrollArea * contentWidget() { return ( m_scrollArea ); }
 
 	inline const MidiTime & currentPosition() const
 	{
-		return( m_currentPosition );
+		return ( m_currentPosition );
 	}
 
-	virtual bool fixedTCOs() const
-	{
-		return( false );
-	}
+	virtual bool fixedTCOs() const { return ( false ); }
 
-	inline float pixelsPerTact() const
-	{
-		return( m_ppt );
-	}
+	inline float pixelsPerTact() const { return ( m_ppt ); }
 
 	void setPixelsPerTact( int _ppt );
 
@@ -80,33 +69,23 @@ public:
 
 	inline bool rubberBandActive() const
 	{
-		return( m_rubberBand->isEnabled() && m_rubberBand->isVisible() );
+		return ( m_rubberBand->isEnabled() && m_rubberBand->isVisible() );
 	}
 
 	inline QVector<selectableObject *> selectedObjects()
 	{
 		if( allowRubberband() == true )
 		{
-			return( m_rubberBand->selectedObjects() );
+			return ( m_rubberBand->selectedObjects() );
 		}
-		return( QVector<selectableObject *>() );
+		return ( QVector<selectableObject *>() );
 	}
 
+	TrackContainer * model() { return m_tc; }
 
-	TrackContainer* model()
-	{
-		return m_tc;
-	}
+	const TrackContainer * model() const { return m_tc; }
 
-	const TrackContainer* model() const
-	{
-		return m_tc;
-	}
-
-	const QList<TrackView *> & trackViews() const
-	{
-		return( m_trackViews );
-	}
+	const QList<TrackView *> & trackViews() const { return ( m_trackViews ); }
 
 	void moveTrackView( TrackView * trackView, int indexTo );
 	void moveTrackViewUp( TrackView * trackView );
@@ -120,11 +99,7 @@ public:
 
 	void clearAllTracks();
 
-	virtual QString nodeName() const
-	{
-		return( "trackcontainerview" );
-	}
-
+	virtual QString nodeName() const { return ( "trackcontainerview" ); }
 
 public slots:
 	void realignTracks();
@@ -138,7 +113,7 @@ public slots:
 	/// \param x
 	/// \param y
 	/// Use the rubber band to select TCO from all tracks using x, y pixels
-	void selectRegionFromPixels(int xStart, int xEnd);
+	void selectRegionFromPixels( int xStart, int xEnd );
 
 	///
 	/// \brief stopRubberBand
@@ -155,29 +130,27 @@ protected:
 
 	MidiTime m_currentPosition;
 
-
 private:
 	enum Actions
 	{
 		AddTrack,
 		RemoveTrack
-	} ;
+	};
 
 	class scrollArea : public QScrollArea
 	{
 	public:
-		scrollArea( TrackContainerView* parent );
+		scrollArea( TrackContainerView * parent );
 		virtual ~scrollArea();
 
 	protected:
 		virtual void wheelEvent( QWheelEvent * _we );
 
 	private:
-		TrackContainerView* m_trackContainerView;
+		TrackContainerView * m_trackContainerView;
+	};
 
-	} ;
-
-	TrackContainer* m_tc;
+	TrackContainer * m_tc;
 	typedef QList<TrackView *> trackViewList;
 	trackViewList m_trackViews;
 
@@ -189,26 +162,23 @@ private:
 	RubberBand * m_rubberBand;
 	QPoint m_origin;
 
-
 signals:
 	void positionChanged( const MidiTime & _pos );
-
-
-} ;
+};
 
 class InstrumentLoaderThread : public QThread
 {
 	Q_OBJECT
 public:
-	InstrumentLoaderThread( QObject *parent = 0, InstrumentTrack *it = 0,
-							QString name = "" );
+	InstrumentLoaderThread( QObject * parent = 0, InstrumentTrack * it = 0,
+	                        QString name = "" );
 
 	void run();
 
 private:
-	InstrumentTrack *m_it;
+	InstrumentTrack * m_it;
 	QString m_name;
-	QThread *m_containerThread;
+	QThread * m_containerThread;
 };
 
 #endif

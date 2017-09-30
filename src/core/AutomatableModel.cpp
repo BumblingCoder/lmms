@@ -34,36 +34,33 @@
 float AutomatableModel::s_copiedValue = 0;
 long AutomatableModel::s_periodCounter = 0;
 
-
-
-AutomatableModel::AutomatableModel( DataType type,
-						const float val, const float min, const float max, const float step,
-						Model* parent, const QString & displayName, bool defaultConstructed ) :
-	Model( parent, displayName, defaultConstructed ),
-	m_dataType( type ),
-	m_scaleType( Linear ),
-	m_value( val ),
-	m_initValue( val ),
-	m_minValue( min ),
-	m_maxValue( max ),
-	m_step( step ),
-	m_range( max - min ),
-	m_centerValue( m_minValue ),
-	m_valueChanged( false ),
-	m_setValueDepth( 0 ),
-	m_hasStrictStepSize( false ),
-	m_hasLinkedModels( false ),
-	m_controllerConnection( NULL ),
-	m_valueBuffer( static_cast<int>( Engine::mixer()->framesPerPeriod() ) ),
-	m_lastUpdatedPeriod( -1 ),
-	m_hasSampleExactData( false )
+AutomatableModel::AutomatableModel( DataType type, const float val,
+                                    const float min, const float max,
+                                    const float step, Model * parent,
+                                    const QString & displayName,
+                                    bool defaultConstructed )
+    : Model( parent, displayName, defaultConstructed ),
+      m_dataType( type ),
+      m_scaleType( Linear ),
+      m_value( val ),
+      m_initValue( val ),
+      m_minValue( min ),
+      m_maxValue( max ),
+      m_step( step ),
+      m_range( max - min ),
+      m_centerValue( m_minValue ),
+      m_valueChanged( false ),
+      m_setValueDepth( 0 ),
+      m_hasStrictStepSize( false ),
+      m_hasLinkedModels( false ),
+      m_controllerConnection( NULL ),
+      m_valueBuffer( static_cast<int>( Engine::mixer()->framesPerPeriod() ) ),
+      m_lastUpdatedPeriod( -1 ),
+      m_hasSampleExactData( false )
 
 {
 	setInitValue( val );
 }
-
-
-
 
 AutomatableModel::~AutomatableModel()
 {
@@ -83,16 +80,13 @@ AutomatableModel::~AutomatableModel()
 	emit destroyed( id() );
 }
 
-
-
-
 bool AutomatableModel::isAutomated() const
 {
 	return AutomationPattern::isAutomated( this );
 }
 
-
-void AutomatableModel::saveSettings( QDomDocument& doc, QDomElement& element, const QString& name )
+void AutomatableModel::saveSettings( QDomDocument & doc, QDomElement & element,
+                                     const QString & name )
 {
 	if( isAutomated() || m_scaleType != Linear )
 	{
@@ -102,7 +96,8 @@ void AutomatableModel::saveSettings( QDomDocument& doc, QDomElement& element, co
 		QDomElement me = doc.createElement( name );
 		me.setAttribute( "id", ProjectJournal::idToSave( id() ) );
 		me.setAttribute( "value", m_value );
-		me.setAttribute( "scale_type", m_scaleType == Logarithmic ? "log" : "linear" );
+		me.setAttribute( "scale_type",
+		                 m_scaleType == Logarithmic ? "log" : "linear" );
 		element.appendChild( me );
 	}
 	else
@@ -134,10 +129,8 @@ void AutomatableModel::saveSettings( QDomDocument& doc, QDomElement& element, co
 	}
 }
 
-
-
-
-void AutomatableModel::loadSettings( const QDomElement& element, const QString& name )
+void AutomatableModel::loadSettings( const QDomElement & element,
+                                     const QString & name )
 {
 	// compat code
 	QDomNode node = element.namedItem( AutomationPattern::classNodeName() );
@@ -146,7 +139,8 @@ void AutomatableModel::loadSettings( const QDomElement& element, const QString& 
 		node = node.namedItem( name );
 		if( node.isElement() )
 		{
-			AutomationPattern * p = AutomationPattern::globalAutomationPattern( this );
+			AutomationPattern * p =
+			    AutomationPattern::globalAutomationPattern( this );
 			p->loadSettings( node.toElement() );
 			setValue( p->valueAt( 0 ) );
 			// in older projects we sometimes have odd automations
@@ -168,9 +162,10 @@ void AutomatableModel::loadSettings( const QDomElement& element, const QString& 
 		QDomNode thisConnection = connectionNode.toElement().namedItem( name );
 		if( thisConnection.isElement() )
 		{
-			setControllerConnection( new ControllerConnection( (Controller*)NULL ) );
+			setControllerConnection(
+			    new ControllerConnection( (Controller *) NULL ) );
 			m_controllerConnection->loadSettings( thisConnection.toElement() );
-			//m_controllerConnection->setTargetName( displayName() );
+			// m_controllerConnection->setTargetName( displayName() );
 		}
 	}
 
@@ -182,19 +177,19 @@ void AutomatableModel::loadSettings( const QDomElement& element, const QString& 
 	node = element.namedItem( name );
 	if( node.isElement() )
 	{
-			changeID( node.toElement().attribute( "id" ).toInt() );
-			setValue( node.toElement().attribute( "value" ).toFloat() );
-			if( node.toElement().hasAttribute( "scale_type" ) )
+		changeID( node.toElement().attribute( "id" ).toInt() );
+		setValue( node.toElement().attribute( "value" ).toFloat() );
+		if( node.toElement().hasAttribute( "scale_type" ) )
+		{
+			if( node.toElement().attribute( "scale_type" ) == "linear" )
 			{
-				if( node.toElement().attribute( "scale_type" ) == "linear" )
-				{
-					setScaleType( Linear );
-				}
-				else if( node.toElement().attribute( "scale_type" ) == "log" )
-				{
-					setScaleType( Logarithmic );
-				}
+				setScaleType( Linear );
 			}
+			else if( node.toElement().attribute( "scale_type" ) == "log" )
+			{
+				setScaleType( Logarithmic );
+			}
+		}
 	}
 	else
 	{
@@ -202,7 +197,7 @@ void AutomatableModel::loadSettings( const QDomElement& element, const QString& 
 		setScaleType( Linear );
 
 		if( element.hasAttribute( name ) )
-			// attribute => read the element's value from the attribute list
+		// attribute => read the element's value from the attribute list
 		{
 			setInitValue( element.attribute( name ).toFloat() );
 		}
@@ -212,9 +207,6 @@ void AutomatableModel::loadSettings( const QDomElement& element, const QString& 
 		}
 	}
 }
-
-
-
 
 void AutomatableModel::setValue( const float value )
 {
@@ -229,13 +221,16 @@ void AutomatableModel::setValue( const float value )
 		addJournalCheckPoint();
 
 		// notify linked models
-		for( AutoModelVector::Iterator it = m_linkedModels.begin(); it != m_linkedModels.end(); ++it )
+		for( AutoModelVector::Iterator it = m_linkedModels.begin();
+		     it != m_linkedModels.end(); ++it )
 		{
-			if( (*it)->m_setValueDepth < 1 && (*it)->fittedValue( value ) != (*it)->m_value )
+			if( ( *it )->m_setValueDepth < 1 &&
+			    ( *it )->fittedValue( value ) != ( *it )->m_value )
 			{
-				bool journalling = (*it)->testAndSetJournalling( isJournalling() );
-				(*it)->setValue( value );
-				(*it)->setJournalling( journalling );
+				bool journalling =
+				    ( *it )->testAndSetJournalling( isJournalling() );
+				( *it )->setValue( value );
+				( *it )->setJournalling( journalling );
 			}
 		}
 		m_valueChanged = true;
@@ -248,67 +243,58 @@ void AutomatableModel::setValue( const float value )
 	--m_setValueDepth;
 }
 
-
-
-
-template<class T> T AutomatableModel::logToLinearScale( T value ) const
+template <class T> T AutomatableModel::logToLinearScale( T value ) const
 {
-	return castValue<T>( ::logToLinearScale( minValue<float>(), maxValue<float>(), static_cast<float>( value ) ) );
+	return castValue<T>(::logToLinearScale(
+	    minValue<float>(), maxValue<float>(), static_cast<float>( value ) ) );
 }
-
 
 float AutomatableModel::scaledValue( float value ) const
 {
 	return m_scaleType == Linear
-		? value
-		: logToLinearScale<float>( ( value - minValue<float>() ) / m_range );
+	           ? value
+	           : logToLinearScale<float>( ( value - minValue<float>() ) /
+	                                      m_range );
 }
-
 
 float AutomatableModel::inverseScaledValue( float value ) const
 {
 	return m_scaleType == Linear
-		? value
-		: ::linearToLogScale( minValue<float>(), maxValue<float>(), value );
+	           ? value
+	           : ::linearToLogScale( minValue<float>(), maxValue<float>(),
+	                                 value );
 }
-
-
 
 QString AutomatableModel::displayValue( const float val ) const
 {
 	switch( m_dataType )
 	{
-		case Float: return QString::number( castValue<float>( scaledValue( val ) ) );
-		case Integer: return QString::number( castValue<int>( scaledValue( val ) ) );
-		case Bool: return QString::number( castValue<bool>( scaledValue( val ) ) );
+		case Float:
+			return QString::number( castValue<float>( scaledValue( val ) ) );
+		case Integer:
+			return QString::number( castValue<int>( scaledValue( val ) ) );
+		case Bool:
+			return QString::number( castValue<bool>( scaledValue( val ) ) );
 	}
 	return "0";
 }
 
-
-
 //! @todo: this should be moved into a maths header
-template<class T>
-void roundAt( T& value, const T& where, const T& step_size )
+template <class T>
+void roundAt( T & value, const T & where, const T & step_size )
 {
-	if( qAbs<float>( value - where )
-		< typeInfo<float>::minEps() * qAbs<float>( step_size ) )
+	if( qAbs<float>( value - where ) <
+	    typeInfo<float>::minEps() * qAbs<float>( step_size ) )
 	{
 		value = where;
 	}
 }
 
-
-
-
-template<class T>
-void AutomatableModel::roundAt( T& value, const T& where ) const
+template <class T>
+void AutomatableModel::roundAt( T & value, const T & where ) const
 {
-	::roundAt(value, where, m_step);
+	::roundAt( value, where, m_step );
 }
-
-
-
 
 void AutomatableModel::setAutomatedValue( const float value )
 {
@@ -324,12 +310,12 @@ void AutomatableModel::setAutomatedValue( const float value )
 	{
 		// notify linked models
 		for( AutoModelVector::Iterator it = m_linkedModels.begin();
-									it != m_linkedModels.end(); ++it )
+		     it != m_linkedModels.end(); ++it )
 		{
-			if( (*it)->m_setValueDepth < 1 &&
-				(*it)->fittedValue( m_value ) != (*it)->m_value )
+			if( ( *it )->m_setValueDepth < 1 &&
+			    ( *it )->fittedValue( m_value ) != ( *it )->m_value )
 			{
-				(*it)->setAutomatedValue( value );
+				( *it )->setAutomatedValue( value );
 			}
 		}
 		m_valueChanged = true;
@@ -338,11 +324,8 @@ void AutomatableModel::setAutomatedValue( const float value )
 	--m_setValueDepth;
 }
 
-
-
-
 void AutomatableModel::setRange( const float min, const float max,
-							const float step )
+                                 const float step )
 {
 	if( ( m_maxValue != max ) || ( m_minValue != min ) )
 	{
@@ -363,9 +346,6 @@ void AutomatableModel::setRange( const float min, const float max,
 	}
 }
 
-
-
-
 void AutomatableModel::setStep( const float step )
 {
 	if( m_step != step )
@@ -374,9 +354,6 @@ void AutomatableModel::setStep( const float step )
 		emit propertiesChanged();
 	}
 }
-
-
-
 
 float AutomatableModel::fittedValue( float value ) const
 {
@@ -403,11 +380,7 @@ float AutomatableModel::fittedValue( float value ) const
 	return value;
 }
 
-
-
-
-
-void AutomatableModel::linkModel( AutomatableModel* model )
+void AutomatableModel::linkModel( AutomatableModel * model )
 {
 	if( !m_linkedModels.contains( model ) && model != this )
 	{
@@ -416,17 +389,16 @@ void AutomatableModel::linkModel( AutomatableModel* model )
 
 		if( !model->hasLinkedModels() )
 		{
-			QObject::connect( this, SIGNAL( dataChanged() ), model, SIGNAL( dataChanged() ) );
+			QObject::connect( this, SIGNAL( dataChanged() ), model,
+			                  SIGNAL( dataChanged() ) );
 		}
 	}
 }
 
-
-
-
-void AutomatableModel::unlinkModel( AutomatableModel* model )
+void AutomatableModel::unlinkModel( AutomatableModel * model )
 {
-	AutoModelVector::Iterator it = qFind( m_linkedModels.begin(), m_linkedModels.end(), model );
+	AutoModelVector::Iterator it =
+	    qFind( m_linkedModels.begin(), m_linkedModels.end(), model );
 	if( it != m_linkedModels.end() )
 	{
 		m_linkedModels.erase( it );
@@ -434,32 +406,23 @@ void AutomatableModel::unlinkModel( AutomatableModel* model )
 	m_hasLinkedModels = !m_linkedModels.isEmpty();
 }
 
-
-
-
-
-
-void AutomatableModel::linkModels( AutomatableModel* model1, AutomatableModel* model2 )
+void AutomatableModel::linkModels( AutomatableModel * model1,
+                                   AutomatableModel * model2 )
 {
-		model1->linkModel( model2 );
-		model2->linkModel( model1 );
+	model1->linkModel( model2 );
+	model2->linkModel( model1 );
 }
 
-
-
-
-void AutomatableModel::unlinkModels( AutomatableModel* model1, AutomatableModel* model2 )
+void AutomatableModel::unlinkModels( AutomatableModel * model1,
+                                     AutomatableModel * model2 )
 {
 	model1->unlinkModel( model2 );
 	model2->unlinkModel( model1 );
 }
 
-
-
-
 void AutomatableModel::unlinkAllModels()
 {
-	for( AutomatableModel* model : m_linkedModels )
+	for( AutomatableModel * model : m_linkedModels )
 	{
 		unlinkModels( this, model );
 	}
@@ -467,42 +430,40 @@ void AutomatableModel::unlinkAllModels()
 	m_hasLinkedModels = false;
 }
 
-
-
-
-void AutomatableModel::setControllerConnection( ControllerConnection* c )
+void AutomatableModel::setControllerConnection( ControllerConnection * c )
 {
 	m_controllerConnection = c;
 	if( c )
 	{
-		QObject::connect( m_controllerConnection, SIGNAL( valueChanged() ), this, SIGNAL( dataChanged() ) );
-		QObject::connect( m_controllerConnection, SIGNAL( destroyed() ), this, SLOT( unlinkControllerConnection() ) );
+		QObject::connect( m_controllerConnection, SIGNAL( valueChanged() ),
+		                  this, SIGNAL( dataChanged() ) );
+		QObject::connect( m_controllerConnection, SIGNAL( destroyed() ), this,
+		                  SLOT( unlinkControllerConnection() ) );
 		m_valueChanged = true;
 		emit dataChanged();
 	}
 }
-
-
-
 
 float AutomatableModel::controllerValue( int frameOffset ) const
 {
 	if( m_controllerConnection )
 	{
 		float v = 0;
-		switch(m_scaleType)
+		switch( m_scaleType )
 		{
-		case Linear:
-			v = minValue<float>() + ( range() * controllerConnection()->currentValue( frameOffset ) );
-			break;
-		case Logarithmic:
-			v = logToLinearScale(
-				controllerConnection()->currentValue( frameOffset ));
-			break;
-		default:
-			qFatal("AutomatableModel::controllerValue(int)"
-				"lacks implementation for a scale type");
-			break;
+			case Linear:
+				v = minValue<float>() +
+				    ( range() *
+				      controllerConnection()->currentValue( frameOffset ) );
+				break;
+			case Logarithmic:
+				v = logToLinearScale(
+				    controllerConnection()->currentValue( frameOffset ) );
+				break;
+			default:
+				qFatal( "AutomatableModel::controllerValue(int)"
+				        "lacks implementation for a scale type" );
+				break;
 		}
 		if( typeInfo<float>::isEqual( m_step, 1 ) && m_hasStrictStepSize )
 		{
@@ -511,7 +472,7 @@ float AutomatableModel::controllerValue( int frameOffset ) const
 		return v;
 	}
 
-	AutomatableModel* lm = m_linkedModels.first();
+	AutomatableModel * lm = m_linkedModels.first();
 	if( lm->controllerConnection() )
 	{
 		return fittedValue( lm->controllerValue( frameOffset ) );
@@ -520,28 +481,25 @@ float AutomatableModel::controllerValue( int frameOffset ) const
 	return fittedValue( lm->m_value );
 }
 
-
 ValueBuffer * AutomatableModel::valueBuffer()
 {
-	// if we've already calculated the valuebuffer this period, return the cached buffer
+	// if we've already calculated the valuebuffer this period, return the
+	// cached buffer
 	if( m_lastUpdatedPeriod == s_periodCounter )
 	{
-		return m_hasSampleExactData
-			? &m_valueBuffer
-			: NULL;
+		return m_hasSampleExactData ? &m_valueBuffer : NULL;
 	}
 	QMutexLocker m( &m_valueBufferMutex );
 	if( m_lastUpdatedPeriod == s_periodCounter )
 	{
-		return m_hasSampleExactData
-			? &m_valueBuffer
-			: NULL;
+		return m_hasSampleExactData ? &m_valueBuffer : NULL;
 	}
 
 	float val = m_value; // make sure our m_value doesn't change midway
 
 	ValueBuffer * vb;
-	if( m_controllerConnection && m_controllerConnection->getController()->isSampleExact() )
+	if( m_controllerConnection &&
+	    m_controllerConnection->getController()->isSampleExact() )
 	{
 		vb = m_controllerConnection->valueBuffer();
 		if( vb )
@@ -550,34 +508,36 @@ ValueBuffer * AutomatableModel::valueBuffer()
 			float * nvalues = m_valueBuffer.values();
 			switch( m_scaleType )
 			{
-			case Linear:
-				for( int i = 0; i < m_valueBuffer.length(); i++ )
-				{
-					nvalues[i] = minValue<float>() + ( range() * values[i] );
-				}
-				break;
-			case Logarithmic:
-				for( int i = 0; i < m_valueBuffer.length(); i++ )
-				{
-					nvalues[i] = logToLinearScale( values[i] );
-				}
-				break;
-			default:
-				qFatal("AutomatableModel::valueBuffer() "
-					"lacks implementation for a scale type");
-				break;
+				case Linear:
+					for( int i = 0; i < m_valueBuffer.length(); i++ )
+					{
+						nvalues[i] =
+						    minValue<float>() + ( range() * values[i] );
+					}
+					break;
+				case Logarithmic:
+					for( int i = 0; i < m_valueBuffer.length(); i++ )
+					{
+						nvalues[i] = logToLinearScale( values[i] );
+					}
+					break;
+				default:
+					qFatal( "AutomatableModel::valueBuffer() "
+					        "lacks implementation for a scale type" );
+					break;
 			}
 			m_lastUpdatedPeriod = s_periodCounter;
 			m_hasSampleExactData = true;
 			return &m_valueBuffer;
 		}
 	}
-	AutomatableModel* lm = NULL;
+	AutomatableModel * lm = NULL;
 	if( m_hasLinkedModels )
 	{
 		lm = m_linkedModels.first();
 	}
-	if( lm && lm->controllerConnection() && lm->controllerConnection()->getController()->isSampleExact() )
+	if( lm && lm->controllerConnection() &&
+	    lm->controllerConnection()->getController()->isSampleExact() )
 	{
 		vb = lm->valueBuffer();
 		float * values = vb->values();
@@ -600,13 +560,13 @@ ValueBuffer * AutomatableModel::valueBuffer()
 		return &m_valueBuffer;
 	}
 
-	// if we have no sample-exact source for a ValueBuffer, return NULL to signify that no data is available at the moment
-	// in which case the recipient knows to use the static value() instead
+	// if we have no sample-exact source for a ValueBuffer, return NULL to
+	// signify that no data is available at the moment in which case the
+	// recipient knows to use the static value() instead
 	m_lastUpdatedPeriod = s_periodCounter;
 	m_hasSampleExactData = false;
 	return NULL;
 }
-
 
 void AutomatableModel::unlinkControllerConnection()
 {
@@ -618,9 +578,6 @@ void AutomatableModel::unlinkControllerConnection()
 	m_controllerConnection = NULL;
 }
 
-
-
-
 void AutomatableModel::setInitValue( const float value )
 {
 	m_initValue = fittedValue( value );
@@ -630,36 +587,17 @@ void AutomatableModel::setInitValue( const float value )
 	emit initValueChanged( value );
 }
 
+void AutomatableModel::reset() { setValue( initValue<float>() ); }
 
+void AutomatableModel::copyValue() { s_copiedValue = value<float>(); }
 
+void AutomatableModel::pasteValue() { setValue( copiedValue() ); }
 
-void AutomatableModel::reset()
-{
-	setValue( initValue<float>() );
-}
-
-
-
-
-void AutomatableModel::copyValue()
-{
-	s_copiedValue = value<float>();
-}
-
-
-
-
-void AutomatableModel::pasteValue()
-{
-	setValue( copiedValue() );
-}
-
-
-
-float AutomatableModel::globalAutomationValueAt( const MidiTime& time )
+float AutomatableModel::globalAutomationValueAt( const MidiTime & time )
 {
 	// get patterns that connect to this model
-	QVector<AutomationPattern *> patterns = AutomationPattern::patternsForModel( this );
+	QVector<AutomationPattern *> patterns =
+	    AutomationPattern::patternsForModel( this );
 	if( patterns.isEmpty() )
 	{
 		// if no such patterns exist, return current value
@@ -670,27 +608,34 @@ float AutomatableModel::globalAutomationValueAt( const MidiTime& time )
 		// of those patterns:
 		// find the patterns which overlap with the miditime position
 		QVector<AutomationPattern *> patternsInRange;
-		for( QVector<AutomationPattern *>::ConstIterator it = patterns.begin(); it != patterns.end(); it++ )
+		for( QVector<AutomationPattern *>::ConstIterator it = patterns.begin();
+		     it != patterns.end(); it++ )
 		{
 			int s = ( *it )->startPosition();
 			int e = ( *it )->endPosition();
-			if( s <= time && e >= time ) { patternsInRange += ( *it ); }
+			if( s <= time && e >= time )
+			{
+				patternsInRange += ( *it );
+			}
 		}
 
 		AutomationPattern * latestPattern = NULL;
 
-		if( ! patternsInRange.isEmpty() )
+		if( !patternsInRange.isEmpty() )
 		{
-			// if there are more than one overlapping patterns, just use the first one because
-			// multiple pattern behaviour is undefined anyway
+			// if there are more than one overlapping patterns, just use the
+			// first one because multiple pattern behaviour is undefined anyway
 			latestPattern = patternsInRange[0];
 		}
 		else
-		// if we find no patterns at the exact miditime, we need to search for the last pattern before time and use that
+		// if we find no patterns at the exact miditime, we need to search for
+		// the last pattern before time and use that
 		{
 			int latestPosition = 0;
 
-			for( QVector<AutomationPattern *>::ConstIterator it = patterns.begin(); it != patterns.end(); it++ )
+			for( QVector<AutomationPattern *>::ConstIterator it =
+			         patterns.begin();
+			     it != patterns.end(); it++ )
 			{
 				int e = ( *it )->endPosition();
 				if( e <= time && e > latestPosition )
@@ -704,13 +649,15 @@ float AutomatableModel::globalAutomationValueAt( const MidiTime& time )
 		if( latestPattern )
 		{
 			// scale/fit the value appropriately and return it
-			const float value = latestPattern->valueAt( time - latestPattern->startPosition() );
+			const float value =
+			    latestPattern->valueAt( time - latestPattern->startPosition() );
 			const float scaled_value = scaledValue( value );
 			return fittedValue( scaled_value );
 		}
 		// if we still find no pattern, the value at that time is undefined so
 		// just return current value as the best we can do
-		else return m_value;
+		else
+			return m_value;
 	}
 }
 
@@ -719,18 +666,14 @@ float FloatModel::getRoundedValue() const
 	return qRound( value() / step<float>() ) * step<float>();
 }
 
-
-
-
 int FloatModel::getDigitCount() const
 {
 	float steptemp = step<float>();
 	int digits = 0;
-	while ( steptemp < 1 )
+	while( steptemp < 1 )
 	{
 		steptemp = steptemp * 10.0f;
 		digits++;
 	}
 	return digits;
 }
-

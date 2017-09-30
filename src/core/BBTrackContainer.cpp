@@ -22,39 +22,27 @@
  *
  */
 
-
 #include "BBTrackContainer.h"
 #include "BBTrack.h"
 #include "Engine.h"
 #include "Song.h"
 
-
-
-BBTrackContainer::BBTrackContainer() :
-	TrackContainer(),
-	m_bbComboBoxModel( this )
+BBTrackContainer::BBTrackContainer()
+    : TrackContainer(), m_bbComboBoxModel( this )
 {
-	connect( &m_bbComboBoxModel, SIGNAL( dataChanged() ),
-			this, SLOT( currentBBChanged() ) );
+	connect( &m_bbComboBoxModel, SIGNAL( dataChanged() ), this,
+	         SLOT( currentBBChanged() ) );
 	// we *always* want to receive updates even in case BB actually did
 	// not change upon setCurrentBB()-call
-	connect( &m_bbComboBoxModel, SIGNAL( dataUnchanged() ),
-			this, SLOT( currentBBChanged() ) );
+	connect( &m_bbComboBoxModel, SIGNAL( dataUnchanged() ), this,
+	         SLOT( currentBBChanged() ) );
 	setType( BBContainer );
 }
 
+BBTrackContainer::~BBTrackContainer() {}
 
-
-
-BBTrackContainer::~BBTrackContainer()
-{
-}
-
-
-
-
-bool BBTrackContainer::play( MidiTime _start, fpp_t _frames,
-								f_cnt_t _offset, int _tco_num )
+bool BBTrackContainer::play( MidiTime _start, fpp_t _frames, f_cnt_t _offset,
+                             int _tco_num )
 {
 	bool played_a_note = false;
 	if( lengthOfBB( _tco_num ) <= 0 )
@@ -76,9 +64,6 @@ bool BBTrackContainer::play( MidiTime _start, fpp_t _frames,
 	return played_a_note;
 }
 
-
-
-
 void BBTrackContainer::updateAfterTrackAdd()
 {
 	if( numOfBBs() == 0 && !Engine::getSong()->isLoadingProject() )
@@ -87,9 +72,6 @@ void BBTrackContainer::updateAfterTrackAdd()
 	}
 }
 
-
-
-
 tact_t BBTrackContainer::lengthOfBB( int _bb ) const
 {
 	MidiTime max_length = MidiTime::ticksPerTact();
@@ -97,30 +79,23 @@ tact_t BBTrackContainer::lengthOfBB( int _bb ) const
 	const TrackList & tl = tracks();
 	for( TrackList::const_iterator it = tl.begin(); it != tl.end(); ++it )
 	{
-		max_length = qMax( max_length,
-					( *it )->getTCO( _bb )->length() );
+		max_length = qMax( max_length, ( *it )->getTCO( _bb )->length() );
 	}
 
 	return max_length.nextFullTact();
 }
-
-
-
 
 int BBTrackContainer::numOfBBs() const
 {
 	return Engine::getSong()->countTracks( Track::BBTrack );
 }
 
-
-
-
 void BBTrackContainer::removeBB( int _bb )
 {
 	TrackList tl = tracks();
 	for( TrackList::iterator it = tl.begin(); it != tl.end(); ++it )
 	{
-		delete ( *it )->getTCO( _bb );
+		delete( *it )->getTCO( _bb );
 		( *it )->removeTact( _bb * DefaultTicksPerTact );
 	}
 	if( _bb <= currentBB() )
@@ -128,9 +103,6 @@ void BBTrackContainer::removeBB( int _bb )
 		setCurrentBB( qMax( currentBB() - 1, 0 ) );
 	}
 }
-
-
-
 
 void BBTrackContainer::swapBB( int _bb1, int _bb2 )
 {
@@ -142,21 +114,15 @@ void BBTrackContainer::swapBB( int _bb1, int _bb2 )
 	updateComboBox();
 }
 
-
-
-
 void BBTrackContainer::updateBBTrack( TrackContentObject * _tco )
 {
-	BBTrack * t = BBTrack::findBBTrack( _tco->startPosition() /
-							DefaultTicksPerTact );
+	BBTrack * t =
+	    BBTrack::findBBTrack( _tco->startPosition() / DefaultTicksPerTact );
 	if( t != NULL )
 	{
 		t->dataChanged();
 	}
 }
-
-
-
 
 void BBTrackContainer::fixIncorrectPositions()
 {
@@ -170,9 +136,6 @@ void BBTrackContainer::fixIncorrectPositions()
 	}
 }
 
-
-
-
 void BBTrackContainer::play()
 {
 	if( Engine::getSong()->playMode() != Song::Mode_PlayBB )
@@ -185,16 +148,7 @@ void BBTrackContainer::play()
 	}
 }
 
-
-
-
-void BBTrackContainer::stop()
-{
-	Engine::getSong()->stop();
-}
-
-
-
+void BBTrackContainer::stop() { Engine::getSong()->stop(); }
 
 void BBTrackContainer::updateComboBox()
 {
@@ -210,9 +164,6 @@ void BBTrackContainer::updateComboBox()
 	setCurrentBB( cur_bb );
 }
 
-
-
-
 void BBTrackContainer::currentBBChanged()
 {
 	// now update all track-labels (the current one has to become white,
@@ -227,9 +178,6 @@ void BBTrackContainer::currentBBChanged()
 	}
 }
 
-
-
-
 void BBTrackContainer::createTCOsForBB( int _bb )
 {
 	TrackList tl = tracks();
@@ -239,21 +187,19 @@ void BBTrackContainer::createTCOsForBB( int _bb )
 	}
 }
 
-AutomatedValueMap BBTrackContainer::automatedValuesAt(MidiTime time, int tcoNum) const
+AutomatedValueMap BBTrackContainer::automatedValuesAt( MidiTime time,
+                                                       int tcoNum ) const
 {
-	Q_ASSERT(tcoNum >= 0);
-	Q_ASSERT(time.getTicks() >= 0);
+	Q_ASSERT( tcoNum >= 0 );
+    Q_ASSERT( time.getTicks() >= 0 );
 
-	auto length_tacts = lengthOfBB(tcoNum);
+	auto length_tacts = lengthOfBB( tcoNum );
 	auto length_ticks = length_tacts * MidiTime::ticksPerTact();
-	if (time > length_ticks) {
+	if( time > length_ticks )
+	{
 		time = length_ticks;
 	}
 
-	return TrackContainer::automatedValuesAt(time + (MidiTime::ticksPerTact() * tcoNum), tcoNum);
+	return TrackContainer::automatedValuesAt(
+	    time + ( MidiTime::ticksPerTact() * tcoNum ), tcoNum );
 }
-
-
-
-
-

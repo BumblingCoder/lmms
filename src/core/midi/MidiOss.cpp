@@ -22,7 +22,6 @@
  *
  */
 
-
 #include "MidiOss.h"
 
 #ifdef LMMS_HAVE_OSS
@@ -30,24 +29,17 @@
 #include "ConfigManager.h"
 #include "gui_templates.h"
 
-
-
-MidiOss::MidiOss() :
-	MidiClientRaw(),
-	m_midiDev( probeDevice() ),
-	m_quit( false )
+MidiOss::MidiOss()
+    : MidiClientRaw(), m_midiDev( probeDevice() ), m_quit( false )
 {
 	// only start thread, if opening of MIDI-device is successful,
 	// otherwise isRunning()==false indicates error
 	if( m_midiDev.open( QIODevice::ReadWrite ) ||
-					m_midiDev.open( QIODevice::ReadOnly ) )
+	    m_midiDev.open( QIODevice::ReadOnly ) )
 	{
 		start( QThread::LowPriority );
 	}
 }
-
-
-
 
 MidiOss::~MidiOss()
 {
@@ -58,9 +50,6 @@ MidiOss::~MidiOss()
 		terminate();
 	}
 }
-
-
-
 
 QString MidiOss::probeDevice()
 {
@@ -76,16 +65,7 @@ QString MidiOss::probeDevice()
 	return dev;
 }
 
-
-
-
-void MidiOss::sendByte( const unsigned char c )
-{
-	m_midiDev.putChar( c );
-}
-
-
-
+void MidiOss::sendByte( const unsigned char c ) { m_midiDev.putChar( c ); }
 
 void MidiOss::run()
 {
@@ -100,7 +80,4 @@ void MidiOss::run()
 	}
 }
 
-
 #endif
-
-

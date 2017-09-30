@@ -31,25 +31,26 @@
 #include "MainWindow.h"
 #include "Song.h"
 
-MainApplication::MainApplication(int& argc, char** argv) :
-	QApplication(argc, argv),
-	m_queuedFile() {}
-
-bool MainApplication::event(QEvent* event)
+MainApplication::MainApplication( int & argc, char ** argv )
+    : QApplication( argc, argv ), m_queuedFile()
 {
-	switch(event->type())
+}
+
+bool MainApplication::event( QEvent * event )
+{
+	switch( event->type() )
 	{
 		case QEvent::FileOpen:
 		{
-			QFileOpenEvent * fileEvent = static_cast<QFileOpenEvent *>(event);
+			QFileOpenEvent * fileEvent = static_cast<QFileOpenEvent *>( event );
 			// Handle the project file
 			m_queuedFile = fileEvent->file();
-			if(Engine::getSong())
+			if( Engine::getSong() )
 			{
-				if(gui->mainWindow()->mayChangeProject(true))
+				if( gui->mainWindow()->mayChangeProject( true ) )
 				{
 					qDebug() << "Loading file " << m_queuedFile;
-					Engine::getSong()->loadProject(m_queuedFile);
+					Engine::getSong()->loadProject( m_queuedFile );
 				}
 			}
 			else
@@ -59,21 +60,22 @@ bool MainApplication::event(QEvent* event)
 			return true;
 		}
 		default:
-			return QApplication::event(event);
+			return QApplication::event( event );
 	}
 }
 
 #ifdef LMMS_BUILD_WIN32
-bool MainApplication::winEventFilter(MSG* msg, long* result)
+bool MainApplication::winEventFilter( MSG * msg, long * result )
 {
-	switch(msg->message)
+	switch( msg->message )
 	{
 		case WM_STYLECHANGING:
-			if(msg->wParam == GWL_EXSTYLE)
+			if( msg->wParam == GWL_EXSTYLE )
 			{
 				// Prevent plugins making the main window transparent
-				STYLESTRUCT * style = reinterpret_cast<STYLESTRUCT *>(msg->lParam);
-				if(!(style->styleOld & WS_EX_LAYERED))
+				STYLESTRUCT * style =
+				    reinterpret_cast<STYLESTRUCT *>( msg->lParam );
+				if( !( style->styleOld & WS_EX_LAYERED ) )
 				{
 					style->styleNew &= ~WS_EX_LAYERED;
 				}

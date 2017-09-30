@@ -40,48 +40,35 @@
 
 #include "InstrumentTrack.h"
 
-
 /*! The black / white order of keys as they appear on the keyboard.
  */
-static const Piano::KeyTypes KEY_ORDER[] =
-{
-//	C                CIS              D                DIS
-	Piano::WhiteKey, Piano::BlackKey, Piano::WhiteKey, Piano::BlackKey,
-//	E                F                FIS              G
-	Piano::WhiteKey, Piano::WhiteKey, Piano::BlackKey, Piano::WhiteKey,
-//	GIS              A                AIS              B
-	Piano::BlackKey, Piano::WhiteKey, Piano::BlackKey, Piano::WhiteKey
-} ;
-
+static const Piano::KeyTypes KEY_ORDER[] = {
+    //	C                CIS              D                DIS
+    Piano::WhiteKey, Piano::BlackKey, Piano::WhiteKey, Piano::BlackKey,
+    //	E                F                FIS              G
+    Piano::WhiteKey, Piano::WhiteKey, Piano::BlackKey, Piano::WhiteKey,
+    //	GIS              A                AIS              B
+    Piano::BlackKey, Piano::WhiteKey, Piano::BlackKey, Piano::WhiteKey};
 
 /*! \brief Create a new keyboard display
  *
  *  \param _it the InstrumentTrack window to attach to
  */
-Piano::Piano( InstrumentTrack* track ) :
-	Model( NULL ),              /*!< base class ctor */
-	m_instrumentTrack( track ),
-	m_midiEvProc( track )        /*!< the InstrumentTrack Model */
+Piano::Piano( InstrumentTrack * track )
+    : Model( NULL ), /*!< base class ctor */
+      m_instrumentTrack( track ),
+      m_midiEvProc( track ) /*!< the InstrumentTrack Model */
 {
 	for( int i = 0; i < NumKeys; ++i )
 	{
 		m_pressedKeys[i] = false;
 	}
-
 }
-
-
-
 
 /*! \brief Destroy this new keyboard display
  *
  */
-Piano::~Piano()
-{
-}
-
-
-
+Piano::~Piano() {}
 
 /*! \brief Turn a key on or off
  *
@@ -98,9 +85,6 @@ void Piano::setKeyState( int key, bool state )
 	}
 }
 
-
-
-
 /*! \brief Handle a note being pressed on our keyboard display
  *
  *  \param key the key being pressed
@@ -113,14 +97,11 @@ void Piano::handleKeyPress( int key, int midiVelocity )
 	}
 	if( isValidKey( key ) )
 	{
-		m_midiEvProc->processInEvent( MidiEvent( MidiNoteOn, -1, key, midiVelocity ) );
+		m_midiEvProc->processInEvent(
+		    MidiEvent( MidiNoteOn, -1, key, midiVelocity ) );
 		m_pressedKeys[key] = true;
 	}
 }
-
-
-
-
 
 /*! \brief Handle a note being released on our keyboard display
  *
@@ -135,8 +116,6 @@ void Piano::handleKeyRelease( int key )
 	}
 }
 
-
-
 bool Piano::isBlackKey( int key )
 {
 	int keyCode = key % KeysPerOctave;
@@ -144,9 +123,4 @@ bool Piano::isBlackKey( int key )
 	return KEY_ORDER[keyCode] == Piano::BlackKey;
 }
 
-
-bool Piano::isWhiteKey( int key )
-{
-	return !isBlackKey( key );
-}
-
+bool Piano::isWhiteKey( int key ) { return !isBlackKey( key ); }

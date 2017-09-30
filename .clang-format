@@ -1,0 +1,26 @@
+﻿---
+AccessModifierOffset: '-4'
+AllowShortIfStatementsOnASingleLine: 'true'
+AllowShortLoopsOnASingleLine: 'true'
+AlignEscapedNewlinesLeft: 'true'
+BreakBeforeBraces: 'Allman'
+ColumnLimit: '80'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
+ConstructorInitializerIndentWidth: '4'
+IndentCaseLabels: 'true'
+IndentWidth: '4'
+PointerAlignment: Middle
+SpaceAfterCStyleCast: 'true'
+SpaceBeforeAssignmentOperators: 'true'
+SpaceBeforeParens: Never
+SpaceInEmptyParentheses: 'false'
+SpacesInAngles: 'false'
+SpacesInCStyleCastParentheses: 'false'
+SpacesInContainerLiterals: 'false'
+SpacesInParentheses: 'true'
+SpacesInSquareBrackets: 'false'
+Standard: Auto
+TabWidth: '4'
+UseTab: ForIndentation
+
+...

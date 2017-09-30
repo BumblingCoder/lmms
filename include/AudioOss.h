@@ -34,15 +34,13 @@
 #include "AudioDevice.h"
 #include "AudioDeviceSetupWidget.h"
 
-
 class LcdSpinBox;
 class QLineEdit;
-
 
 class AudioOss : public AudioDevice, public QThread
 {
 public:
-	AudioOss( bool & _success_ful, Mixer* mixer );
+	AudioOss( bool & _success_ful, Mixer * mixer );
 	virtual ~AudioOss();
 
 	inline static QString name()
@@ -51,7 +49,6 @@ public:
 	}
 
 	static QString probeDevice();
-
 
 	class setupWidget : public AudioDeviceSetupWidget
 	{
@@ -64,9 +61,7 @@ public:
 	private:
 		QLineEdit * m_device;
 		LcdSpinBox * m_channels;
-
-	} ;
-
+	};
 
 private:
 	virtual void startProcessing();
@@ -77,9 +72,7 @@ private:
 	int m_audioFD;
 
 	bool m_convertEndian;
-
-} ;
-
+};
 
 #endif
 

@@ -24,38 +24,30 @@
 
 #include "Oscillator.h"
 
+#include "AutomatableModel.h"
 #include "BufferManager.h"
 #include "Engine.h"
 #include "Mixer.h"
-#include "AutomatableModel.h"
-
-
 
 Oscillator::Oscillator( const IntModel * _wave_shape_model,
-				const IntModel * _mod_algo_model,
-				const float & _freq,
-				const float & _detuning,
-				const float & _phase_offset,
-				const float & _volume,
-			Oscillator * _sub_osc ) :
-	m_waveShapeModel( _wave_shape_model ),
-	m_modulationAlgoModel( _mod_algo_model ),
-	m_freq( _freq ),
-	m_detuning( _detuning ),
-	m_volume( _volume ),
-	m_ext_phaseOffset( _phase_offset ),
-	m_subOsc( _sub_osc ),
-	m_phaseOffset( _phase_offset ),
-	m_phase( _phase_offset ),
-	m_userWave( NULL )
+                        const IntModel * _mod_algo_model, const float & _freq,
+                        const float & _detuning, const float & _phase_offset,
+                        const float & _volume, Oscillator * _sub_osc )
+    : m_waveShapeModel( _wave_shape_model ),
+      m_modulationAlgoModel( _mod_algo_model ),
+      m_freq( _freq ),
+      m_detuning( _detuning ),
+      m_volume( _volume ),
+      m_ext_phaseOffset( _phase_offset ),
+      m_subOsc( _sub_osc ),
+      m_phaseOffset( _phase_offset ),
+      m_phase( _phase_offset ),
+      m_userWave( NULL )
 {
 }
 
-
-
-
 void Oscillator::update( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                         const ch_cnt_t _chnl )
 {
 	if( m_freq >= Engine::mixer()->processingSampleRate() / 2 )
 	{
@@ -88,11 +80,8 @@ void Oscillator::update( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 void Oscillator::updateNoSub( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                              const ch_cnt_t _chnl )
 {
 	switch( m_waveShapeModel->value() )
 	{
@@ -124,11 +113,8 @@ void Oscillator::updateNoSub( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 void Oscillator::updatePM( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                           const ch_cnt_t _chnl )
 {
 	switch( m_waveShapeModel->value() )
 	{
@@ -160,11 +146,8 @@ void Oscillator::updatePM( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 void Oscillator::updateAM( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                           const ch_cnt_t _chnl )
 {
 	switch( m_waveShapeModel->value() )
 	{
@@ -196,11 +179,8 @@ void Oscillator::updateAM( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 void Oscillator::updateMix( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                            const ch_cnt_t _chnl )
 {
 	switch( m_waveShapeModel->value() )
 	{
@@ -232,11 +212,8 @@ void Oscillator::updateMix( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 void Oscillator::updateSync( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                             const ch_cnt_t _chnl )
 {
 	switch( m_waveShapeModel->value() )
 	{
@@ -268,11 +245,8 @@ void Oscillator::updateSync( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 void Oscillator::updateFM( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                           const ch_cnt_t _chnl )
 {
 	switch( m_waveShapeModel->value() )
 	{
@@ -304,9 +278,6 @@ void Oscillator::updateFM( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 // should be called every time phase-offset is changed...
 inline void Oscillator::recalcPhase()
 {
@@ -316,42 +287,33 @@ inline void Oscillator::recalcPhase()
 		m_phaseOffset = m_ext_phaseOffset;
 		m_phase += m_phaseOffset;
 	}
-	m_phase = absFraction( m_phase )+2;	// make sure we're not running
-						// negative when doing PM
+	m_phase = absFraction( m_phase ) + 2; // make sure we're not running
+	                                      // negative when doing PM
 }
-
-
-
 
 inline bool Oscillator::syncOk( float _osc_coeff )
 {
 	const float v1 = m_phase;
 	m_phase += _osc_coeff;
 	// check whether m_phase is in next period
-	return( floorf( m_phase ) > floorf( v1 ) );
+	return ( floorf( m_phase ) > floorf( v1 ) );
 }
 
-
-
-
 float Oscillator::syncInit( sampleFrame * _ab, const fpp_t _frames,
-						const ch_cnt_t _chnl )
+                            const ch_cnt_t _chnl )
 {
 	if( m_subOsc != NULL )
 	{
 		m_subOsc->update( _ab, _frames, _chnl );
 	}
 	recalcPhase();
-	return( m_freq * m_detuning );
+	return ( m_freq * m_detuning );
 }
 
-
-
-
 // if we have no sub-osc, we can't do any modulation... just get our samples
-template<Oscillator::WaveShapes W>
+template <Oscillator::WaveShapes W>
 void Oscillator::updateNoSub( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                              const ch_cnt_t _chnl )
 {
 	recalcPhase();
 	const float osc_coeff = m_freq * m_detuning;
@@ -363,13 +325,10 @@ void Oscillator::updateNoSub( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 // do pm by using sub-osc as modulator
-template<Oscillator::WaveShapes W>
+template <Oscillator::WaveShapes W>
 void Oscillator::updatePM( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                           const ch_cnt_t _chnl )
 {
 	m_subOsc->update( _ab, _frames, _chnl );
 	recalcPhase();
@@ -377,20 +336,16 @@ void Oscillator::updatePM( sampleFrame * _ab, const fpp_t _frames,
 
 	for( fpp_t frame = 0; frame < _frames; ++frame )
 	{
-		_ab[frame][_chnl] = getSample<W>( m_phase +
-					_ab[frame][_chnl] )
-							* m_volume;
+		_ab[frame][_chnl] =
+		    getSample<W>( m_phase + _ab[frame][_chnl] ) * m_volume;
 		m_phase += osc_coeff;
 	}
 }
 
-
-
-
 // do am by using sub-osc as modulator
-template<Oscillator::WaveShapes W>
+template <Oscillator::WaveShapes W>
 void Oscillator::updateAM( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                           const ch_cnt_t _chnl )
 {
 	m_subOsc->update( _ab, _frames, _chnl );
 	recalcPhase();
@@ -403,13 +358,10 @@ void Oscillator::updateAM( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 // do mix by using sub-osc as mix-sample
-template<Oscillator::WaveShapes W>
+template <Oscillator::WaveShapes W>
 void Oscillator::updateMix( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                            const ch_cnt_t _chnl )
 {
 	m_subOsc->update( _ab, _frames, _chnl );
 	recalcPhase();
@@ -422,20 +374,17 @@ void Oscillator::updateMix( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 // sync with sub-osc (every time sub-osc starts new period, we also start new
 // period)
-template<Oscillator::WaveShapes W>
+template <Oscillator::WaveShapes W>
 void Oscillator::updateSync( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                             const ch_cnt_t _chnl )
 {
 	const float sub_osc_coeff = m_subOsc->syncInit( _ab, _frames, _chnl );
 	recalcPhase();
 	const float osc_coeff = m_freq * m_detuning;
 
-	for( fpp_t frame = 0; frame < _frames ; ++frame )
+	for( fpp_t frame = 0; frame < _frames; ++frame )
 	{
 		if( m_subOsc->syncOk( sub_osc_coeff ) )
 		{
@@ -446,19 +395,16 @@ void Oscillator::updateSync( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
 // do fm by using sub-osc as modulator
-template<Oscillator::WaveShapes W>
+template <Oscillator::WaveShapes W>
 void Oscillator::updateFM( sampleFrame * _ab, const fpp_t _frames,
-							const ch_cnt_t _chnl )
+                           const ch_cnt_t _chnl )
 {
 	m_subOsc->update( _ab, _frames, _chnl );
 	recalcPhase();
 	const float osc_coeff = m_freq * m_detuning;
-	const float sampleRateCorrection = 44100.0f /
-				Engine::mixer()->processingSampleRate();
+	const float sampleRateCorrection =
+	    44100.0f / Engine::mixer()->processingSampleRate();
 
 	for( fpp_t frame = 0; frame < _frames; ++frame )
 	{
@@ -468,86 +414,58 @@ void Oscillator::updateFM( sampleFrame * _ab, const fpp_t _frames,
 	}
 }
 
-
-
-
-template<>
-inline sample_t Oscillator::getSample<Oscillator::SineWave>(
-							const float _sample )
+template <>
+inline sample_t
+Oscillator::getSample<Oscillator::SineWave>( const float _sample )
 {
-	return( sinSample( _sample ) );
+	return ( sinSample( _sample ) );
 }
 
-
-
-
-template<>
-inline sample_t Oscillator::getSample<Oscillator::TriangleWave>(
-							const float _sample )
+template <>
+inline sample_t
+Oscillator::getSample<Oscillator::TriangleWave>( const float _sample )
 {
-	return( triangleSample( _sample ) );
+	return ( triangleSample( _sample ) );
 }
 
-
-
-
-template<>
-inline sample_t Oscillator::getSample<Oscillator::SawWave>(
-							const float _sample )
+template <>
+inline sample_t
+Oscillator::getSample<Oscillator::SawWave>( const float _sample )
 {
-	return( sawSample( _sample ) );
+	return ( sawSample( _sample ) );
 }
 
-
-
-
-template<>
-inline sample_t Oscillator::getSample<Oscillator::SquareWave>(
-							const float _sample )
+template <>
+inline sample_t
+Oscillator::getSample<Oscillator::SquareWave>( const float _sample )
 {
-	return( squareSample( _sample ) );
+	return ( squareSample( _sample ) );
 }
 
-
-
-
-template<>
-inline sample_t Oscillator::getSample<Oscillator::MoogSawWave>(
-							const float _sample )
+template <>
+inline sample_t
+Oscillator::getSample<Oscillator::MoogSawWave>( const float _sample )
 {
-	return( moogSawSample( _sample ) );
+	return ( moogSawSample( _sample ) );
 }
 
-
-
-
-template<>
-inline sample_t Oscillator::getSample<Oscillator::ExponentialWave>(
-							const float _sample )
+template <>
+inline sample_t
+Oscillator::getSample<Oscillator::ExponentialWave>( const float _sample )
 {
-	return( expSample( _sample ) );
+	return ( expSample( _sample ) );
 }
 
-
-
-
-template<>
-inline sample_t Oscillator::getSample<Oscillator::WhiteNoise>(
-							const float _sample )
+template <>
+inline sample_t
+Oscillator::getSample<Oscillator::WhiteNoise>( const float _sample )
 {
-	return( noiseSample( _sample ) );
+	return ( noiseSample( _sample ) );
 }
 
-
-
-
-template<>
-inline sample_t Oscillator::getSample<Oscillator::UserDefinedWave>(
-							const float _sample )
+template <>
+inline sample_t
+Oscillator::getSample<Oscillator::UserDefinedWave>( const float _sample )
 {
-	return( userWaveSample( _sample ) );
+	return ( userWaveSample( _sample ) );
 }
-
-
-
-

@@ -26,34 +26,25 @@
 #include <QDomElement>
 #include <QObject>
 
-#include "Song.h"
-#include "Mixer.h"
 #include "MidiClient.h"
 #include "MidiController.h"
+#include "Mixer.h"
+#include "Song.h"
 
-
-MidiController::MidiController( Model * _parent ) :
-	Controller( Controller::MidiController, _parent, tr( "MIDI Controller" ) ),
-	MidiEventProcessor(),
-	m_midiPort( tr( "unnamed_midi_controller" ),
-			Engine::mixer()->midiClient(), this, this, MidiPort::Input ),
-	m_lastValue( 0.0f ),
-	m_previousValue( 0.0f )
+MidiController::MidiController( Model * _parent )
+    : Controller( Controller::MidiController, _parent,
+                  tr( "MIDI Controller" ) ),
+      MidiEventProcessor(),
+      m_midiPort( tr( "unnamed_midi_controller" ),
+                  Engine::mixer()->midiClient(), this, this, MidiPort::Input ),
+      m_lastValue( 0.0f ),
+      m_previousValue( 0.0f )
 {
 	setSampleExact( true );
-	connect( &m_midiPort, SIGNAL( modeChanged() ),
-			this, SLOT( updateName() ) );
+	connect( &m_midiPort, SIGNAL( modeChanged() ), this, SLOT( updateName() ) );
 }
 
-
-
-
-MidiController::~MidiController()
-{
-}
-
-
-
+MidiController::~MidiController() {}
 
 void MidiController::updateValueBuffer()
 {
@@ -69,18 +60,15 @@ void MidiController::updateValueBuffer()
 	m_bufferLastUpdated = s_periods;
 }
 
-
 void MidiController::updateName()
 {
-	setName( QString("MIDI ch%1 ctrl%2").
-			arg( m_midiPort.inputChannel() ).
-			arg( m_midiPort.inputController() ) );
+	setName( QString( "MIDI ch%1 ctrl%2" )
+	             .arg( m_midiPort.inputChannel() )
+	             .arg( m_midiPort.inputController() ) );
 }
 
-
-
-
-void MidiController::processInEvent( const MidiEvent& event, const MidiTime& time, f_cnt_t offset )
+void MidiController::processInEvent( const MidiEvent & event,
+                                     const MidiTime & time, f_cnt_t offset )
 {
 	unsigned char controllerNum;
 	switch( event.type() )
@@ -89,12 +77,12 @@ void MidiController::processInEvent( const MidiEvent& event, const MidiTime& tim
 			controllerNum = event.controllerNumber();
 
 			if( m_midiPort.inputController() == controllerNum + 1 &&
-					( m_midiPort.inputChannel() == event.channel() + 1 ||
-					  m_midiPort.inputChannel() == 0 ) )
+			    ( m_midiPort.inputChannel() == event.channel() + 1 ||
+			      m_midiPort.inputChannel() == 0 ) )
 			{
 				unsigned char val = event.controllerValue();
 				m_previousValue = m_lastValue;
-				m_lastValue = (float)( val ) / 127.0f;
+				m_lastValue = (float) ( val ) / 127.0f;
 				emit valueChanged();
 			}
 			break;
@@ -105,30 +93,20 @@ void MidiController::processInEvent( const MidiEvent& event, const MidiTime& tim
 	}
 }
 
-
-
-
 void MidiController::subscribeReadablePorts( const MidiPort::Map & _map )
 {
 	for( MidiPort::Map::ConstIterator it = _map.constBegin();
-						it != _map.constEnd(); ++it )
+	     it != _map.constEnd(); ++it )
 	{
 		m_midiPort.subscribeReadablePort( it.key(), *it );
 	}
 }
 
-
-
-
 void MidiController::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
 	Controller::saveSettings( _doc, _this );
 	m_midiPort.saveSettings( _doc, _this );
-
 }
-
-
-
 
 void MidiController::loadSettings( const QDomElement & _this )
 {
@@ -139,22 +117,9 @@ void MidiController::loadSettings( const QDomElement & _this )
 	updateName();
 }
 
-
-
-
-QString MidiController::nodeName() const
-{
-	return( "Midicontroller" );
-}
-
-
-
+QString MidiController::nodeName() const { return ( "Midicontroller" ); }
 
 ControllerDialog * MidiController::createDialog( QWidget * _parent )
 {
 	return NULL;
 }
-
-
-
-

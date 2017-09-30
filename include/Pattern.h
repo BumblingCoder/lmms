@@ -26,17 +26,15 @@
 #ifndef PATTERN_H
 #define PATTERN_H
 
-#include <QtCore/QVector>
-#include <QWidget>
 #include <QDialog>
-#include <QtCore/QThread>
 #include <QPixmap>
 #include <QStaticText>
-
+#include <QWidget>
+#include <QtCore/QThread>
+#include <QtCore/QVector>
 
 #include "Note.h"
 #include "Track.h"
-
 
 class QAction;
 class QProgressBar;
@@ -44,8 +42,6 @@ class QPushButton;
 
 class InstrumentTrack;
 class SampleBuffer;
-
-
 
 class EXPORT Pattern : public TrackContentObject
 {
@@ -55,10 +51,10 @@ public:
 	{
 		BeatPattern,
 		MelodyPattern
-	} ;
+	};
 
-	Pattern( InstrumentTrack* instrumentTrack );
-	Pattern( const Pattern& other );
+	Pattern( InstrumentTrack * instrumentTrack );
+	Pattern( const Pattern & other );
 	virtual ~Pattern();
 
 	void init();
@@ -75,20 +71,13 @@ public:
 	void rearrangeAllNotes();
 	void clearNotes();
 
-	inline const NoteVector & notes() const
-	{
-		return m_notes;
-	}
+	inline const NoteVector & notes() const { return m_notes; }
 
 	Note * addStepNote( int step );
 	void setStep( int step, bool enabled );
 
 	// pattern-type stuff
-	inline PatternTypes type() const
-	{
-		return m_patternType;
-	}
-
+	inline PatternTypes type() const { return m_patternType; }
 
 	// next/previous track based on position in the containing track
 	Pattern * previousPattern() const;
@@ -97,10 +86,7 @@ public:
 	// settings-management
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
-	inline virtual QString nodeName() const
-	{
-		return "pattern";
-	}
+	inline virtual QString nodeName() const { return "pattern"; }
 
 	inline InstrumentTrack * instrumentTrack() const
 	{
@@ -109,16 +95,12 @@ public:
 
 	bool empty();
 
-
 	virtual TrackContentObjectView * createView( TrackView * _tv );
-
 
 	using Model::dataChanged;
 
-
 protected:
 	void updateBBTrack();
-
 
 protected slots:
 	void addSteps();
@@ -126,7 +108,6 @@ protected slots:
 	void removeSteps();
 	void clear();
 	void changeTimeSignature();
-
 
 private:
 	MidiTime beatPatternLength() const;
@@ -144,38 +125,31 @@ private:
 	NoteVector m_notes;
 	int m_steps;
 
-	Pattern * adjacentPatternByOffset(int offset) const;
+	Pattern * adjacentPatternByOffset( int offset ) const;
 
 	friend class PatternView;
 	friend class BBTrackContainerView;
 
-
 signals:
-	void destroyedPattern( Pattern* );
-
-} ;
-
-
+	void destroyedPattern( Pattern * );
+};
 
 class PatternView : public TrackContentObjectView
 {
 	Q_OBJECT
 
 public:
-	PatternView( Pattern* pattern, TrackView* parent );
+	PatternView( Pattern * pattern, TrackView * parent );
 	virtual ~PatternView();
-
 
 public slots:
 	virtual void update();
-
 
 protected slots:
 	void openInPianoRoll();
 
 	void resetName();
 	void changeName();
-
 
 protected:
 	virtual void constructContextMenu( QMenu * );
@@ -184,19 +158,16 @@ protected:
 	virtual void paintEvent( QPaintEvent * pe );
 	virtual void wheelEvent( QWheelEvent * _we );
 
-
 private:
 	static QPixmap * s_stepBtnOn0;
 	static QPixmap * s_stepBtnOn200;
 	static QPixmap * s_stepBtnOff;
 	static QPixmap * s_stepBtnOffLight;
 
-	Pattern* m_pat;
+	Pattern * m_pat;
 	QPixmap m_paintPixmap;
 
 	QStaticText m_staticTextName;
-} ;
-
-
+};
 
 #endif

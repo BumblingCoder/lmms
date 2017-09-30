@@ -24,47 +24,37 @@
  */
 
 #include <QApplication>
+#include <QInputDialog>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QStyleOptionFrameV2>
-#include <QInputDialog>
 
-#include "LcdSpinBox.h"
 #include "CaptionMenu.h"
 #include "GuiApplication.h"
+#include "LcdSpinBox.h"
 #include "MainWindow.h"
 
-
-
-LcdSpinBox::LcdSpinBox( int numDigits, QWidget* parent, const QString& name ) :
-	LcdWidget( numDigits, parent, name ),
-	IntModelView( new IntModel( 0, 0, 0, NULL, name, true ), this ),
-	m_mouseMoving( false ),
-	m_origMousePos(),
-	m_displayOffset( 0 )
+LcdSpinBox::LcdSpinBox( int numDigits, QWidget * parent, const QString & name )
+    : LcdWidget( numDigits, parent, name ),
+      IntModelView( new IntModel( 0, 0, 0, NULL, name, true ), this ),
+      m_mouseMoving( false ),
+      m_origMousePos(),
+      m_displayOffset( 0 )
 {
 }
 
-
-
-
-LcdSpinBox::LcdSpinBox( int numDigits, const QString& style, QWidget* parent, const QString& name ) :
-	LcdWidget( numDigits, parent, name ),
-	IntModelView( new IntModel( 0, 0, 0, NULL, name, true ), this ),
-	m_mouseMoving( false ),
-	m_origMousePos(),
-	m_displayOffset( 0 )
+LcdSpinBox::LcdSpinBox( int numDigits, const QString & style, QWidget * parent,
+                        const QString & name )
+    : LcdWidget( numDigits, parent, name ),
+      IntModelView( new IntModel( 0, 0, 0, NULL, name, true ), this ),
+      m_mouseMoving( false ),
+      m_origMousePos(),
+      m_displayOffset( 0 )
 {
 }
 
-
-
-LcdSpinBox::~LcdSpinBox()
-{
-}
-
-
+LcdSpinBox::~LcdSpinBox() {}
 
 void LcdSpinBox::update()
 {
@@ -73,9 +63,7 @@ void LcdSpinBox::update()
 	QWidget::update();
 }
 
-
-
-void LcdSpinBox::contextMenuEvent( QContextMenuEvent* event )
+void LcdSpinBox::contextMenuEvent( QContextMenuEvent * event )
 {
 	// for the case, the user clicked right while pressing left mouse-
 	// button, the context-menu appears while mouse-cursor is still hidden
@@ -88,20 +76,17 @@ void LcdSpinBox::contextMenuEvent( QContextMenuEvent* event )
 	contextMenu.exec( QCursor::pos() );
 }
 
-
-
-
-void LcdSpinBox::mousePressEvent( QMouseEvent* event )
+void LcdSpinBox::mousePressEvent( QMouseEvent * event )
 {
 	if( event->button() == Qt::LeftButton &&
-		! ( event->modifiers() & Qt::ControlModifier ) &&
-						event->y() < cellHeight() + 2  )
+	    !( event->modifiers() & Qt::ControlModifier ) &&
+	    event->y() < cellHeight() + 2 )
 	{
 		m_mouseMoving = true;
 		m_origMousePos = event->globalPos();
 		QApplication::setOverrideCursor( Qt::BlankCursor );
 
-		AutomatableModel *thisModel = model();
+		AutomatableModel * thisModel = model();
 		if( thisModel )
 		{
 			thisModel->addJournalCheckPoint();
@@ -114,30 +99,23 @@ void LcdSpinBox::mousePressEvent( QMouseEvent* event )
 	}
 }
 
-
-
-
-void LcdSpinBox::mouseMoveEvent( QMouseEvent* event )
+void LcdSpinBox::mouseMoveEvent( QMouseEvent * event )
 {
 	if( m_mouseMoving )
 	{
 		int dy = event->globalY() - m_origMousePos.y();
-		if( gui->mainWindow()->isShiftPressed() )
-			dy = qBound( -4, dy/4, 4 );
+		if( gui->mainWindow()->isShiftPressed() ) dy = qBound( -4, dy / 4, 4 );
 		if( dy > 1 || dy < -1 )
 		{
 			model()->setInitValue( model()->value() -
-						dy / 2 * model()->step<int>() );
+			                       dy / 2 * model()->step<int>() );
 			emit manualChange();
 			QCursor::setPos( m_origMousePos );
 		}
 	}
 }
 
-
-
-
-void LcdSpinBox::mouseReleaseEvent( QMouseEvent* )
+void LcdSpinBox::mouseReleaseEvent( QMouseEvent * )
 {
 	if( m_mouseMoving )
 	{
@@ -150,21 +128,16 @@ void LcdSpinBox::mouseReleaseEvent( QMouseEvent* )
 	}
 }
 
-
-
-
 void LcdSpinBox::wheelEvent( QWheelEvent * _we )
 {
 	_we->accept();
 	model()->setInitValue( model()->value() +
-			( ( _we->delta() > 0 ) ? 1 : -1 ) * model()->step<int>() );
+	                       ( ( _we->delta() > 0 ) ? 1 : -1 ) *
+	                           model()->step<int>() );
 	emit manualChange();
 }
 
-void LcdSpinBox::mouseDoubleClickEvent( QMouseEvent * )
-{
-	enterValue();
-}
+void LcdSpinBox::mouseDoubleClickEvent( QMouseEvent * ) { enterValue(); }
 
 void LcdSpinBox::enterValue()
 {
@@ -172,19 +145,14 @@ void LcdSpinBox::enterValue()
 	int new_val;
 
 	new_val = QInputDialog::getInt(
-			this, windowTitle(),
-			tr( "Please enter a new value between %1 and %2:" ).
-			arg( model()->minValue() ).
-			arg( model()->maxValue() ),
-			model()->value(),
-			model()->minValue(),
-			model()->maxValue(), 4, &ok );
+	    this, windowTitle(),
+	    tr( "Please enter a new value between %1 and %2:" )
+	        .arg( model()->minValue() )
+	        .arg( model()->maxValue() ),
+	    model()->value(), model()->minValue(), model()->maxValue(), 4, &ok );
 
 	if( ok )
 	{
 		model()->setValue( new_val );
 	}
 }
-
-
-

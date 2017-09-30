@@ -22,15 +22,12 @@
  *
  */
 
-
 #ifndef LED_CHECKBOX_H
 #define LED_CHECKBOX_H
 
 #include "AutomatableButton.h"
 
-
 class QPixmap;
-
 
 class EXPORT LedCheckBox : public AutomatableButton
 {
@@ -42,30 +39,24 @@ public:
 		Green,
 		Red,
 		NumColors
-	} ;
+	};
 
 	LedCheckBox( const QString & _txt, QWidget * _parent,
-				const QString & _name = QString::null,
-						LedColors _color = Yellow );
-	LedCheckBox( QWidget * _parent,
-				const QString & _name = QString::null,
-						LedColors _color = Yellow );
+	             const QString & _name = QString::null,
+	             LedColors _color = Yellow );
+	LedCheckBox( QWidget * _parent, const QString & _name = QString::null,
+	             LedColors _color = Yellow );
 
 	virtual ~LedCheckBox();
 
+	inline const QString & text() { return ( m_text ); }
 
-	inline const QString & text()
-	{
-		return( m_text );
-	}
-
-	void setText( const QString& s );
+	void setText( const QString & s );
 
 	Q_PROPERTY( QString text READ text WRITE setText )
 
 protected:
 	virtual void paintEvent( QPaintEvent * _pe );
-
 
 private:
 	QPixmap * m_ledOnPixmap;
@@ -75,7 +66,6 @@ private:
 
 	void initUi( LedColors _color ); //!< to be called by ctors
 	void onTextUpdated(); //!< to be called when you updated @a m_text
-
-} ;
+};
 
 #endif

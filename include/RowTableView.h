@@ -27,9 +27,7 @@
 
 #include <QTableView>
 
-
 class RowDelegate;
-
 
 class RowTableView : public QTableView
 {
@@ -40,16 +38,11 @@ public:
 
 	virtual void setModel( QAbstractItemModel * model );
 
-
 protected:
 	virtual void keyPressEvent( QKeyEvent * event );
 
-
 private:
 	RowDelegate * m_rowDelegate;
-
-} ;
-
-
+};
 
 #endif

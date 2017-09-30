@@ -25,13 +25,12 @@
 #ifndef SIDE_BAR_H
 #define SIDE_BAR_H
 
-#include <QtCore/QMap>
 #include <QButtonGroup>
 #include <QToolBar>
+#include <QtCore/QMap>
 
 class QToolButton;
 class SideBarWidget;
-
 
 class SideBar : public QToolBar
 {
@@ -42,16 +41,13 @@ public:
 
 	void appendTab( SideBarWidget * _sbw );
 
-
 private slots:
 	void toggleButton( QAbstractButton * _btn );
-
 
 private:
 	QButtonGroup m_btnGroup;
 	typedef QMap<QToolButton *, QWidget *> ButtonMap;
 	ButtonMap m_widgets;
-
-} ;
+};
 
 #endif

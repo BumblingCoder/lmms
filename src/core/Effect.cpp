@@ -32,35 +32,30 @@
 
 #include "ConfigManager.h"
 
-
-Effect::Effect( const Plugin::Descriptor * _desc,
-			Model * _parent,
-			const Descriptor::SubPluginFeatures::Key * _key ) :
-	Plugin( _desc, _parent ),
-	m_parent( NULL ),
-	m_key( _key ? *_key : Descriptor::SubPluginFeatures::Key()  ),
-	m_processors( 1 ),
-	m_okay( true ),
-	m_noRun( false ),
-	m_running( false ),
-	m_bufferCount( 0 ),
-	m_enabledModel( true, this, tr( "Effect enabled" ) ),
-	m_wetDryModel( 1.0f, -1.0f, 1.0f, 0.01f, this, tr( "Wet/Dry mix" ) ),
-	m_gateModel( 0.0f, 0.0f, 1.0f, 0.01f, this, tr( "Gate" ) ),
-	m_autoQuitModel( 1.0f, 1.0f, 8000.0f, 100.0f, 1.0f, this, tr( "Decay" ) ),
-	m_autoQuitDisabled( false )
+Effect::Effect( const Plugin::Descriptor * _desc, Model * _parent,
+                const Descriptor::SubPluginFeatures::Key * _key )
+    : Plugin( _desc, _parent ),
+      m_parent( NULL ),
+      m_key( _key ? *_key : Descriptor::SubPluginFeatures::Key() ),
+      m_processors( 1 ),
+      m_okay( true ),
+      m_noRun( false ),
+      m_running( false ),
+      m_bufferCount( 0 ),
+      m_enabledModel( true, this, tr( "Effect enabled" ) ),
+      m_wetDryModel( 1.0f, -1.0f, 1.0f, 0.01f, this, tr( "Wet/Dry mix" ) ),
+      m_gateModel( 0.0f, 0.0f, 1.0f, 0.01f, this, tr( "Gate" ) ),
+      m_autoQuitModel( 1.0f, 1.0f, 8000.0f, 100.0f, 1.0f, this, tr( "Decay" ) ),
+      m_autoQuitDisabled( false )
 {
 	m_srcState[0] = m_srcState[1] = NULL;
 	reinitSRC();
-	
-	if( ConfigManager::inst()->value( "ui", "disableautoquit").toInt() )
+
+	if( ConfigManager::inst()->value( "ui", "disableautoquit" ).toInt() )
 	{
 		m_autoQuitDisabled = true;
 	}
 }
-
-
-
 
 Effect::~Effect()
 {
@@ -73,9 +68,6 @@ Effect::~Effect()
 	}
 }
 
-
-
-
 void Effect::saveSettings( QDomDocument & _doc, QDomElement & _this )
 {
 	m_enabledModel.saveSettings( _doc, _this, "on" );
@@ -84,9 +76,6 @@ void Effect::saveSettings( QDomDocument & _doc, QDomElement & _this )
 	m_gateModel.saveSettings( _doc, _this, "gate" );
 	controls()->saveState( _doc, _this );
 }
-
-
-
 
 void Effect::loadSettings( const QDomElement & _this )
 {
@@ -109,13 +98,8 @@ void Effect::loadSettings( const QDomElement & _this )
 	}
 }
 
-
-
-
-
-Effect * Effect::instantiate( const QString& pluginName,
-				Model * _parent,
-				Descriptor::SubPluginFeatures::Key * _key )
+Effect * Effect::instantiate( const QString & pluginName, Model * _parent,
+                              Descriptor::SubPluginFeatures::Key * _key )
 {
 	Plugin * p = Plugin::instantiate( pluginName, _parent, _key );
 	// check whether instantiated plugin is an effect
@@ -123,18 +107,16 @@ Effect * Effect::instantiate( const QString& pluginName,
 	{
 		// everything ok, so return pointer
 		Effect * effect = dynamic_cast<Effect *>( p );
-		effect->m_parent = dynamic_cast<EffectChain *>(_parent);
+		effect->m_parent = dynamic_cast<EffectChain *>( _parent );
 		return effect;
 	}
 
-	// not quite... so delete plugin and leave it up to the caller to instantiate a DummyEffect
+	// not quite... so delete plugin and leave it up to the caller to
+	// instantiate a DummyEffect
 	delete p;
 
 	return NULL;
 }
-
-
-
 
 void Effect::checkGate( double _out_sum )
 {
@@ -160,16 +142,10 @@ void Effect::checkGate( double _out_sum )
 	}
 }
 
-
-
-
 PluginView * Effect::instantiateView( QWidget * _parent )
 {
 	return new EffectView( this, _parent );
 }
-
-	
-
 
 void Effect::reinitSRC()
 {
@@ -180,23 +156,19 @@ void Effect::reinitSRC()
 			src_delete( m_srcState[i] );
 		}
 		int error;
-		if( ( m_srcState[i] = src_new(
-			Engine::mixer()->currentQualitySettings().
-							libsrcInterpolation(),
-					DEFAULT_CHANNELS, &error ) ) == NULL )
+		if( ( m_srcState[i] = src_new( Engine::mixer()
+		                                   ->currentQualitySettings()
+		                                   .libsrcInterpolation(),
+		                               DEFAULT_CHANNELS, &error ) ) == NULL )
 		{
 			qFatal( "Error: src_new() failed in effect.cpp!\n" );
 		}
 	}
 }
 
-
-
-
 void Effect::resample( int _i, const sampleFrame * _src_buf,
-							sample_rate_t _src_sr,
-				sampleFrame * _dst_buf, sample_rate_t _dst_sr,
-								f_cnt_t _frames )
+                       sample_rate_t _src_sr, sampleFrame * _dst_buf,
+                       sample_rate_t _dst_sr, f_cnt_t _frames )
 {
 	if( m_srcState[_i] == NULL )
 	{
@@ -212,7 +184,6 @@ void Effect::resample( int _i, const sampleFrame * _src_buf,
 	if( ( error = src_process( m_srcState[_i], &m_srcData[_i] ) ) )
 	{
 		qFatal( "Effect::resample(): error while resampling: %s\n",
-							src_strerror( error ) );
+		        src_strerror( error ) );
 	}
 }
-

@@ -26,144 +26,95 @@
 #ifndef EFFECT_H
 #define EFFECT_H
 
-#include "Plugin.h"
-#include "Engine.h"
-#include "Mixer.h"
 #include "AutomatableModel.h"
-#include "TempoSyncKnobModel.h"
+#include "Engine.h"
 #include "MemoryManager.h"
+#include "Mixer.h"
+#include "Plugin.h"
+#include "TempoSyncKnobModel.h"
 
 class EffectChain;
 class EffectControls;
-
 
 class EXPORT Effect : public Plugin
 {
 	MM_OPERATORS
 	Q_OBJECT
 public:
-	Effect( const Plugin::Descriptor * _desc,
-			Model * _parent,
-			const Descriptor::SubPluginFeatures::Key * _key );
+	Effect( const Plugin::Descriptor * _desc, Model * _parent,
+	        const Descriptor::SubPluginFeatures::Key * _key );
 	virtual ~Effect();
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
 
-	inline virtual QString nodeName() const
-	{
-		return "effect";
-	}
+	inline virtual QString nodeName() const { return "effect"; }
 
-	
 	virtual bool processAudioBuffer( sampleFrame * _buf,
-						const fpp_t _frames ) = 0;
+	                                 const fpp_t _frames ) = 0;
 
-	inline ch_cnt_t processorCount() const
-	{
-		return m_processors;
-	}
+	inline ch_cnt_t processorCount() const { return m_processors; }
 
 	inline void setProcessorCount( ch_cnt_t _processors )
 	{
 		m_processors = _processors;
 	}
 
-	inline bool isOkay() const
+	inline bool isOkay() const { return m_okay; }
+
+	inline void setOkay( bool _state ) { m_okay = _state; }
+
+	inline bool isRunning() const { return m_running; }
+
+	inline void startRunning()
 	{
-		return m_okay;
-	}
-
-	inline void setOkay( bool _state )
-	{
-		m_okay = _state;
-	}
-
-
-	inline bool isRunning() const
-	{
-		return m_running;
-	}
-
-	inline void startRunning() 
-	{ 
 		m_bufferCount = 0;
-		m_running = true; 
+		m_running = true;
 	}
 
-	inline void stopRunning()
-	{
-		m_running = false;
-	}
+	inline void stopRunning() { m_running = false; }
 
-	inline bool isEnabled() const
-	{
-		return m_enabledModel.value();
-	}
+	inline bool isEnabled() const { return m_enabledModel.value(); }
 
 	inline f_cnt_t timeout() const
 	{
-		const float samples = Engine::mixer()->processingSampleRate() * m_autoQuitModel.value() / 1000.0f;
-		return 1 + ( static_cast<int>( samples ) / Engine::mixer()->framesPerPeriod() );
+		const float samples = Engine::mixer()->processingSampleRate() *
+		                      m_autoQuitModel.value() / 1000.0f;
+		return 1 + ( static_cast<int>( samples ) /
+		             Engine::mixer()->framesPerPeriod() );
 	}
 
-	inline float wetLevel() const
-	{
-		return m_wetDryModel.value();
-	}
+	inline float wetLevel() const { return m_wetDryModel.value(); }
 
-	inline float dryLevel() const
-	{
-		return 1.0f - m_wetDryModel.value();
-	}
+	inline float dryLevel() const { return 1.0f - m_wetDryModel.value(); }
 
 	inline float gate() const
 	{
 		const float level = m_gateModel.value();
-		return level*level * m_processors;
+		return level * level * m_processors;
 	}
 
-	inline f_cnt_t bufferCount() const
-	{
-		return m_bufferCount;
-	}
+	inline f_cnt_t bufferCount() const { return m_bufferCount; }
 
-	inline void resetBufferCount()
-	{
-		m_bufferCount = 0;
-	}
+	inline void resetBufferCount() { m_bufferCount = 0; }
 
-	inline void incrementBufferCount()
-	{
-		++m_bufferCount;
-	}
+	inline void incrementBufferCount() { ++m_bufferCount; }
 
-	inline bool dontRun() const
-	{
-		return m_noRun;
-	}
+	inline bool dontRun() const { return m_noRun; }
 
-	inline void setDontRun( bool _state )
-	{
-		m_noRun = _state;
-	}
+	inline void setDontRun( bool _state ) { m_noRun = _state; }
 
 	inline const Descriptor::SubPluginFeatures::Key & key() const
 	{
 		return m_key;
 	}
 
-	EffectChain * effectChain() const
-	{
-		return m_parent;
-	}
+	EffectChain * effectChain() const { return m_parent; }
 
 	virtual EffectControls * controls() = 0;
 
-	static Effect * instantiate( const QString & _plugin_name,
-				Model * _parent,
-				Descriptor::SubPluginFeatures::Key * _key );
-
+	static Effect * instantiate( const QString & _plugin_name, Model * _parent,
+	                             Descriptor::SubPluginFeatures::Key * _key );
 
 protected:
 	void checkGate( double _out_sum );
@@ -173,33 +124,27 @@ protected:
 	// some effects might not be capable of higher sample-rates so they can
 	// sample it down before processing and back after processing
 	inline void sampleDown( const sampleFrame * _src_buf,
-							sampleFrame * _dst_buf,
-							sample_rate_t _dst_sr )
+	                        sampleFrame * _dst_buf, sample_rate_t _dst_sr )
 	{
-		resample( 0, _src_buf,
-				Engine::mixer()->processingSampleRate(),
-					_dst_buf, _dst_sr,
-					Engine::mixer()->framesPerPeriod() );
+		resample( 0, _src_buf, Engine::mixer()->processingSampleRate(),
+		          _dst_buf, _dst_sr, Engine::mixer()->framesPerPeriod() );
 	}
 
 	inline void sampleBack( const sampleFrame * _src_buf,
-							sampleFrame * _dst_buf,
-							sample_rate_t _src_sr )
+	                        sampleFrame * _dst_buf, sample_rate_t _src_sr )
 	{
 		resample( 1, _src_buf, _src_sr, _dst_buf,
-				Engine::mixer()->processingSampleRate(),
-			Engine::mixer()->framesPerPeriod() * _src_sr /
-				Engine::mixer()->processingSampleRate() );
+		          Engine::mixer()->processingSampleRate(),
+		          Engine::mixer()->framesPerPeriod() * _src_sr /
+		              Engine::mixer()->processingSampleRate() );
 	}
 	void reinitSRC();
 
-
 private:
 	EffectChain * m_parent;
-	void resample( int _i, const sampleFrame * _src_buf,
-					sample_rate_t _src_sr,
-					sampleFrame * _dst_buf, sample_rate_t _dst_sr,
-					const f_cnt_t _frames );
+	void resample( int _i, const sampleFrame * _src_buf, sample_rate_t _src_sr,
+	               sampleFrame * _dst_buf, sample_rate_t _dst_sr,
+	               const f_cnt_t _frames );
 
 	Descriptor::SubPluginFeatures::Key m_key;
 
@@ -214,21 +159,17 @@ private:
 	FloatModel m_wetDryModel;
 	FloatModel m_gateModel;
 	TempoSyncKnobModel m_autoQuitModel;
-	
+
 	bool m_autoQuitDisabled;
 
 	SRC_DATA m_srcData[2];
 	SRC_STATE * m_srcState[2];
 
-
 	friend class EffectView;
 	friend class EffectChain;
-
-} ;
-
+};
 
 typedef Effect::Descriptor::SubPluginFeatures::Key EffectKey;
 typedef Effect::Descriptor::SubPluginFeatures::KeyList EffectKeyList;
-
 
 #endif

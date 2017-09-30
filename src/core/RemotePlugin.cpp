@@ -29,9 +29,9 @@
 #endif
 
 #include "BufferManager.h"
-#include "RemotePlugin.h"
-#include "Mixer.h"
 #include "Engine.h"
+#include "Mixer.h"
+#include "RemotePlugin.h"
 
 #include <QDir>
 
@@ -41,16 +41,12 @@
 #include <sys/un.h>
 #endif
 
-
 // simple helper thread monitoring our RemotePlugin - if process terminates
 // unexpectedly invalidate plugin so LMMS doesn't lock up
-ProcessWatcher::ProcessWatcher( RemotePlugin * _p ) :
-	QThread(),
-	m_plugin( _p ),
-	m_quit( false )
+ProcessWatcher::ProcessWatcher( RemotePlugin * _p )
+    : QThread(), m_plugin( _p ), m_quit( false )
 {
 }
-
 
 void ProcessWatcher::run()
 {
@@ -60,47 +56,42 @@ void ProcessWatcher::run()
 	}
 	if( !m_quit )
 	{
-		fprintf( stderr,
-				"remote plugin died! invalidating now.\n" );
+		fprintf( stderr, "remote plugin died! invalidating now.\n" );
 		m_plugin->invalidate();
 	}
 }
 
-
-
-
-
-RemotePlugin::RemotePlugin() :
-	QObject(),
+RemotePlugin::RemotePlugin()
+    : QObject(),
 #ifdef SYNC_WITH_SHM_FIFO
-	RemotePluginBase( new shmFifo(), new shmFifo() ),
+      RemotePluginBase( new shmFifo(), new shmFifo() ),
 #else
-	RemotePluginBase(),
+      RemotePluginBase(),
 #endif
-	m_failed( true ),
-	m_process(),
-	m_watcher( this ),
-	m_commMutex( QMutex::Recursive ),
-	m_splitChannels( false ),
+      m_failed( true ),
+      m_process(),
+      m_watcher( this ),
+      m_commMutex( QMutex::Recursive ),
+      m_splitChannels( false ),
 #ifdef USE_QT_SHMEM
-	m_shmObj(),
+      m_shmObj(),
 #else
-	m_shmID( 0 ),
+      m_shmID( 0 ),
 #endif
-	m_shmSize( 0 ),
-	m_shm( NULL ),
-	m_inputCount( DEFAULT_CHANNELS ),
-	m_outputCount( DEFAULT_CHANNELS )
+      m_shmSize( 0 ),
+      m_shm( NULL ),
+      m_inputCount( DEFAULT_CHANNELS ),
+      m_outputCount( DEFAULT_CHANNELS )
 {
 #ifndef SYNC_WITH_SHM_FIFO
 	struct sockaddr_un sa;
 	sa.sun_family = AF_LOCAL;
 
-	m_socketFile = QDir::tempPath() + QDir::separator() +
-						QUuid::createUuid().toString();
+	m_socketFile =
+	    QDir::tempPath() + QDir::separator() + QUuid::createUuid().toString();
 	const char * path = m_socketFile.toUtf8().constData();
 	size_t length = strlen( path );
-	if ( length >= sizeof sa.sun_path )
+	if( length >= sizeof sa.sun_path )
 	{
 		length = sizeof sa.sun_path - 1;
 		qWarning( "Socket path too long." );
@@ -109,21 +100,18 @@ RemotePlugin::RemotePlugin() :
 	sa.sun_path[length] = '\0';
 
 	m_server = socket( PF_LOCAL, SOCK_STREAM, 0 );
-	if ( m_server == -1 )
+	if( m_server == -1 )
 	{
 		qWarning( "Unable to start the server." );
 	}
 	remove( path );
 	int ret = bind( m_server, (struct sockaddr *) &sa, sizeof sa );
-	if ( ret == -1 || listen( m_server, 1 ) == -1 )
+	if( ret == -1 || listen( m_server, 1 ) == -1 )
 	{
 		qWarning( "Unable to start the server." );
 	}
 #endif
 }
-
-
-
 
 RemotePlugin::~RemotePlugin()
 {
@@ -153,7 +141,7 @@ RemotePlugin::~RemotePlugin()
 	}
 
 #ifndef SYNC_WITH_SHM_FIFO
-	if ( close( m_server ) == -1)
+	if( close( m_server ) == -1 )
 	{
 		qWarning( "Error freeing resources." );
 	}
@@ -161,11 +149,8 @@ RemotePlugin::~RemotePlugin()
 #endif
 }
 
-
-
-
-bool RemotePlugin::init( const QString &pluginExecutable,
-							bool waitForInitDoneMsg )
+bool RemotePlugin::init( const QString & pluginExecutable,
+                         bool waitForInitDoneMsg )
 {
 	lock();
 	if( m_failed )
@@ -175,26 +160,27 @@ bool RemotePlugin::init( const QString &pluginExecutable,
 #endif
 		m_failed = false;
 	}
-	QString exec = QFileInfo(QDir("plugins:"), pluginExecutable).absoluteFilePath();
+	QString exec =
+	    QFileInfo( QDir( "plugins:" ), pluginExecutable ).absoluteFilePath();
 #ifdef LMMS_BUILD_APPLE
 	// search current directory first
-	QString curDir = QCoreApplication::applicationDirPath() + "/" + pluginExecutable;
+	QString curDir =
+	    QCoreApplication::applicationDirPath() + "/" + pluginExecutable;
 	if( QFile( curDir ).exists() )
 	{
 		exec = curDir;
 	}
 #endif
 #ifdef LMMS_BUILD_WIN32
-	if( ! exec.endsWith( ".exe", Qt::CaseInsensitive ) )
+	if( !exec.endsWith( ".exe", Qt::CaseInsensitive ) )
 	{
 		exec += ".exe";
 	}
 #endif
 
-	if( ! QFile( exec ).exists() )
+	if( !QFile( exec ).exists() )
 	{
-		qWarning( "Remote plugin '%s' not found.",
-						exec.toUtf8().constData() );
+		qWarning( "Remote plugin '%s' not found.", exec.toUtf8().constData() );
 		m_failed = true;
 		unlock();
 		return failed();
@@ -217,15 +203,15 @@ bool RemotePlugin::init( const QString &pluginExecutable,
 	qDebug() << exec << args;
 #endif
 
-	connect( &m_process, SIGNAL( finished( int, QProcess::ExitStatus ) ),
-		this, SLOT( processFinished( int, QProcess::ExitStatus ) ) );
+	connect( &m_process, SIGNAL( finished( int, QProcess::ExitStatus ) ), this,
+	         SLOT( processFinished( int, QProcess::ExitStatus ) ) );
 
 #ifndef SYNC_WITH_SHM_FIFO
 	struct pollfd pollin;
 	pollin.fd = m_server;
 	pollin.events = POLLIN;
 
-	switch ( poll( &pollin, 1, 30000 ) )
+	switch( poll( &pollin, 1, 30000 ) )
 	{
 		case -1:
 			qWarning( "Unexpected poll error." );
@@ -237,7 +223,7 @@ bool RemotePlugin::init( const QString &pluginExecutable,
 
 		default:
 			m_socket = accept( m_server, NULL, NULL );
-			if ( m_socket == -1 )
+			if( m_socket == -1 )
 			{
 				qWarning( "Unexpected socket error." );
 			}
@@ -255,11 +241,8 @@ bool RemotePlugin::init( const QString &pluginExecutable,
 	return failed();
 }
 
-
-
-
 bool RemotePlugin::process( const sampleFrame * _in_buf,
-						sampleFrame * _out_buf )
+                            sampleFrame * _out_buf )
 {
 	const fpp_t frames = Engine::mixer()->framesPerPeriod();
 
@@ -303,8 +286,7 @@ bool RemotePlugin::process( const sampleFrame * _in_buf,
 			{
 				for( fpp_t frame = 0; frame < frames; ++frame )
 				{
-					m_shm[ch * frames + frame] =
-							_in_buf[frame][ch];
+					m_shm[ch * frames + frame] = _in_buf[frame][ch];
 				}
 			}
 		}
@@ -337,33 +319,31 @@ bool RemotePlugin::process( const sampleFrame * _in_buf,
 	waitForMessage( IdProcessingDone );
 	unlock();
 
-	const ch_cnt_t outputs = qMin<ch_cnt_t>( m_outputCount,
-							DEFAULT_CHANNELS );
+	const ch_cnt_t outputs = qMin<ch_cnt_t>( m_outputCount, DEFAULT_CHANNELS );
 	if( m_splitChannels )
 	{
 		for( ch_cnt_t ch = 0; ch < outputs; ++ch )
 		{
 			for( fpp_t frame = 0; frame < frames; ++frame )
 			{
-				_out_buf[frame][ch] = m_shm[( m_inputCount+ch )*
-								frames + frame];
+				_out_buf[frame][ch] =
+				    m_shm[( m_inputCount + ch ) * frames + frame];
 			}
 		}
 	}
 	else if( outputs == DEFAULT_CHANNELS )
 	{
 		memcpy( _out_buf, m_shm + m_inputCount * frames,
-						frames * BYTES_PER_FRAME );
+		        frames * BYTES_PER_FRAME );
 	}
 	else
 	{
-		sampleFrame * o = (sampleFrame *) ( m_shm +
-							m_inputCount*frames );
+		sampleFrame * o = (sampleFrame *) ( m_shm + m_inputCount * frames );
 		// clear buffer, if plugin didn't fill up both channels
 		BufferManager::clear( _out_buf, frames );
 
-		for( ch_cnt_t ch = 0; ch <
-				qMin<int>( DEFAULT_CHANNELS, outputs ); ++ch )
+		for( ch_cnt_t ch = 0; ch < qMin<int>( DEFAULT_CHANNELS, outputs );
+		     ++ch )
 		{
 			for( fpp_t frame = 0; frame < frames; ++frame )
 			{
@@ -375,11 +355,8 @@ bool RemotePlugin::process( const sampleFrame * _in_buf,
 	return true;
 }
 
-
-
-
 void RemotePlugin::processMidiEvent( const MidiEvent & _e,
-							const f_cnt_t _offset )
+                                     const f_cnt_t _offset )
 {
 	message m( IdMidiEvent );
 	m.addInt( _e.type() );
@@ -392,14 +369,10 @@ void RemotePlugin::processMidiEvent( const MidiEvent & _e,
 	unlock();
 }
 
-
-
-
 void RemotePlugin::resizeSharedProcessingMemory()
 {
-	const size_t s = ( m_inputCount+m_outputCount ) *
-				Engine::mixer()->framesPerPeriod() *
-							sizeof( float );
+	const size_t s = ( m_inputCount + m_outputCount ) *
+	                 Engine::mixer()->framesPerPeriod() * sizeof( float );
 	if( m_shm != NULL )
 	{
 #ifdef USE_QT_SHMEM
@@ -420,31 +393,26 @@ void RemotePlugin::resizeSharedProcessingMemory()
 
 	m_shm = (float *) m_shmObj.data();
 #else
-	while( ( m_shmID = shmget( ++shm_key, s, IPC_CREAT | IPC_EXCL |
-								0600 ) ) == -1 )
+	while( ( m_shmID = shmget( ++shm_key, s, IPC_CREAT | IPC_EXCL | 0600 ) ) ==
+	       -1 )
 	{
 	}
 
 	m_shm = (float *) shmat( m_shmID, 0, 0 );
 #endif
 	m_shmSize = s;
-	sendMessage( message( IdChangeSharedMemoryKey ).
-				addInt( shm_key ).addInt( m_shmSize ) );
+	sendMessage( message( IdChangeSharedMemoryKey )
+	                 .addInt( shm_key )
+	                 .addInt( m_shmSize ) );
 }
 
-
-
-
 void RemotePlugin::processFinished( int exitCode,
-					QProcess::ExitStatus exitStatus )
+                                    QProcess::ExitStatus exitStatus )
 {
 #ifndef SYNC_WITH_SHM_FIFO
 	invalidate();
 #endif
 }
-
-
-
 
 bool RemotePlugin::processMessage( const message & _m )
 {
@@ -489,7 +457,7 @@ bool RemotePlugin::processMessage( const message & _m )
 
 		case IdDebugMessage:
 			fprintf( stderr, "RemotePlugin::DebugMessage: %s",
-						_m.getString( 0 ).c_str() );
+			         _m.getString( 0 ).c_str() );
 			break;
 
 		case IdProcessingDone:

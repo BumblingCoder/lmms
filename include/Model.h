@@ -25,55 +25,41 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <QtCore/QString>
 #include <QtCore/QObject>
+#include <QtCore/QString>
 
 #include "export.h"
-
 
 class EXPORT Model : public QObject
 {
 	Q_OBJECT
 public:
 	Model( Model * _parent, QString _display_name = QString::null,
-					bool _default_constructed = false ) :
-		QObject( _parent ),
-		m_displayName( _display_name ),
-		m_defaultConstructed( _default_constructed )
+	       bool _default_constructed = false )
+	    : QObject( _parent ),
+	      m_displayName( _display_name ),
+	      m_defaultConstructed( _default_constructed )
 	{
 	}
 
-	virtual ~Model()
-	{
-	}
+	virtual ~Model() {}
 
-	bool isDefaultConstructed()
-	{
-		return m_defaultConstructed;
-	}
+	bool isDefaultConstructed() { return m_defaultConstructed; }
 
-	Model* parentModel() const
-	{
-		return static_cast<Model *>( parent() );
-	}
+	Model * parentModel() const { return static_cast<Model *>( parent() ); }
 
-	virtual QString displayName() const
-	{
-		return m_displayName;
-	}
+	virtual QString displayName() const { return m_displayName; }
 
-	virtual void setDisplayName( const QString& displayName )
+	virtual void setDisplayName( const QString & displayName )
 	{
 		m_displayName = displayName;
 	}
 
 	virtual QString fullDisplayName() const;
 
-
 private:
 	QString m_displayName;
 	bool m_defaultConstructed;
-
 
 signals:
 	// emitted if actual data of the model (e.g. values) have changed
@@ -84,9 +70,6 @@ signals:
 
 	// emitted if properties of the model (e.g. ranges) have changed
 	void propertiesChanged();
-
-} ;
-
+};
 
 #endif
-

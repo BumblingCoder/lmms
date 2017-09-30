@@ -31,7 +31,6 @@
 
 #include "VstSyncData.h"
 
-
 class VstSyncController : public QObject
 {
 	Q_OBJECT
@@ -41,10 +40,7 @@ public:
 
 	void setAbsolutePosition( int ticks );
 
-	void setPlaybackState( bool enabled )
-	{
-		m_syncData->isPlaying = enabled;
-	}
+	void setPlaybackState( bool enabled ) { m_syncData->isPlaying = enabled; }
 
 	void setTempo( int newTempo );
 
@@ -56,17 +52,12 @@ public:
 
 	void startCycle( int startTick, int endTick );
 
-	void stopCycle()
-	{
-		m_syncData->isCycle = false;
-	}
+	void stopCycle() { m_syncData->isCycle = false; }
 
 	void update();
 
-
 private slots:
 	void updateSampleRate();
-
 
 private:
 	struct VstSyncData
@@ -86,14 +77,13 @@ private:
 #ifdef VST_SNC_LATENCY
 		float m_latency;
 #endif
-	} ;
+	};
 
-	VstSyncData* m_syncData;
+	VstSyncData * m_syncData;
 
 	int m_shmID;
 
 	QSharedMemory m_shm;
-
 };
 
 #endif

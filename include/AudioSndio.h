@@ -39,7 +39,6 @@
 class LcdSpinBox;
 class QLineEdit;
 
-
 class AudioSndio : public AudioDevice, public QThread
 {
 public:
@@ -62,7 +61,7 @@ public:
 	private:
 		QLineEdit * m_device;
 		LcdSpinBox * m_channels;
-	} ;
+	};
 
 private:
 	virtual void startProcessing( void );
@@ -70,11 +69,10 @@ private:
 	virtual void applyQualitySettings( void );
 	virtual void run( void );
 
-	struct sio_hdl *m_hdl;
+	struct sio_hdl * m_hdl;
 	struct sio_par m_par;
-} ;
+};
 
+#endif /* LMMS_HAVE_SNDIO */
 
-#endif	/* LMMS_HAVE_SNDIO */
-
-#endif	/* _AUDIO_SNDIO_H */
+#endif /* _AUDIO_SNDIO_H */

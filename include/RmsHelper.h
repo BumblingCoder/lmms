@@ -31,12 +31,8 @@
 class RmsHelper
 {
 public:
-	RmsHelper( int size ) :
-		m_buffer( NULL )
-	{
-		setSize( size );
-	}
-	virtual ~RmsHelper() 
+	RmsHelper( int size ) : m_buffer( NULL ) { setSize( size ); }
+	virtual ~RmsHelper()
 	{
 		if( m_buffer ) delete[] m_buffer;
 	}
@@ -48,7 +44,7 @@ public:
 			if( m_size < size )
 			{
 				delete m_buffer;
-				m_buffer = new float[ size ];
+				m_buffer = new float[size];
 				m_size = size;
 				reset();
 			}
@@ -60,7 +56,7 @@ public:
 		}
 		else
 		{
-			m_buffer = new float[ size ];
+			m_buffer = new float[size];
 			m_size = size;
 			reset();
 		}
@@ -76,8 +72,8 @@ public:
 
 	inline float update( const float in )
 	{
-		m_sum -= m_buffer[ m_pos ];
-		m_sum += m_buffer[ m_pos ] = in * in;
+		m_sum -= m_buffer[m_pos];
+		m_sum += m_buffer[m_pos] = in * in;
 		++m_pos %= m_size;
 		return sqrtf( m_sum * m_sizef );
 	}
@@ -89,6 +85,5 @@ private:
 	unsigned int m_size;
 	float m_sizef;
 };
-
 
 #endif

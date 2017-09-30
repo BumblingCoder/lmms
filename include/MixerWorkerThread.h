@@ -42,15 +42,12 @@ public:
 	public:
 		enum OperationMode
 		{
-			Static,	// no jobs added while processing queue
-			Dynamic	// jobs can be added while processing queue
-		} ;
+			Static, // no jobs added while processing queue
+			Dynamic // jobs can be added while processing queue
+		};
 
-		JobQueue() :
-			m_items(),
-			m_queueSize( 0 ),
-			m_itemsDone( 0 ),
-			m_opMode( Static )
+		JobQueue()
+		    : m_items(), m_queueSize( 0 ), m_itemsDone( 0 ), m_opMode( Static )
 		{
 		}
 
@@ -67,17 +64,15 @@ public:
 		AtomicInt m_queueSize;
 		AtomicInt m_itemsDone;
 		OperationMode m_opMode;
+	};
 
-	} ;
-
-
-	MixerWorkerThread( Mixer* mixer );
+	MixerWorkerThread( Mixer * mixer );
 	virtual ~MixerWorkerThread();
 
 	virtual void quit();
 
-	static void resetJobQueue( JobQueue::OperationMode _opMode =
-													JobQueue::Static )
+	static void
+	resetJobQueue( JobQueue::OperationMode _opMode = JobQueue::Static )
 	{
 		globalJobQueue.reset( _opMode );
 	}
@@ -89,19 +84,20 @@ public:
 
 	// a convenient helper function allowing to pass a container with pointers
 	// to ThreadableJob objects
-	template<typename T>
-	static void fillJobQueue( const T & _vec,
-							JobQueue::OperationMode _opMode = JobQueue::Static )
+	template <typename T>
+	static void
+	fillJobQueue( const T & _vec,
+	              JobQueue::OperationMode _opMode = JobQueue::Static )
 	{
 		resetJobQueue( _opMode );
-		for( typename T::ConstIterator it = _vec.begin(); it != _vec.end(); ++it )
+		for( typename T::ConstIterator it = _vec.begin(); it != _vec.end();
+		     ++it )
 		{
 			addJob( *it );
 		}
 	}
 
 	static void startAndWaitForJobs();
-
 
 private:
 	virtual void run();
@@ -111,8 +107,6 @@ private:
 	static QList<MixerWorkerThread *> workerThreads;
 
 	volatile bool m_quit;
-
-} ;
-
+};
 
 #endif

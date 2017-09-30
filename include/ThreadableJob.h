@@ -29,11 +29,9 @@
 
 #include "lmms_basics.h"
 
-
 class ThreadableJob
 {
 public:
-
 	enum ProcessingState
 	{
 		Unstarted,
@@ -42,30 +40,18 @@ public:
 		Done
 	};
 
-	ThreadableJob() :
-		m_state( ThreadableJob::Unstarted )
-	{
-	}
+	ThreadableJob() : m_state( ThreadableJob::Unstarted ) {}
 
 	inline ProcessingState state() const
 	{
 		return static_cast<ProcessingState>( (int) m_state );
 	}
 
-	inline void reset()
-	{
-		m_state = Unstarted;
-	}
+	inline void reset() { m_state = Unstarted; }
 
-	inline void queue()
-	{
-		m_state = Queued;
-	}
-	
-	inline void done()
-	{
-		m_state = Done;
-	}
+	inline void queue() { m_state = Queued; }
+
+	inline void done() { m_state = Done; }
 
 	void process()
 	{
@@ -78,12 +64,10 @@ public:
 
 	virtual bool requiresProcessing() const = 0;
 
-
 protected:
 	virtual void doProcessing() = 0;
 
 	AtomicInt m_state;
-
-} ;
+};
 
 #endif

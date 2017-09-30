@@ -2,7 +2,7 @@
  * SamplePlayHandle.h - play-handle for playing a sample
  *
  * Copyright (c) 2005-2014 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -25,29 +25,24 @@
 #ifndef SAMPLE_PLAY_HANDLE_H
 #define SAMPLE_PLAY_HANDLE_H
 
-#include "SampleBuffer.h"
 #include "AutomatableModel.h"
 #include "PlayHandle.h"
+#include "SampleBuffer.h"
 
 class BBTrack;
 class SampleTCO;
 class Track;
 class AudioPort;
 
-
 class SamplePlayHandle : public PlayHandle
 {
 public:
-	SamplePlayHandle( const QString& sampleFile );
-	SamplePlayHandle( SampleBuffer* sampleBuffer );
-	SamplePlayHandle( SampleTCO* tco );
+	SamplePlayHandle( const QString & sampleFile );
+	SamplePlayHandle( SampleBuffer * sampleBuffer );
+	SamplePlayHandle( SampleTCO * tco );
 	virtual ~SamplePlayHandle();
 
-	virtual inline bool affinityMatters() const
-	{
-		return true;
-	}
-
+	virtual inline bool affinityMatters() const { return true; }
 
 	virtual void play( sampleFrame * buffer );
 	virtual bool isFinished() const;
@@ -55,25 +50,12 @@ public:
 	virtual bool isFromTrack( const Track * _track ) const;
 
 	f_cnt_t totalFrames() const;
-	inline f_cnt_t framesDone() const
-	{
-		return( m_frame );
-	}
-	void setDoneMayReturnTrue( bool _enable )
-	{
-		m_doneMayReturnTrue = _enable;
-	}
+	inline f_cnt_t framesDone() const { return ( m_frame ); }
+	void setDoneMayReturnTrue( bool _enable ) { m_doneMayReturnTrue = _enable; }
 
-	void setBBTrack( BBTrack * _bb_track )
-	{
-		m_bbTrack = _bb_track;
-	}
+	void setBBTrack( BBTrack * _bb_track ) { m_bbTrack = _bb_track; }
 
-	void setVolumeModel( FloatModel * _model )
-	{
-		m_volumeModel = _model;
-	}
-
+	void setVolumeModel( FloatModel * _model ) { m_volumeModel = _model; }
 
 private:
 	SampleBuffer * m_sampleBuffer;
@@ -89,8 +71,6 @@ private:
 	Track * m_track;
 
 	BBTrack * m_bbTrack;
-
-} ;
-
+};
 
 #endif

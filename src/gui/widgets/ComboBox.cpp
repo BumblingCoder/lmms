@@ -23,7 +23,6 @@
  *
  */
 
-
 #include "ComboBox.h"
 
 #include <QApplication>
@@ -33,10 +32,9 @@
 #include <QStyleOptionFrame>
 
 #include "CaptionMenu.h"
+#include "MainWindow.h"
 #include "embed.h"
 #include "gui_templates.h"
-#include "MainWindow.h"
-
 
 QPixmap * ComboBox::s_background = NULL;
 QPixmap * ComboBox::s_arrow = NULL;
@@ -44,12 +42,11 @@ QPixmap * ComboBox::s_arrowSelected = NULL;
 
 const int CB_ARROW_BTN_WIDTH = 20;
 
-
-ComboBox::ComboBox( QWidget * _parent, const QString & _name ) :
-	QWidget( _parent ),
-	IntModelView( new ComboBoxModel( NULL, QString::null, true ), this ),
-	m_menu( this ),
-	m_pressed( false )
+ComboBox::ComboBox( QWidget * _parent, const QString & _name )
+    : QWidget( _parent ),
+      IntModelView( new ComboBoxModel( NULL, QString::null, true ), this ),
+      m_menu( this ),
+      m_pressed( false )
 {
 	if( s_background == NULL )
 	{
@@ -63,42 +60,28 @@ ComboBox::ComboBox( QWidget * _parent, const QString & _name ) :
 
 	if( s_arrowSelected == NULL )
 	{
-		s_arrowSelected = new QPixmap( embed::getIconPixmap( "combobox_arrow_selected" ) );
+		s_arrowSelected =
+		    new QPixmap( embed::getIconPixmap( "combobox_arrow_selected" ) );
 	}
 
 	setFont( pointSize<9>( font() ) );
 	m_menu.setFont( pointSize<8>( m_menu.font() ) );
 
-	connect( &m_menu, SIGNAL( triggered( QAction * ) ),
-				this, SLOT( setItem( QAction * ) ) );
+	connect( &m_menu, SIGNAL( triggered( QAction * ) ), this,
+	         SLOT( setItem( QAction * ) ) );
 
 	setWindowTitle( _name );
 	doConnections();
 }
 
+ComboBox::~ComboBox() {}
 
-
-
-ComboBox::~ComboBox()
-{
-}
-
-
-
-void ComboBox::selectNext()
-{
-	model()->setInitValue( model()->value() + 1 );
-}
-
-
-
+void ComboBox::selectNext() { model()->setInitValue( model()->value() + 1 ); }
 
 void ComboBox::selectPrevious()
 {
 	model()->setInitValue( model()->value() - 1 );
 }
-
-
 
 void ComboBox::contextMenuEvent( QContextMenuEvent * event )
 {
@@ -113,17 +96,15 @@ void ComboBox::contextMenuEvent( QContextMenuEvent * event )
 	contextMenu.exec( QCursor::pos() );
 }
 
-
-
-
-void ComboBox::mousePressEvent( QMouseEvent* event )
+void ComboBox::mousePressEvent( QMouseEvent * event )
 {
 	if( model() == NULL )
 	{
 		return;
 	}
 
-	if( event->button() == Qt::LeftButton && ! ( event->modifiers() & Qt::ControlModifier ) )
+	if( event->button() == Qt::LeftButton &&
+	    !( event->modifiers() & Qt::ControlModifier ) )
 	{
 		if( event->x() > width() - CB_ARROW_BTN_WIDTH )
 		{
@@ -133,13 +114,17 @@ void ComboBox::mousePressEvent( QMouseEvent* event )
 			m_menu.clear();
 			for( int i = 0; i < model()->size(); ++i )
 			{
-				QAction * a = m_menu.addAction( model()->itemPixmap( i ) ? model()->itemPixmap( i )->pixmap() : QPixmap(),
-													model()->itemText( i ) );
+				QAction * a =
+				    m_menu.addAction( model()->itemPixmap( i )
+				                          ? model()->itemPixmap( i )->pixmap()
+				                          : QPixmap(),
+				                      model()->itemText( i ) );
 				a->setData( i );
 			}
 
 			QPoint gpos = mapToGlobal( QPoint( 0, height() ) );
-			if( gpos.y() + m_menu.sizeHint().height() < qApp->desktop()->height() )
+			if( gpos.y() + m_menu.sizeHint().height() <
+			    qApp->desktop()->height() )
 			{
 				m_menu.exec( gpos );
 			}
@@ -167,14 +152,11 @@ void ComboBox::mousePressEvent( QMouseEvent* event )
 	}
 }
 
-
-
-
 void ComboBox::paintEvent( QPaintEvent * _pe )
 {
 	QPainter p( this );
 
-	p.fillRect( 2, 2, width()-2, height()-4, *s_background );
+	p.fillRect( 2, 2, width() - 2, height() - 4, *s_background );
 
 	QColor shadow = palette().shadow().color();
 	QColor highlight = palette().highlight().color();
@@ -184,10 +166,12 @@ void ComboBox::paintEvent( QPaintEvent * _pe )
 
 	// button-separator
 	p.setPen( shadow );
-	p.drawLine( width() - CB_ARROW_BTN_WIDTH - 1, 1, width() - CB_ARROW_BTN_WIDTH - 1, height() - 3 );
+	p.drawLine( width() - CB_ARROW_BTN_WIDTH - 1, 1,
+	            width() - CB_ARROW_BTN_WIDTH - 1, height() - 3 );
 
 	p.setPen( highlight );
-	p.drawLine( width() - CB_ARROW_BTN_WIDTH, 1, width() - CB_ARROW_BTN_WIDTH, height() - 3 );
+	p.drawLine( width() - CB_ARROW_BTN_WIDTH, 1, width() - CB_ARROW_BTN_WIDTH,
+	            height() - 3 );
 
 	// Border
 	QStyleOptionFrame opt;
@@ -203,8 +187,10 @@ void ComboBox::paintEvent( QPaintEvent * _pe )
 	if( model() && model()->size() > 0 )
 	{
 		p.setFont( font() );
-		p.setClipRect( QRect( 4, 2, width() - CB_ARROW_BTN_WIDTH - 8, height() - 2 ) );
-		QPixmap pm = model()->currentData() ?  model()->currentData()->pixmap() : QPixmap();
+		p.setClipRect(
+		    QRect( 4, 2, width() - CB_ARROW_BTN_WIDTH - 8, height() - 2 ) );
+		QPixmap pm = model()->currentData() ? model()->currentData()->pixmap()
+		                                    : QPixmap();
 		int tx = 5;
 		if( !pm.isNull() )
 		{
@@ -215,40 +201,29 @@ void ComboBox::paintEvent( QPaintEvent * _pe )
 			p.drawPixmap( tx, 3, pm );
 			tx += pm.width() + 3;
 		}
-		const int y = ( height()+p.fontMetrics().height() ) /2;
+		const int y = ( height() + p.fontMetrics().height() ) / 2;
 		p.setPen( QColor( 64, 64, 64 ) );
-		p.drawText( tx+1, y-3, model()->currentText() );
+		p.drawText( tx + 1, y - 3, model()->currentText() );
 		p.setPen( QColor( 224, 224, 224 ) );
-		p.drawText( tx, y-4, model()->currentText() );
+		p.drawText( tx, y - 4, model()->currentText() );
 	}
 }
 
-
-
-
-void ComboBox::wheelEvent( QWheelEvent* event )
+void ComboBox::wheelEvent( QWheelEvent * event )
 {
 	if( model() )
 	{
-		model()->setInitValue( model()->value() + ( ( event->delta() < 0 ) ? 1 : -1 ) );
+		model()->setInitValue( model()->value() +
+		                       ( ( event->delta() < 0 ) ? 1 : -1 ) );
 		update();
 		event->accept();
 	}
 }
 
-
-
-
-void ComboBox::setItem( QAction* item )
+void ComboBox::setItem( QAction * item )
 {
 	if( model() )
 	{
 		model()->setInitValue( item->data().toInt() );
 	}
 }
-
-
-
-
-
-

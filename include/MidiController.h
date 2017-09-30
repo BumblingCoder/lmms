@@ -2,7 +2,7 @@
  * MidiController.h - A controller to receive MIDI control-changes
  *
  * Copyright (c) 2008 Paul Giblock <drfaygo/at/gmail.com>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -32,9 +32,7 @@
 #include "MidiEventProcessor.h"
 #include "MidiPort.h"
 
-
 class MidiPort;
-
 
 class MidiController : public Controller, public MidiEventProcessor
 {
@@ -43,11 +41,11 @@ public:
 	MidiController( Model * _parent );
 	virtual ~MidiController();
 
-	virtual void processInEvent( const MidiEvent & _me,
-					const MidiTime & _time, f_cnt_t offset = 0 );
+	virtual void processInEvent( const MidiEvent & _me, const MidiTime & _time,
+	                             f_cnt_t offset = 0 );
 
-	virtual void processOutEvent( const MidiEvent& _me,
-					const MidiTime & _time, f_cnt_t offset = 0 )
+	virtual void processOutEvent( const MidiEvent & _me, const MidiTime & _time,
+	                              f_cnt_t offset = 0 )
 	{
 		// No output yet
 	}
@@ -59,27 +57,21 @@ public:
 	// Used by controllerConnectionDialog to copy
 	void subscribeReadablePorts( const MidiPort::Map & _map );
 
-
 public slots:
 	virtual ControllerDialog * createDialog( QWidget * _parent );
 	void updateName();
-
 
 protected:
 	// The internal per-controller get-value function
 	virtual void updateValueBuffer();
 
-
 	MidiPort m_midiPort;
-
 
 	float m_lastValue;
 	float m_previousValue;
 
 	friend class ControllerConnectionDialog;
 	friend class AutoDetectMidiController;
-
-} ;
-
+};
 
 #endif

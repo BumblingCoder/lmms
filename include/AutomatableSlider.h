@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef AUTOMATABLE_SLIDER_H
 #define AUTOMATABLE_SLIDER_H
 
@@ -30,25 +29,19 @@
 
 #include "AutomatableModelView.h"
 
-
-
 class AutomatableSlider : public QSlider, public IntModelView
 {
 	Q_OBJECT
 public:
-	AutomatableSlider( QWidget * _parent, const QString & _name = QString::null );
+	AutomatableSlider( QWidget * _parent,
+	                   const QString & _name = QString::null );
 	virtual ~AutomatableSlider();
 
-	bool showStatus()
-	{
-		return( m_showStatus );
-	}
-
+	bool showStatus() { return ( m_showStatus ); }
 
 signals:
 	void logicValueChanged( int _value );
 	void logicSliderMoved( int _value );
-
 
 protected:
 	virtual void contextMenuEvent( QContextMenuEvent * _me );
@@ -58,20 +51,15 @@ protected:
 
 	virtual void modelChanged();
 
-
 private:
 	bool m_showStatus;
-
 
 private slots:
 	void changeValue( int _value );
 	void moveSlider( int _value );
 	void updateSlider();
-
-} ;
-
+};
 
 typedef IntModel sliderModel;
-
 
 #endif

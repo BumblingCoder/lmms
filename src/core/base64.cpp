@@ -31,7 +31,6 @@
 namespace base64
 {
 
-
 QVariant decode( const QString & _b64, QVariant::Type _force_type )
 {
 	char * dst = NULL;
@@ -50,9 +49,7 @@ QVariant decode( const QString & _b64, QVariant::Type _force_type )
 		in >> ret;
 	}
 	delete[] dst;
-	return( ret );
+	return ( ret );
 }
 
-
-} ;
-
+}; // namespace base64

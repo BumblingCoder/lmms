@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef PIXMAP_BUTTON_H
 #define PIXMAP_BUTTON_H
 
@@ -30,13 +29,11 @@
 
 #include "AutomatableButton.h"
 
-
 class EXPORT PixmapButton : public AutomatableButton
 {
 	Q_OBJECT
 public:
-	PixmapButton( QWidget * _parent,
-					const QString & _name = QString::null );
+	PixmapButton( QWidget * _parent, const QString & _name = QString::null );
 	virtual ~PixmapButton();
 
 	void setActiveGraphic( const QPixmap & _pm );
@@ -47,19 +44,16 @@ public:
 signals:
 	void doubleClicked();
 
-
 protected:
 	virtual void paintEvent( QPaintEvent * _pe );
 	virtual void mousePressEvent( QMouseEvent * _me );
 	virtual void mouseReleaseEvent( QMouseEvent * _me );
 	virtual void mouseDoubleClickEvent( QMouseEvent * _me );
 
-
 private:
 	QPixmap m_activePixmap;
 	QPixmap m_inactivePixmap;
-	bool	m_pressed;
-
-} ;
+	bool m_pressed;
+};
 
 #endif

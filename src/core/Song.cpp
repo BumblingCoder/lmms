@@ -23,99 +23,90 @@
  */
 
 #include "Song.h"
-#include <QTextStream>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QTextStream>
 
 #include <functional>
 
-#include "AutomationTrack.h"
 #include "AutomationEditor.h"
+#include "AutomationTrack.h"
 #include "BBEditor.h"
 #include "BBTrack.h"
 #include "BBTrackContainer.h"
 #include "ConfigManager.h"
-#include "ControllerRackView.h"
 #include "ControllerConnection.h"
-#include "embed.h"
+#include "ControllerRackView.h"
 #include "EnvelopeAndLfoParameters.h"
+#include "ExportFilter.h"
 #include "ExportProjectDialog.h"
+#include "FileDialog.h"
 #include "FxMixer.h"
 #include "FxMixerView.h"
 #include "GuiApplication.h"
 #include "ImportFilter.h"
-#include "ExportFilter.h"
 #include "MainWindow.h"
-#include "FileDialog.h"
 #include "Pattern.h"
+#include "PeakController.h"
 #include "PianoRoll.h"
 #include "ProjectJournal.h"
 #include "ProjectNotes.h"
 #include "SongEditor.h"
 #include "TextFloat.h"
 #include "TimeLineWidget.h"
-#include "PeakController.h"
 #include "VersionedSaveDialog.h"
-
+#include "embed.h"
 
 tick_t MidiTime::s_ticksPerTact = DefaultTicksPerTact;
 
-
-
-Song::Song() :
-	TrackContainer(),
-	m_globalAutomationTrack( dynamic_cast<AutomationTrack *>(
-				Track::create( Track::HiddenAutomationTrack,
-								this ) ) ),
-	m_tempoModel( DefaultTempo, MinTempo, MaxTempo, this, tr( "Tempo" ) ),
-	m_timeSigModel( this ),
-	m_oldTicksPerTact( DefaultTicksPerTact ),
-	m_masterVolumeModel( 100, 0, 200, this, tr( "Master volume" ) ),
-	m_masterPitchModel( 0, -12, 12, this, tr( "Master pitch" ) ),
-	m_fileName(),
-	m_oldFileName(),
-	m_modified( false ),
-	m_loadOnLaunch( true ),
-	m_recording( false ),
-	m_exporting( false ),
-	m_exportLoop( false ),
-	m_renderBetweenMarkers( false ),
-	m_playing( false ),
-	m_paused( false ),
-	m_loadingProject( false ),
-	m_playMode( Mode_None ),
-	m_length( 0 ),
-	m_patternToPlay( NULL ),
-	m_loopPattern( false ),
-	m_elapsedMilliSeconds( 0 ),
-	m_elapsedTicks( 0 ),
-	m_elapsedTacts( 0 )
+Song::Song()
+    : TrackContainer(),
+      m_globalAutomationTrack( dynamic_cast<AutomationTrack *>(
+          Track::create( Track::HiddenAutomationTrack, this ) ) ),
+      m_tempoModel( DefaultTempo, MinTempo, MaxTempo, this, tr( "Tempo" ) ),
+      m_timeSigModel( this ),
+      m_oldTicksPerTact( DefaultTicksPerTact ),
+      m_masterVolumeModel( 100, 0, 200, this, tr( "Master volume" ) ),
+      m_masterPitchModel( 0, -12, 12, this, tr( "Master pitch" ) ),
+      m_fileName(),
+      m_oldFileName(),
+      m_modified( false ),
+      m_loadOnLaunch( true ),
+      m_recording( false ),
+      m_exporting( false ),
+      m_exportLoop( false ),
+      m_renderBetweenMarkers( false ),
+      m_playing( false ),
+      m_paused( false ),
+      m_loadingProject( false ),
+      m_playMode( Mode_None ),
+      m_length( 0 ),
+      m_patternToPlay( NULL ),
+      m_loopPattern( false ),
+      m_elapsedMilliSeconds( 0 ),
+      m_elapsedTicks( 0 ),
+      m_elapsedTacts( 0 )
 {
-	connect( &m_tempoModel, SIGNAL( dataChanged() ),
-						this, SLOT( setTempo() ) );
-	connect( &m_tempoModel, SIGNAL( dataUnchanged() ),
-						this, SLOT( setTempo() ) );
-	connect( &m_timeSigModel, SIGNAL( dataChanged() ),
-					this, SLOT( setTimeSignature() ) );
-
+	connect( &m_tempoModel, SIGNAL( dataChanged() ), this, SLOT( setTempo() ) );
+	connect( &m_tempoModel, SIGNAL( dataUnchanged() ), this,
+	         SLOT( setTempo() ) );
+	connect( &m_timeSigModel, SIGNAL( dataChanged() ), this,
+	         SLOT( setTimeSignature() ) );
 
 	connect( Engine::mixer(), SIGNAL( sampleRateChanged() ), this,
-						SLOT( updateFramesPerTick() ) );
+	         SLOT( updateFramesPerTick() ) );
 
-	connect( &m_masterVolumeModel, SIGNAL( dataChanged() ),
-			this, SLOT( masterVolumeChanged() ) );
-/*	connect( &m_masterPitchModel, SIGNAL( dataChanged() ),
-			this, SLOT( masterPitchChanged() ) );*/
+	connect( &m_masterVolumeModel, SIGNAL( dataChanged() ), this,
+	         SLOT( masterVolumeChanged() ) );
+	/*	connect( &m_masterPitchModel, SIGNAL( dataChanged() ),
+	      this, SLOT( masterPitchChanged() ) );*/
 
 	qRegisterMetaType<Note>( "Note" );
 	setType( SongContainer );
 }
-
-
-
 
 Song::~Song()
 {
@@ -123,25 +114,18 @@ Song::~Song()
 	delete m_globalAutomationTrack;
 }
 
-
-
-
 void Song::masterVolumeChanged()
 {
-	Engine::mixer()->setMasterGain( m_masterVolumeModel.value() /
-								100.0f );
+	Engine::mixer()->setMasterGain( m_masterVolumeModel.value() / 100.0f );
 }
-
-
-
 
 void Song::setTempo()
 {
 	Engine::mixer()->requestChangeInModel();
-	const bpm_t tempo = ( bpm_t ) m_tempoModel.value();
+	const bpm_t tempo = (bpm_t) m_tempoModel.value();
 	PlayHandleList & playHandles = Engine::mixer()->playHandles();
 	for( PlayHandleList::Iterator it = playHandles.begin();
-						it != playHandles.end(); ++it )
+	     it != playHandles.end(); ++it )
 	{
 		NotePlayHandle * nph = dynamic_cast<NotePlayHandle *>( *it );
 		if( nph && !nph->isReleased() )
@@ -160,9 +144,6 @@ void Song::setTempo()
 	emit tempoChanged( tempo );
 }
 
-
-
-
 void Song::setTimeSignature()
 {
 	MidiTime::setTicksPerTact( ticksPerTact() );
@@ -170,12 +151,9 @@ void Song::setTimeSignature()
 	emit dataChanged();
 	m_oldTicksPerTact = ticksPerTact();
 
-	m_vstSyncController.setTimeSignature( 
-		getTimeSigModel().getNumerator(), getTimeSigModel().getDenominator() );
+	m_vstSyncController.setTimeSignature( getTimeSigModel().getNumerator(),
+	                                      getTimeSigModel().getDenominator() );
 }
-
-
-
 
 void Song::savePos()
 {
@@ -186,9 +164,6 @@ void Song::savePos()
 		tl->savePos( m_playPos[m_playMode] );
 	}
 }
-
-
-
 
 void Song::processNextBuffer()
 {
@@ -217,26 +192,22 @@ void Song::processNextBuffer()
 		case Mode_PlayBB:
 			if( Engine::getBBTrackContainer()->numOfBBs() > 0 )
 			{
-				tcoNum = Engine::getBBTrackContainer()->
-								currentBB();
-				trackList.push_back( BBTrack::findBBTrack(
-								tcoNum ) );
+				tcoNum = Engine::getBBTrackContainer()->currentBB();
+				trackList.push_back( BBTrack::findBBTrack( tcoNum ) );
 			}
 			break;
 
 		case Mode_PlayPattern:
 			if( m_patternToPlay != NULL )
 			{
-				tcoNum = m_patternToPlay->getTrack()->
-						getTCONum( m_patternToPlay );
-				trackList.push_back(
-						m_patternToPlay->getTrack() );
+				tcoNum =
+				    m_patternToPlay->getTrack()->getTCONum( m_patternToPlay );
+				trackList.push_back( m_patternToPlay->getTrack() );
 			}
 			break;
 
 		default:
 			return;
-
 	}
 
 	// if we have no tracks to play, nothing to do
@@ -247,20 +218,19 @@ void Song::processNextBuffer()
 
 	// check for looping-mode and act if necessary
 	TimeLineWidget * tl = m_playPos[m_playMode].m_timeLine;
-	bool checkLoop = 
-		tl != NULL && m_exporting == false && tl->loopPointsEnabled();
+	bool checkLoop =
+	    tl != NULL && m_exporting == false && tl->loopPointsEnabled();
 
 	if( checkLoop )
 	{
 		// if looping-mode is enabled and we are outside of the looping
 		// range, go to the beginning of the range
 		if( m_playPos[m_playMode] < tl->loopBegin() ||
-					m_playPos[m_playMode] >= tl->loopEnd() )
+		    m_playPos[m_playMode] >= tl->loopEnd() )
 		{
-			m_elapsedMilliSeconds = 
-				( tl->loopBegin().getTicks() * 60 * 1000 / 48 ) / getTempo();
-			m_playPos[m_playMode].setTicks(
-						tl->loopBegin().getTicks() );
+			m_elapsedMilliSeconds =
+			    ( tl->loopBegin().getTicks() * 60 * 1000 / 48 ) / getTempo();
+			m_playPos[m_playMode].setTicks( tl->loopBegin().getTicks() );
 			emit updateSampleTracks();
 		}
 	}
@@ -276,8 +246,8 @@ void Song::processNextBuffer()
 		// did we play a tick?
 		if( currentFrame >= framesPerTick )
 		{
-			int ticks = m_playPos[m_playMode].getTicks() + 
-				( int )( currentFrame / framesPerTick );
+			int ticks = m_playPos[m_playMode].getTicks() +
+			            (int) ( currentFrame / framesPerTick );
 
 			m_vstSyncController.setAbsolutePosition( ticks );
 
@@ -287,36 +257,32 @@ void Song::processNextBuffer()
 				// per default we just continue playing even if
 				// there's no more stuff to play
 				// (song-play-mode)
-				int maxTact = m_playPos[m_playMode].getTact()
-									+ 2;
+				int maxTact = m_playPos[m_playMode].getTact() + 2;
 
 				// then decide whether to go over to next tact
 				// or to loop back to first tact
 				if( m_playMode == Mode_PlayBB )
 				{
-					maxTact = Engine::getBBTrackContainer()
-							->lengthOfCurrentBB();
+					maxTact =
+					    Engine::getBBTrackContainer()->lengthOfCurrentBB();
 				}
 				else if( m_playMode == Mode_PlayPattern &&
-					m_loopPattern == true &&
-					tl != NULL &&
-					tl->loopPointsEnabled() == false )
+				         m_loopPattern == true && tl != NULL &&
+				         tl->loopPointsEnabled() == false )
 				{
-					maxTact = m_patternToPlay->length()
-								.getTact();
+					maxTact = m_patternToPlay->length().getTact();
 				}
 
 				// end of played object reached?
-				if( m_playPos[m_playMode].getTact() + 1
-								>= maxTact )
+				if( m_playPos[m_playMode].getTact() + 1 >= maxTact )
 				{
 					// then start from beginning and keep
 					// offset
 					ticks %= ( maxTact * MidiTime::ticksPerTact() );
 
 					// wrap milli second counter
-					m_elapsedMilliSeconds = 
-						( ticks * 60 * 1000 / 48 ) / getTempo();
+					m_elapsedMilliSeconds =
+					    ( ticks * 60 * 1000 / 48 ) / getTempo();
 
 					m_vstSyncController.setAbsolutePosition( ticks );
 				}
@@ -325,19 +291,20 @@ void Song::processNextBuffer()
 
 			if( checkLoop )
 			{
-				m_vstSyncController.startCycle( 
-					tl->loopBegin().getTicks(), tl->loopEnd().getTicks() );
+				m_vstSyncController.startCycle( tl->loopBegin().getTicks(),
+				                                tl->loopEnd().getTicks() );
 
 				// if looping-mode is enabled and we have got
-				// past the looping range, return to the 
+				// past the looping range, return to the
 				// beginning of the range
 				if( m_playPos[m_playMode] >= tl->loopEnd() )
 				{
-					m_playPos[m_playMode].setTicks( tl->loopBegin().getTicks() );
+					m_playPos[m_playMode].setTicks(
+					    tl->loopBegin().getTicks() );
 
 					m_elapsedMilliSeconds =
-						( ( tl->loopBegin().getTicks() ) * 60 * 1000 / 48 ) /
-							getTempo();
+					    ( ( tl->loopBegin().getTicks() ) * 60 * 1000 / 48 ) /
+					    getTempo();
 				}
 				else if( m_playPos[m_playMode] == tl->loopEnd() - 1 )
 				{
@@ -353,20 +320,18 @@ void Song::processNextBuffer()
 			m_playPos[m_playMode].setCurrentFrame( currentFrame );
 		}
 
-		f_cnt_t framesToPlay = 
-			Engine::mixer()->framesPerPeriod() - framesPlayed;
+		f_cnt_t framesToPlay =
+		    Engine::mixer()->framesPerPeriod() - framesPlayed;
 
-		f_cnt_t framesLeft = ( f_cnt_t )framesPerTick - 
-						( f_cnt_t )currentFrame;
+		f_cnt_t framesLeft = (f_cnt_t) framesPerTick - (f_cnt_t) currentFrame;
 		// skip last frame fraction
 		if( framesLeft == 0 )
 		{
 			++framesPlayed;
-			m_playPos[m_playMode].setCurrentFrame( currentFrame
-								+ 1.0f );
+			m_playPos[m_playMode].setCurrentFrame( currentFrame + 1.0f );
 			continue;
 		}
-		// do we have samples left in this tick but these are less 
+		// do we have samples left in this tick but these are less
 		// than samples we have to play?
 		if( framesLeft < framesToPlay )
 		{
@@ -375,116 +340,115 @@ void Song::processNextBuffer()
 			framesToPlay = framesLeft;
 		}
 
-		if( ( f_cnt_t ) currentFrame == 0 )
+		if( (f_cnt_t) currentFrame == 0 )
 		{
-			processAutomations(trackList, m_playPos[m_playMode], framesToPlay);
+			processAutomations( trackList, m_playPos[m_playMode],
+			                    framesToPlay );
 
 			// loop through all tracks and play them
 			for( int i = 0; i < trackList.size(); ++i )
 			{
-				trackList[i]->play( m_playPos[m_playMode],
-						framesToPlay,
-						framesPlayed, tcoNum );
+				trackList[i]->play( m_playPos[m_playMode], framesToPlay,
+				                    framesPlayed, tcoNum );
 			}
 		}
 
 		// update frame-counters
 		framesPlayed += framesToPlay;
-		m_playPos[m_playMode].setCurrentFrame( framesToPlay +
-								currentFrame );
-		m_elapsedMilliSeconds += 
-			( ( framesToPlay / framesPerTick ) * 60 * 1000 / 48 ) 
-				/ getTempo();
+		m_playPos[m_playMode].setCurrentFrame( framesToPlay + currentFrame );
+		m_elapsedMilliSeconds +=
+		    ( ( framesToPlay / framesPerTick ) * 60 * 1000 / 48 ) / getTempo();
 		m_elapsedTacts = m_playPos[Mode_PlaySong].getTact();
-		m_elapsedTicks = ( m_playPos[Mode_PlaySong].getTicks() % ticksPerTact() ) / 48;
+		m_elapsedTicks =
+		    ( m_playPos[Mode_PlaySong].getTicks() % ticksPerTact() ) / 48;
 	}
 }
 
-
-void Song::processAutomations(const TrackList &tracklist, MidiTime timeStart, fpp_t)
+void Song::processAutomations( const TrackList & tracklist, MidiTime timeStart,
+                               fpp_t )
 {
 	AutomatedValueMap values;
 
-	QSet<const AutomatableModel*> recordedModels;
+	QSet<const AutomatableModel *> recordedModels;
 
-	TrackContainer* container = this;
+	TrackContainer * container = this;
 	int tcoNum = -1;
 
-	switch (m_playMode)
+	switch( m_playMode )
 	{
-	case Mode_PlaySong:
+		case Mode_PlaySong:
+			break;
+		case Mode_PlayBB:
+		{
+			Q_ASSERT( tracklist.size() == 1 );
+			Q_ASSERT( tracklist.at( 0 )->type() == Track::BBTrack );
+			auto bbTrack = dynamic_cast<BBTrack *>( tracklist.at( 0 ) );
+			auto bbContainer = Engine::getBBTrackContainer();
+			container = bbContainer;
+			tcoNum = bbTrack->index();
+		}
 		break;
-	case Mode_PlayBB:
-	{
-		Q_ASSERT(tracklist.size() == 1);
-		Q_ASSERT(tracklist.at(0)->type() == Track::BBTrack);
-		auto bbTrack = dynamic_cast<BBTrack*>(tracklist.at(0));
-		auto bbContainer = Engine::getBBTrackContainer();
-		container = bbContainer;
-		tcoNum = bbTrack->index();
-	}
-		break;
-	default:
-		return;
+		default:
+			return;
 	}
 
-	values = container->automatedValuesAt(timeStart, tcoNum);
+	values = container->automatedValuesAt( timeStart, tcoNum );
 	TrackList tracks = container->tracks();
 
 	Track::tcoVector tcos;
-	for (Track* track : tracks)
+	for( Track * track : tracks )
 	{
-		if (track->type() == Track::AutomationTrack) {
-			track->getTCOsInRange(tcos, 0, timeStart);
+		if( track->type() == Track::AutomationTrack )
+		{
+			track->getTCOsInRange( tcos, 0, timeStart );
 		}
 	}
 
 	// Process recording
-	for (TrackContentObject* tco : tcos)
+	for( TrackContentObject * tco : tcos )
 	{
-		auto p = dynamic_cast<AutomationPattern *>(tco);
+		auto p = dynamic_cast<AutomationPattern *>( tco );
 		MidiTime relTime = timeStart - p->startPosition();
-		if (p->isRecording() && relTime >= 0 && relTime < p->length())
+		if( p->isRecording() && relTime >= 0 && relTime < p->length() )
 		{
-			const AutomatableModel* recordedModel = p->firstObject();
-			p->recordValue(relTime, recordedModel->value<float>());
+			const AutomatableModel * recordedModel = p->firstObject();
+			p->recordValue( relTime, recordedModel->value<float>() );
 
 			recordedModels << recordedModel;
 		}
 	}
 
 	// Apply values
-	for (auto it = values.begin(); it != values.end(); it++)
+	for( auto it = values.begin(); it != values.end(); it++ )
 	{
-		if (! recordedModels.contains(it.key()))
+		if( !recordedModels.contains( it.key() ) )
 		{
-			it.key()->setAutomatedValue(it.value());
+			it.key()->setAutomatedValue( it.value() );
 		}
 	}
 }
 
 std::pair<MidiTime, MidiTime> Song::getExportEndpoints() const
 {
-	if ( m_renderBetweenMarkers )
+	if( m_renderBetweenMarkers )
 	{
 		return std::pair<MidiTime, MidiTime>(
-			m_playPos[Mode_PlaySong].m_timeLine->loopBegin(),
-			m_playPos[Mode_PlaySong].m_timeLine->loopEnd()
-		);
+		    m_playPos[Mode_PlaySong].m_timeLine->loopBegin(),
+		    m_playPos[Mode_PlaySong].m_timeLine->loopEnd() );
 	}
-	else if ( m_exportLoop )
+	else if( m_exportLoop )
 	{
-		return std::pair<MidiTime, MidiTime>( MidiTime(0, 0), MidiTime(m_length, 0) );
+		return std::pair<MidiTime, MidiTime>( MidiTime( 0, 0 ),
+		                                      MidiTime( m_length, 0 ) );
 	}
 	else
 	{
-		// if not exporting as a loop, we leave one bar of padding at the end of the song to accomodate reverb, etc.
-		return std::pair<MidiTime, MidiTime>( MidiTime(0, 0), MidiTime(m_length+1, 0) );
+		// if not exporting as a loop, we leave one bar of padding at the end of
+		// the song to accomodate reverb, etc.
+		return std::pair<MidiTime, MidiTime>( MidiTime( 0, 0 ),
+		                                      MidiTime( m_length + 1, 0 ) );
 	}
 }
-
-
-
 
 void Song::playSong()
 {
@@ -506,26 +470,17 @@ void Song::playSong()
 	emit playbackStateChanged();
 }
 
-
-
-
 void Song::record()
 {
 	m_recording = true;
 	// TODO: Implement
 }
 
-
-
-
 void Song::playAndRecord()
 {
 	playSong();
 	m_recording = true;
 }
-
-
-
 
 void Song::playBB()
 {
@@ -545,10 +500,7 @@ void Song::playBB()
 	emit playbackStateChanged();
 }
 
-
-
-
-void Song::playPattern( const Pattern* patternToPlay, bool loop )
+void Song::playPattern( const Pattern * patternToPlay, bool loop )
 {
 	if( isStopped() == false )
 	{
@@ -570,18 +522,14 @@ void Song::playPattern( const Pattern* patternToPlay, bool loop )
 	emit playbackStateChanged();
 }
 
-
-
-
 void Song::updateLength()
 {
 	m_length = 0;
 	m_tracksMutex.lockForRead();
-	for( TrackList::const_iterator it = tracks().begin();
-						it != tracks().end(); ++it )
+	for( TrackList::const_iterator it = tracks().begin(); it != tracks().end();
+	     ++it )
 	{
-		if( Engine::getSong()->isExporting() &&
-				( *it )->isMuted() )
+		if( Engine::getSong()->isExporting() && ( *it )->isMuted() )
 		{
 			continue;
 		}
@@ -597,28 +545,22 @@ void Song::updateLength()
 	emit lengthChanged( m_length );
 }
 
-
-
-
 void Song::setPlayPos( tick_t ticks, PlayModes playMode )
 {
 	m_elapsedTicks += m_playPos[playMode].getTicks() - ticks;
-	m_elapsedMilliSeconds += 
-		( ( ( ( ticks - m_playPos[playMode].getTicks() ) ) * 60 * 1000 / 48) / 
-			getTempo() );
+	m_elapsedMilliSeconds +=
+	    ( ( ( ( ticks - m_playPos[playMode].getTicks() ) ) * 60 * 1000 / 48 ) /
+	      getTempo() );
 	m_playPos[playMode].setTicks( ticks );
 	m_playPos[playMode].setCurrentFrame( 0.0f );
 
-// send a signal if playposition changes during playback
-	if( isPlaying() ) 
+	// send a signal if playposition changes during playback
+	if( isPlaying() )
 	{
 		emit playbackPositionChanged();
 		emit updateSampleTracks();
 	}
 }
-
-
-
 
 void Song::togglePause()
 {
@@ -637,9 +579,6 @@ void Song::togglePause()
 
 	emit playbackStateChanged();
 }
-
-
-
 
 void Song::stop()
 {
@@ -662,9 +601,9 @@ void Song::stop()
 				m_playPos[m_playMode].setTicks( 0 );
 				m_elapsedMilliSeconds = 0;
 				if( gui && gui->songEditor() &&
-						( tl->autoScroll() == TimeLineWidget::AutoScrollEnabled ) )
+				    ( tl->autoScroll() == TimeLineWidget::AutoScrollEnabled ) )
 				{
-					gui->songEditor()->m_editor->updatePosition(0);
+					gui->songEditor()->m_editor->updatePosition( 0 );
 				}
 				break;
 
@@ -672,13 +611,15 @@ void Song::stop()
 				if( tl->savedPos() >= 0 )
 				{
 					m_playPos[m_playMode].setTicks( tl->savedPos().getTicks() );
-					m_elapsedMilliSeconds = 
-						( ( ( tl->savedPos().getTicks() ) * 60 * 1000 / 48 ) / 
-							getTempo() );
+					m_elapsedMilliSeconds =
+					    ( ( ( tl->savedPos().getTicks() ) * 60 * 1000 / 48 ) /
+					      getTempo() );
 					if( gui && gui->songEditor() &&
-							( tl->autoScroll() == TimeLineWidget::AutoScrollEnabled ) )
+					    ( tl->autoScroll() ==
+					      TimeLineWidget::AutoScrollEnabled ) )
 					{
-						gui->songEditor()->m_editor->updatePosition( MidiTime(tl->savedPos().getTicks() ) );
+						gui->songEditor()->m_editor->updatePosition(
+						    MidiTime( tl->savedPos().getTicks() ) );
 					}
 					tl->savePos( -1 );
 				}
@@ -709,15 +650,13 @@ void Song::stop()
 	emit playbackStateChanged();
 }
 
-
-
-
 void Song::startExport()
 {
 	stop();
-	if(m_renderBetweenMarkers)
+	if( m_renderBetweenMarkers )
 	{
-		m_playPos[Mode_PlaySong].setTicks( m_playPos[Mode_PlaySong].m_timeLine->loopBegin().getTicks() );
+		m_playPos[Mode_PlaySong].setTicks(
+		    m_playPos[Mode_PlaySong].m_timeLine->loopBegin().getTicks() );
 	}
 	else
 	{
@@ -731,9 +670,6 @@ void Song::startExport()
 	m_vstSyncController.setPlaybackState( true );
 }
 
-
-
-
 void Song::stopExport()
 {
 	stop();
@@ -743,83 +679,57 @@ void Song::stopExport()
 	m_vstSyncController.setPlaybackState( m_playing );
 }
 
-
-
-
 void Song::insertBar()
 {
 	m_tracksMutex.lockForRead();
-	for( TrackList::const_iterator it = tracks().begin();
-					it != tracks().end(); ++it )
+	for( TrackList::const_iterator it = tracks().begin(); it != tracks().end();
+	     ++it )
 	{
 		( *it )->insertTact( m_playPos[Mode_PlaySong] );
 	}
 	m_tracksMutex.unlock();
 }
 
-
-
-
 void Song::removeBar()
 {
 	m_tracksMutex.lockForRead();
-	for( TrackList::const_iterator it = tracks().begin();
-					it != tracks().end(); ++it )
+	for( TrackList::const_iterator it = tracks().begin(); it != tracks().end();
+	     ++it )
 	{
 		( *it )->removeTact( m_playPos[Mode_PlaySong] );
 	}
 	m_tracksMutex.unlock();
 }
 
-
-
-
 void Song::addBBTrack()
 {
 	Track * t = Track::create( Track::BBTrack, this );
-	Engine::getBBTrackContainer()->setCurrentBB( dynamic_cast<BBTrack *>( t )->index() );
+	Engine::getBBTrackContainer()->setCurrentBB(
+	    dynamic_cast<BBTrack *>( t )->index() );
 }
-
-
-
 
 void Song::addSampleTrack()
 {
-	( void )Track::create( Track::SampleTrack, this );
+	(void) Track::create( Track::SampleTrack, this );
 }
-
-
-
 
 void Song::addAutomationTrack()
 {
-	( void )Track::create( Track::AutomationTrack, this );
+	(void) Track::create( Track::AutomationTrack, this );
 }
 
-
-
-
-bpm_t Song::getTempo()
-{
-	return ( bpm_t )m_tempoModel.value();
-}
-
-
-
+bpm_t Song::getTempo() { return (bpm_t) m_tempoModel.value(); }
 
 AutomationPattern * Song::tempoAutomationPattern()
 {
 	return AutomationPattern::globalAutomationPattern( &m_tempoModel );
 }
 
-
-AutomatedValueMap Song::automatedValuesAt(MidiTime time, int tcoNum) const
+AutomatedValueMap Song::automatedValuesAt( MidiTime time, int tcoNum ) const
 {
-	return TrackContainer::automatedValuesFromTracks(TrackList(tracks()) << m_globalAutomationTrack, time, tcoNum);
+	return TrackContainer::automatedValuesFromTracks(
+	    TrackList( tracks() ) << m_globalAutomationTrack, time, tcoNum );
 }
-
-
-
 
 void Song::clearProject()
 {
@@ -832,9 +742,8 @@ void Song::clearProject()
 
 	for( int i = 0; i < Mode_Count; i++ )
 	{
-		setPlayPos( 0, ( PlayModes )i );
+		setPlayPos( 0, (PlayModes) i );
 	}
-
 
 	Engine::mixer()->requestChangeInModel();
 
@@ -872,10 +781,8 @@ void Song::clearProject()
 	m_timeSigModel.reset();
 
 	AutomationPattern::globalAutomationPattern( &m_tempoModel )->clear();
-	AutomationPattern::globalAutomationPattern( &m_masterVolumeModel )->
-									clear();
-	AutomationPattern::globalAutomationPattern( &m_masterPitchModel )->
-									clear();
+	AutomationPattern::globalAutomationPattern( &m_masterVolumeModel )->clear();
+	AutomationPattern::globalAutomationPattern( &m_masterPitchModel )->clear();
 
 	Engine::mixer()->doneChangeInModel();
 
@@ -895,16 +802,12 @@ void Song::clearProject()
 	InstrumentTrackView::cleanupWindowCache();
 }
 
-
-
-
 // create new file
 void Song::createNewProject()
 {
 
-	QString defaultTemplate = ConfigManager::inst()->userTemplateDir()
-						+ "default.mpt";
-
+	QString defaultTemplate =
+	    ConfigManager::inst()->userTemplateDir() + "default.mpt";
 
 	if( QFile::exists( defaultTemplate ) )
 	{
@@ -912,8 +815,8 @@ void Song::createNewProject()
 		return;
 	}
 
-	defaultTemplate = ConfigManager::inst()->factoryProjectsDir()
-						+ "templates/default.mpt";
+	defaultTemplate =
+	    ConfigManager::inst()->factoryProjectsDir() + "templates/default.mpt";
 	if( QFile::exists( defaultTemplate ) )
 	{
 		createNewProjectFromTemplate( defaultTemplate );
@@ -930,12 +833,9 @@ void Song::createNewProject()
 
 	Track * t;
 	t = Track::create( Track::InstrumentTrack, this );
-	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
-					"tripleoscillator" );
-	t = Track::create( Track::InstrumentTrack,
-						Engine::getBBTrackContainer() );
-	dynamic_cast<InstrumentTrack * >( t )->loadInstrument(
-						"kicker" );
+	dynamic_cast<InstrumentTrack *>( t )->loadInstrument( "tripleoscillator" );
+	t = Track::create( Track::InstrumentTrack, Engine::getBBTrackContainer() );
+	dynamic_cast<InstrumentTrack *>( t )->loadInstrument( "kicker" );
 	Track::create( Track::SampleTrack, this );
 	Track::create( Track::BBTrack, this );
 	Track::create( Track::AutomationTrack, this );
@@ -964,9 +864,6 @@ void Song::createNewProject()
 	}
 }
 
-
-
-
 void Song::createNewProjectFromTemplate( const QString & templ )
 {
 	loadProject( templ );
@@ -980,9 +877,6 @@ void Song::createNewProjectFromTemplate( const QString & templ )
 		gui->mainWindow()->resetWindowTitle();
 	}
 }
-
-
-
 
 // load given song
 void Song::loadProject( const QString & fileName )
@@ -1033,15 +927,16 @@ void Song::loadProject( const QString & fileName )
 
 	if( !dataFile.content().firstChildElement( "track" ).isNull() )
 	{
-		m_globalAutomationTrack->restoreState( dataFile.content().
-						firstChildElement( "track" ) );
+		m_globalAutomationTrack->restoreState(
+		    dataFile.content().firstChildElement( "track" ) );
 	}
 
-	//Backward compatibility for LMMS <= 0.4.15
+	// Backward compatibility for LMMS <= 0.4.15
 	PeakController::initGetControllerBySetting();
 
 	// Load mixer first to be able to set the correct range for FX channels
-	node = dataFile.content().firstChildElement( Engine::fxMixer()->nodeName() );
+	node =
+	    dataFile.content().firstChildElement( Engine::fxMixer()->nodeName() );
 	if( !node.isNull() )
 	{
 		Engine::fxMixer()->restoreState( node.toElement() );
@@ -1054,22 +949,29 @@ void Song::loadProject( const QString & fileName )
 
 	node = dataFile.content().firstChild();
 
-	QDomNodeList tclist=dataFile.content().elementsByTagName("trackcontainer");
-	m_nLoadingTrack=0;
-	for( int i=0,n=tclist.count(); i<n; ++i )
+	QDomNodeList tclist =
+	    dataFile.content().elementsByTagName( "trackcontainer" );
+	m_nLoadingTrack = 0;
+	for( int i = 0, n = tclist.count(); i < n; ++i )
 	{
-		QDomNode nd=tclist.at(i).firstChild();
-		while(!nd.isNull())
+		QDomNode nd = tclist.at( i ).firstChild();
+		while( !nd.isNull() )
 		{
 			if( nd.isElement() && nd.nodeName() == "track" )
 			{
 				++m_nLoadingTrack;
-				if( nd.toElement().attribute("type").toInt() == Track::BBTrack )
+				if( nd.toElement().attribute( "type" ).toInt() ==
+				    Track::BBTrack )
 				{
-					n += nd.toElement().elementsByTagName("bbtrack").at(0)
-						.toElement().firstChildElement().childNodes().count();
+					n += nd.toElement()
+					         .elementsByTagName( "bbtrack" )
+					         .at( 0 )
+					         .toElement()
+					         .firstChildElement()
+					         .childNodes()
+					         .count();
 				}
-				nd=nd.nextSibling();
+				nd = nd.nextSibling();
 			}
 		}
 	}
@@ -1080,7 +982,8 @@ void Song::loadProject( const QString & fileName )
 		{
 			if( node.nodeName() == "trackcontainer" )
 			{
-				( (JournallingObject *)( this ) )->restoreState( node.toElement() );
+				( (JournallingObject *) ( this ) )
+				    ->restoreState( node.toElement() );
 			}
 			else if( node.nodeName() == "controllers" )
 			{
@@ -1088,25 +991,32 @@ void Song::loadProject( const QString & fileName )
 			}
 			else if( gui )
 			{
-				if( node.nodeName() == gui->getControllerRackView()->nodeName() )
+				if( node.nodeName() ==
+				    gui->getControllerRackView()->nodeName() )
 				{
-					gui->getControllerRackView()->restoreState( node.toElement() );
+					gui->getControllerRackView()->restoreState(
+					    node.toElement() );
 				}
 				else if( node.nodeName() == gui->pianoRoll()->nodeName() )
 				{
 					gui->pianoRoll()->restoreState( node.toElement() );
 				}
-				else if( node.nodeName() == gui->automationEditor()->m_editor->nodeName() )
+				else if( node.nodeName() ==
+				         gui->automationEditor()->m_editor->nodeName() )
 				{
-					gui->automationEditor()->m_editor->restoreState( node.toElement() );
+					gui->automationEditor()->m_editor->restoreState(
+					    node.toElement() );
 				}
 				else if( node.nodeName() == gui->getProjectNotes()->nodeName() )
 				{
-					 gui->getProjectNotes()->SerializingObject::restoreState( node.toElement() );
+					gui->getProjectNotes()->SerializingObject::restoreState(
+					    node.toElement() );
 				}
-				else if( node.nodeName() == m_playPos[Mode_PlaySong].m_timeLine->nodeName() )
+				else if( node.nodeName() ==
+				         m_playPos[Mode_PlaySong].m_timeLine->nodeName() )
 				{
-					m_playPos[Mode_PlaySong].m_timeLine->restoreState( node.toElement() );
+					m_playPos[Mode_PlaySong].m_timeLine->restoreState(
+					    node.toElement() );
 				}
 			}
 		}
@@ -1117,13 +1027,12 @@ void Song::loadProject( const QString & fileName )
 	// BB-tracks
 	Engine::getBBTrackContainer()->fixIncorrectPositions();
 
-	// Connect controller links to their controllers 
+	// Connect controller links to their controllers
 	// now that everything is loaded
 	ControllerConnection::finalizeConnections();
 
 	// resolve all IDs so that autoModels are automated
 	AutomationPattern::resolveAllIDs();
-
 
 	Engine::mixer()->doneChangeInModel();
 
@@ -1133,16 +1042,16 @@ void Song::loadProject( const QString & fileName )
 
 	emit projectLoaded();
 
-	if ( hasErrors())
+	if( hasErrors() )
 	{
-		if ( gui )
+		if( gui )
 		{
-			QMessageBox::warning( NULL, tr("LMMS Error report"), errorSummary(),
-							QMessageBox::Ok );
+			QMessageBox::warning( NULL, tr( "LMMS Error report" ),
+			                      errorSummary(), QMessageBox::Ok );
 		}
 		else
 		{
-			QTextStream(stderr) << Engine::getSong()->errorSummary() << endl;
+			QTextStream( stderr ) << Engine::getSong()->errorSummary() << endl;
 		}
 	}
 
@@ -1155,7 +1064,6 @@ void Song::loadProject( const QString & fileName )
 		gui->mainWindow()->resetWindowTitle();
 	}
 }
-
 
 // only save current song as _filename and do nothing else
 bool Song::saveProjectFile( const QString & filename )
@@ -1177,17 +1085,18 @@ bool Song::saveProjectFile( const QString & filename )
 	{
 		gui->getControllerRackView()->saveState( dataFile, dataFile.content() );
 		gui->pianoRoll()->saveState( dataFile, dataFile.content() );
-		gui->automationEditor()->m_editor->saveState( dataFile, dataFile.content() );
-		gui->getProjectNotes()->SerializingObject::saveState( dataFile, dataFile.content() );
-		m_playPos[Mode_PlaySong].m_timeLine->saveState( dataFile, dataFile.content() );
+		gui->automationEditor()->m_editor->saveState( dataFile,
+		                                              dataFile.content() );
+		gui->getProjectNotes()->SerializingObject::saveState(
+		    dataFile, dataFile.content() );
+		m_playPos[Mode_PlaySong].m_timeLine->saveState( dataFile,
+		                                                dataFile.content() );
 	}
 
 	saveControllerStates( dataFile, dataFile.content() );
 
 	return dataFile.writeFile( filename );
 }
-
-
 
 // save current song and update the gui
 bool Song::guiSaveProject()
@@ -1196,29 +1105,25 @@ bool Song::guiSaveProject()
 	m_fileName = dataFile.nameWithExtension( m_fileName );
 	if( saveProjectFile( m_fileName ) && gui != nullptr )
 	{
-		TextFloat::displayMessage( tr( "Project saved" ),
-					tr( "The project %1 is now saved."
-							).arg( m_fileName ),
-				embed::getIconPixmap( "project_save", 24, 24 ),
-									2000 );
+		TextFloat::displayMessage(
+		    tr( "Project saved" ),
+		    tr( "The project %1 is now saved." ).arg( m_fileName ),
+		    embed::getIconPixmap( "project_save", 24, 24 ), 2000 );
 		ConfigManager::inst()->addRecentlyOpenedProject( m_fileName );
 		m_modified = false;
 		gui->mainWindow()->resetWindowTitle();
 	}
 	else if( gui != nullptr )
 	{
-		TextFloat::displayMessage( tr( "Project NOT saved." ),
-				tr( "The project %1 was not saved!" ).arg(
-							m_fileName ),
-				embed::getIconPixmap( "error" ), 4000 );
+		TextFloat::displayMessage(
+		    tr( "Project NOT saved." ),
+		    tr( "The project %1 was not saved!" ).arg( m_fileName ),
+		    embed::getIconPixmap( "error" ), 4000 );
 		return false;
 	}
 
 	return true;
 }
-
-
-
 
 // save current song in given filename
 bool Song::guiSaveProjectAs( const QString & _file_name )
@@ -1236,30 +1141,21 @@ bool Song::guiSaveProjectAs( const QString & _file_name )
 	return true;
 }
 
-
-
-
 void Song::importProject()
 {
 	FileDialog ofd( NULL, tr( "Import file" ),
-			ConfigManager::inst()->userProjectsDir(),
-			tr("MIDI sequences") +
-			" (*.mid *.midi *.rmi);;" +
-			tr("Hydrogen projects") +
-			" (*.h2song);;" +
-			tr("All file types") +
-			" (*.*)");
+	                ConfigManager::inst()->userProjectsDir(),
+	                tr( "MIDI sequences" ) + " (*.mid *.midi *.rmi);;" +
+	                    tr( "Hydrogen projects" ) + " (*.h2song);;" +
+	                    tr( "All file types" ) + " (*.*)" );
 
 	ofd.setFileMode( FileDialog::ExistingFiles );
-	if( ofd.exec () == QDialog::Accepted && !ofd.selectedFiles().isEmpty() )
+	if( ofd.exec() == QDialog::Accepted && !ofd.selectedFiles().isEmpty() )
 	{
 		ImportFilter::import( ofd.selectedFiles()[0], this );
 	}
 	m_loadOnLaunch = false;
 }
-
-
-
 
 void Song::saveControllerStates( QDomDocument & doc, QDomElement & element )
 {
@@ -1271,9 +1167,6 @@ void Song::saveControllerStates( QDomDocument & doc, QDomElement & element )
 		m_controllers[i]->saveState( doc, controllersNode );
 	}
 }
-
-
-
 
 void Song::restoreControllerStates( const QDomElement & element )
 {
@@ -1289,43 +1182,37 @@ void Song::restoreControllerStates( const QDomElement & element )
 	}
 }
 
-
-
 void Song::removeAllControllers()
 {
-	while (m_controllers.size() != 0)
+	while( m_controllers.size() != 0 )
 	{
-		removeController(m_controllers.at(0));
+		removeController( m_controllers.at( 0 ) );
 	}
 
 	m_controllers.clear();
 }
 
-
-
-void Song::exportProjectTracks()
-{
-	exportProject( true );
-}
+void Song::exportProjectTracks() { exportProject( true ); }
 
 void Song::exportProject( bool multiExport )
 {
 	if( isEmpty() )
 	{
-		QMessageBox::information( gui->mainWindow(),
-				tr( "Empty project" ),
-				tr( "This project is empty so exporting makes "
-					"no sense. Please put some items into "
-					"Song Editor first!" ) );
+		QMessageBox::information(
+		    gui->mainWindow(), tr( "Empty project" ),
+		    tr( "This project is empty so exporting makes "
+		        "no sense. Please put some items into "
+		        "Song Editor first!" ) );
 		return;
 	}
 
 	FileDialog efd( gui->mainWindow() );
 
-	if ( multiExport )
+	if( multiExport )
 	{
-		efd.setFileMode( FileDialog::Directory);
-		efd.setWindowTitle( tr( "Select directory for writing exported tracks..." ) );
+		efd.setFileMode( FileDialog::Directory );
+		efd.setWindowTitle(
+		    tr( "Select directory for writing exported tracks..." ) );
 		if( !m_fileName.isEmpty() )
 		{
 			efd.setDirectory( QFileInfo( m_fileName ).absolutePath() );
@@ -1336,10 +1223,13 @@ void Song::exportProject( bool multiExport )
 		efd.setFileMode( FileDialog::AnyFile );
 		int idx = 0;
 		QStringList types;
-		while( ProjectRenderer::fileEncodeDevices[idx].m_fileFormat != ProjectRenderer::NumFileFormats)
+		while( ProjectRenderer::fileEncodeDevices[idx].m_fileFormat !=
+		       ProjectRenderer::NumFileFormats )
 		{
-			if(ProjectRenderer::fileEncodeDevices[idx].isAvailable()) {
-				types << tr(ProjectRenderer::fileEncodeDevices[idx].m_description);
+			if( ProjectRenderer::fileEncodeDevices[idx].isAvailable() )
+			{
+				types << tr(
+				    ProjectRenderer::fileEncodeDevices[idx].m_description );
 			}
 			++idx;
 		}
@@ -1355,7 +1245,8 @@ void Song::exportProject( bool multiExport )
 			efd.setDirectory( ConfigManager::inst()->userProjectsDir() );
 			baseFilename = tr( "untitled" );
 		}
-		efd.selectFile( baseFilename + ProjectRenderer::fileEncodeDevices[0].m_extension );
+		efd.selectFile( baseFilename +
+		                ProjectRenderer::fileEncodeDevices[0].m_extension );
 		efd.setWindowTitle( tr( "Select file for project-export..." ) );
 	}
 
@@ -1364,25 +1255,28 @@ void Song::exportProject( bool multiExport )
 	efd.setAcceptMode( FileDialog::AcceptSave );
 
 	if( efd.exec() == QDialog::Accepted && !efd.selectedFiles().isEmpty() &&
-					 !efd.selectedFiles()[0].isEmpty() )
+	    !efd.selectedFiles()[0].isEmpty() )
 	{
 
 		QString exportFileName = efd.selectedFiles()[0];
-		if ( !multiExport )
+		if( !multiExport )
 		{
 			int stx = efd.selectedNameFilter().indexOf( "(*." );
 			int etx = efd.selectedNameFilter().indexOf( ")" );
-	
-			if ( stx > 0 && etx > stx ) 
+
+			if( stx > 0 && etx > stx )
 			{
 				// Get first extension from selected dropdown.
 				// i.e. ".wav" from "WAV-File (*.wav), Dummy-File (*.dum)"
-				suffix = efd.selectedNameFilter().mid( stx + 2, etx - stx - 2 ).split( " " )[0].trimmed();
+				suffix = efd.selectedNameFilter()
+				             .mid( stx + 2, etx - stx - 2 )
+				             .split( " " )[0]
+				             .trimmed();
 				exportFileName.remove( "." + suffix, Qt::CaseInsensitive );
-				if ( efd.selectedFiles()[0].endsWith( suffix ) )
+				if( efd.selectedFiles()[0].endsWith( suffix ) )
 				{
-					if( VersionedSaveDialog::fileExistsQuery( exportFileName + suffix,
-							tr( "Save project" ) ) )
+					if( VersionedSaveDialog::fileExistsQuery(
+					        exportFileName + suffix, tr( "Save project" ) ) )
 					{
 						exportFileName += suffix;
 					}
@@ -1390,30 +1284,30 @@ void Song::exportProject( bool multiExport )
 			}
 		}
 
-		ExportProjectDialog epd( exportFileName, gui->mainWindow(), multiExport );
+		ExportProjectDialog epd( exportFileName, gui->mainWindow(),
+		                         multiExport );
 		epd.exec();
 	}
 }
-
 
 void Song::exportProjectMidi()
 {
 	if( isEmpty() )
 	{
-		QMessageBox::information( gui->mainWindow(),
-				tr( "Empty project" ),
-				tr( "This project is empty so exporting makes "
-					"no sense. Please put some items into "
-					"Song Editor first!" ) );
+		QMessageBox::information(
+		    gui->mainWindow(), tr( "Empty project" ),
+		    tr( "This project is empty so exporting makes "
+		        "no sense. Please put some items into "
+		        "Song Editor first!" ) );
 		return;
 	}
 
 	FileDialog efd( gui->mainWindow() );
-	
+
 	efd.setFileMode( FileDialog::AnyFile );
-	
+
 	QStringList types;
-	types << tr("MIDI File (*.mid)");
+	types << tr( "MIDI File (*.mid)" );
 	efd.setNameFilters( types );
 	QString base_filename;
 	if( !m_fileName.isEmpty() )
@@ -1427,44 +1321,39 @@ void Song::exportProjectMidi()
 		base_filename = tr( "untitled" );
 	}
 	efd.selectFile( base_filename + ".mid" );
-	efd.setDefaultSuffix( "mid");
+	efd.setDefaultSuffix( "mid" );
 	efd.setWindowTitle( tr( "Select file for project-export..." ) );
 
 	efd.setAcceptMode( FileDialog::AcceptSave );
 
-
-	if( efd.exec() == QDialog::Accepted && !efd.selectedFiles().isEmpty() && !efd.selectedFiles()[0].isEmpty() )
+	if( efd.exec() == QDialog::Accepted && !efd.selectedFiles().isEmpty() &&
+	    !efd.selectedFiles()[0].isEmpty() )
 	{
 		const QString suffix = ".mid";
 
 		QString export_filename = efd.selectedFiles()[0];
-		if (!export_filename.endsWith(suffix)) export_filename += suffix;
-		
+		if( !export_filename.endsWith( suffix ) ) export_filename += suffix;
+
 		// NOTE start midi export
-		
+
 		// instantiate midi export plugin
 		TrackContainer::TrackList tracks;
 		TrackContainer::TrackList tracks_BB;
 		tracks = Engine::getSong()->tracks();
 		tracks_BB = Engine::getBBTrackContainer()->tracks();
-		ExportFilter *exf = dynamic_cast<ExportFilter *> (Plugin::instantiate("midiexport", NULL, NULL));
-		if (exf==NULL) {
+		ExportFilter * exf = dynamic_cast<ExportFilter *>(
+		    Plugin::instantiate( "midiexport", NULL, NULL ) );
+		if( exf == NULL )
+		{
 			qDebug() << "failed to load midi export filter!";
 			return;
 		}
-		exf->tryExport(tracks, tracks_BB, getTempo(), m_masterPitchModel.value(), export_filename);
+		exf->tryExport( tracks, tracks_BB, getTempo(),
+		                m_masterPitchModel.value(), export_filename );
 	}
 }
 
-
-
-void Song::updateFramesPerTick()
-{
-	Engine::updateFramesPerTick();
-}
-
-
-
+void Song::updateFramesPerTick() { Engine::updateFramesPerTick(); }
 
 void Song::setModified()
 {
@@ -1472,15 +1361,12 @@ void Song::setModified()
 	{
 		m_modified = true;
 		if( gui != nullptr && gui->mainWindow() &&
-			QThread::currentThread() == gui->mainWindow()->thread() )
+		    QThread::currentThread() == gui->mainWindow()->thread() )
 		{
 			gui->mainWindow()->resetWindowTitle();
 		}
 	}
 }
-
-
-
 
 void Song::addController( Controller * controller )
 {
@@ -1492,9 +1378,6 @@ void Song::addController( Controller * controller )
 		this->setModified();
 	}
 }
-
-
-
 
 void Song::removeController( Controller * controller )
 {
@@ -1510,40 +1393,18 @@ void Song::removeController( Controller * controller )
 	}
 }
 
+void Song::clearErrors() { m_errors.clear(); }
 
+void Song::collectError( const QString error ) { m_errors.append( error ); }
 
-
-void Song::clearErrors()
-{
-	m_errors.clear();
-}
-
-
-
-void Song::collectError( const QString error )
-{
-	m_errors.append( error );
-}
-
-
-
-bool Song::hasErrors()
-{
-	return ( m_errors.length() > 0 );
-}
-
-
+bool Song::hasErrors() { return ( m_errors.length() > 0 ); }
 
 QString Song::errorSummary()
 {
-	QString errors = m_errors.join("\n") + '\n';
+	QString errors = m_errors.join( "\n" ) + '\n';
 
 	errors.prepend( "\n\n" );
 	errors.prepend( tr( "The following errors occured while loading: " ) );
 
 	return errors;
 }
-
-
-
-

@@ -22,9 +22,9 @@
  *
  */
 
-
 #include "Engine.h"
 #include "BBTrackContainer.h"
+#include "BandLimitedWave.h"
 #include "ConfigManager.h"
 #include "FxMixer.h"
 #include "Ladspa2LMMS.h"
@@ -32,10 +32,9 @@
 #include "PresetPreviewPlayHandle.h"
 #include "ProjectJournal.h"
 #include "Song.h"
-#include "BandLimitedWave.h"
 
 float LmmsCore::s_framesPerTick;
-Mixer* LmmsCore::s_mixer = NULL;
+Mixer * LmmsCore::s_mixer = NULL;
 FxMixer * LmmsCore::s_fxMixer = NULL;
 BBTrackContainer * LmmsCore::s_bbTrackContainer = NULL;
 Song * LmmsCore::s_song = NULL;
@@ -43,18 +42,15 @@ ProjectJournal * LmmsCore::s_projectJournal = NULL;
 Ladspa2LMMS * LmmsCore::s_ladspaManager = NULL;
 DummyTrackContainer * LmmsCore::s_dummyTC = NULL;
 
-
-
-
 void LmmsCore::init( bool renderOnly )
 {
-	LmmsCore *engine = inst();
+	LmmsCore * engine = inst();
 
-	emit engine->initProgress(tr("Generating wavetables"));
+	emit engine->initProgress( tr( "Generating wavetables" ) );
 	// generate (load from file) bandlimited wavetables
 	BandLimitedWave::generateWaves();
 
-	emit engine->initProgress(tr("Initializing data structures"));
+	emit engine->initProgress( tr( "Initializing data structures" ) );
 	s_projectJournal = new ProjectJournal;
 	s_mixer = new Mixer( renderOnly );
 	s_song = new Song;
@@ -65,18 +61,15 @@ void LmmsCore::init( bool renderOnly )
 
 	s_projectJournal->setJournalling( true );
 
-	emit engine->initProgress(tr("Opening audio and midi devices"));
+	emit engine->initProgress( tr( "Opening audio and midi devices" ) );
 	s_mixer->initDevices();
 
 	PresetPreviewPlayHandle::init();
 	s_dummyTC = new DummyTrackContainer;
 
-	emit engine->initProgress(tr("Launching mixer threads"));
+	emit engine->initProgress( tr( "Launching mixer threads" ) );
 	s_mixer->startProcessing();
 }
-
-
-
 
 void LmmsCore::destroy()
 {
@@ -95,7 +88,7 @@ void LmmsCore::destroy()
 
 	deleteHelper( &s_ladspaManager );
 
-	//delete ConfigManager::inst();
+	// delete ConfigManager::inst();
 	deleteHelper( &s_projectJournal );
 
 	deleteHelper( &s_song );
@@ -103,13 +96,10 @@ void LmmsCore::destroy()
 	delete ConfigManager::inst();
 }
 
-
-
-
 void LmmsCore::updateFramesPerTick()
 {
 	s_framesPerTick = s_mixer->processingSampleRate() * 60.0f * 4 /
-				DefaultTicksPerTact / s_song->getTempo();
+	                  DefaultTicksPerTact / s_song->getTempo();
 }
 
 LmmsCore * LmmsCore::s_instanceOfMe = NULL;

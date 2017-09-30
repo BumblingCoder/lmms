@@ -23,7 +23,6 @@
  *
  */
 
-
 #ifndef SONG_EDITOR_H
 #define SONG_EDITOR_H
 
@@ -51,9 +50,7 @@ public:
 
 private:
 	virtual void paintEvent( QPaintEvent * pe );
-
-} ;
-
+};
 
 class SongEditor : public TrackContainerView
 {
@@ -68,10 +65,10 @@ public:
 	SongEditor( Song * song );
 	~SongEditor();
 
-	void saveSettings( QDomDocument& doc, QDomElement& element );
-	void loadSettings( const QDomElement& element );
+	void saveSettings( QDomDocument & doc, QDomElement & element );
+	void loadSettings( const QDomElement & element );
 
-	ComboBoxModel *zoomingModel() const;
+	ComboBoxModel * zoomingModel() const;
 
 public slots:
 	void scrolled( int new_pos );
@@ -99,7 +96,7 @@ private slots:
 	void updateMasterPitchFloat( int new_val );
 	void hideMasterPitchFloat();
 
-	void updateScrollBar(int len);
+	void updateScrollBar( int len );
 
 	void zoomingChanged();
 
@@ -108,7 +105,6 @@ private:
 	virtual void wheelEvent( QWheelEvent * we );
 
 	virtual bool allowRubberband() const;
-
 
 	Song * m_song;
 
@@ -127,7 +123,7 @@ private:
 
 	positionLine * m_positionLine;
 
-	ComboBoxModel* m_zoomingModel;
+	ComboBoxModel * m_zoomingModel;
 
 	static const QVector<double> m_zoomLevels;
 
@@ -137,21 +133,17 @@ private:
 	EditMode m_mode;
 
 	friend class SongEditorWindow;
-
-} ;
-
-
-
+};
 
 class SongEditorWindow : public Editor
 {
 	Q_OBJECT
 public:
-	SongEditorWindow( Song* song );
+	SongEditorWindow( Song * song );
 
 	QSize sizeHint() const;
 
-	SongEditor* m_editor;
+	SongEditor * m_editor;
 
 protected:
 	virtual void resizeEvent( QResizeEvent * event );
@@ -169,12 +161,12 @@ signals:
 	void resized();
 
 private:
-	QAction* m_addBBTrackAction;
-	QAction* m_addSampleTrackAction;
-	QAction* m_addAutomationTrackAction;
+	QAction * m_addBBTrackAction;
+	QAction * m_addSampleTrackAction;
+	QAction * m_addAutomationTrackAction;
 
-	QAction* m_drawModeAction;
-	QAction* m_selectModeAction;
+	QAction * m_drawModeAction;
+	QAction * m_selectModeAction;
 
 	ComboBox * m_zoomingComboBox;
 };

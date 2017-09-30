@@ -24,23 +24,18 @@
 
 #include <QDomElement>
 
-#include "JournallingObject.h"
 #include "AutomatableModel.h"
-#include "ProjectJournal.h"
 #include "Engine.h"
+#include "JournallingObject.h"
+#include "ProjectJournal.h"
 
-
-
-JournallingObject::JournallingObject() :
-	SerializingObject(),
-	m_id( Engine::projectJournal()->allocID( this ) ),
-	m_journalling( true ),
-	m_journallingStateStack()
+JournallingObject::JournallingObject()
+    : SerializingObject(),
+      m_id( Engine::projectJournal()->allocID( this ) ),
+      m_journalling( true ),
+      m_journallingStateStack()
 {
 }
-
-
-
 
 JournallingObject::~JournallingObject()
 {
@@ -50,9 +45,6 @@ JournallingObject::~JournallingObject()
 	}
 }
 
-
-
-
 void JournallingObject::addJournalCheckPoint()
 {
 	if( isJournalling() )
@@ -61,11 +53,8 @@ void JournallingObject::addJournalCheckPoint()
 	}
 }
 
-
-
-
 QDomElement JournallingObject::saveState( QDomDocument & _doc,
-							QDomElement & _parent )
+                                          QDomElement & _parent )
 {
 	if( isJournalling() )
 	{
@@ -77,13 +66,12 @@ QDomElement JournallingObject::saveState( QDomDocument & _doc,
 		_this.appendChild( journalNode );
 
 		return _this;
-	} else {
+	}
+	else
+	{
 		return QDomElement();
 	}
 }
-
-
-
 
 void JournallingObject::restoreState( const QDomElement & _this )
 {
@@ -109,27 +97,23 @@ void JournallingObject::restoreState( const QDomElement & _this )
 	restoreJournallingState();
 }
 
-
-
-
 void JournallingObject::changeID( jo_id_t _id )
 {
 	if( id() != _id )
 	{
-		JournallingObject * jo = Engine::projectJournal()->
-											journallingObject( _id );
+		JournallingObject * jo =
+		    Engine::projectJournal()->journallingObject( _id );
 		if( jo != NULL )
 		{
 			QString used_by = jo->nodeName();
 			if( used_by == "automatablemodel" &&
-				dynamic_cast<AutomatableModel *>( jo ) )
+			    dynamic_cast<AutomatableModel *>( jo ) )
 			{
-				used_by += ":" +
-					dynamic_cast<AutomatableModel *>( jo )->
-								displayName();
+				used_by +=
+				    ":" + dynamic_cast<AutomatableModel *>( jo )->displayName();
 			}
-			fprintf( stderr, "JO-ID %d already in use by %s!\n",
-				(int) _id, used_by.toUtf8().constData() );
+			fprintf( stderr, "JO-ID %d already in use by %s!\n", (int) _id,
+			         used_by.toUtf8().constData() );
 			return;
 		}
 
@@ -138,5 +122,3 @@ void JournallingObject::changeID( jo_id_t _id )
 		m_id = _id;
 	}
 }
-
-

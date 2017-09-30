@@ -22,12 +22,11 @@
  *
  */
 
-
 #ifndef PROJECT_NOTES_H
 #define PROJECT_NOTES_H
 
-#include <QMainWindow>
 #include <QCloseEvent>
+#include <QMainWindow>
 
 #include "SerializingObject.h"
 
@@ -35,7 +34,6 @@ class QAction;
 class QComboBox;
 class QTextCharFormat;
 class QTextEdit;
-
 
 class EXPORT ProjectNotes : public QMainWindow, public SerializingObject
 {
@@ -50,16 +48,11 @@ public:
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
 
-	inline virtual QString nodeName() const
-	{
-		return "projectnotes";
-	}
-
+	inline virtual QString nodeName() const { return "projectnotes"; }
 
 protected:
 	virtual void closeEvent( QCloseEvent * _ce );
 	void setupActions();
-
 
 private slots:
 	void textBold();
@@ -73,21 +66,13 @@ private slots:
 	void formatChanged( const QTextCharFormat & _f );
 	void alignmentChanged( int _a );
 
-
 private:
 	QTextEdit * m_edit;
-	QAction * m_actionTextBold,
-		* m_actionTextUnderline,
-		* m_actionTextItalic,
-		* m_actionTextColor,
-		* m_actionAlignLeft,
-		* m_actionAlignCenter,
-		* m_actionAlignRight,
-		* m_actionAlignJustify;
+	QAction *m_actionTextBold, *m_actionTextUnderline, *m_actionTextItalic,
+	    *m_actionTextColor, *m_actionAlignLeft, *m_actionAlignCenter,
+	    *m_actionAlignRight, *m_actionAlignJustify;
 	QComboBox * m_comboFont;
 	QComboBox * m_comboSize;
-
-} ;
-
+};
 
 #endif

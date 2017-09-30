@@ -32,7 +32,6 @@
 
 class EffectControls;
 
-
 class EXPORT EffectControlDialog : public QWidget, public ModelView
 {
 	Q_OBJECT
@@ -40,16 +39,13 @@ public:
 	EffectControlDialog( EffectControls * _controls );
 	virtual ~EffectControlDialog();
 
-
 signals:
 	void closed();
-
 
 protected:
 	virtual void closeEvent( QCloseEvent * _ce );
 
 	EffectControls * m_effectControls;
-
-} ;
+};
 
 #endif

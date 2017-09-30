@@ -29,14 +29,13 @@
 #include <QDialog>
 #include <QtCore/QMap>
 
-#include "LedCheckbox.h"
-#include "lmmsconfig.h"
 #include "AudioDevice.h"
+#include "LedCheckbox.h"
 #include "MidiClient.h"
 #include "MidiSetupWidget.h"
+#include "lmmsconfig.h"
 
 #include "AudioDeviceSetupWidget.h"
-
 
 class QComboBox;
 class QLabel;
@@ -56,15 +55,13 @@ public:
 		PerformanceSettings,
 		AudioSettings,
 		MidiSettings
-	} ;
+	};
 
 	SetupDialog( ConfigTabs _tab_to_open = GeneralSettings );
 	virtual ~SetupDialog();
 
-
 protected slots:
 	virtual void accept();
-
 
 private slots:
 	// general settings widget
@@ -95,7 +92,6 @@ private slots:
 	// MIDI settings widget
 	void midiInterfaceChanged( const QString & _driver );
 	void displayMIDIHelp();
-
 
 	void toggleToolTips( bool _enabled );
 	void toggleWarnAfterSetup( bool _enabled );
@@ -128,7 +124,6 @@ private slots:
 
 	void setLanguage( int lang );
 
-
 private:
 	TabBar * m_tabBar;
 
@@ -145,7 +140,6 @@ private:
 	bool m_hqAudioDev;
 	QString m_lang;
 	QStringList m_languages;
-
 
 	QLineEdit * m_wdLineEdit;
 	QLineEdit * m_vdLineEdit;
@@ -203,9 +197,6 @@ private:
 	QComboBox * m_midiInterfaces;
 	MswMap m_midiIfaceSetupWidgets;
 	trMap m_midiIfaceNames;
-
-
-} ;
-
+};
 
 #endif

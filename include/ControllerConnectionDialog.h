@@ -23,7 +23,6 @@
  *
  */
 
-
 #ifndef CONTROLLER_CONNECTION_DIALOG_H
 #define CONTROLLER_CONNECTION_DIALOG_H
 
@@ -31,9 +30,8 @@
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
 
-#include "Controller.h"
 #include "AutomatableModel.h"
-
+#include "Controller.h"
 
 class QLineEdit;
 class QListView;
@@ -46,33 +44,26 @@ class LcdSpinBox;
 class LedCheckBox;
 class MidiPortMenu;
 
-
-
 class ControllerConnectionDialog : public QDialog
 {
 	Q_OBJECT
 public:
 	ControllerConnectionDialog( QWidget * _parent,
-			const AutomatableModel * _target_model );
+	                            const AutomatableModel * _target_model );
 	virtual ~ControllerConnectionDialog();
 
-	Controller * chosenController()
-	{
-		return m_controller;
-	}
+	Controller * chosenController() { return m_controller; }
 
 public slots:
-//	void setSelection( const effectKey & _selection );
+	//	void setSelection( const effectKey & _selection );
 	void selectController();
 	void midiToggled();
 	void userToggled();
 	void autoDetectToggled();
 	void enableAutoDetect( QAction * _a );
 
-
 protected slots:
 	void midiValueChanged();
-
 
 private:
 	// Midi
@@ -96,6 +87,6 @@ private:
 
 	// Temporary midiController
 	AutoDetectMidiController * m_midiController;
-} ;
+};
 
 #endif

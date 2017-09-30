@@ -34,32 +34,26 @@
 
 #include "AudioFileDevice.h"
 
-
 class AudioFileOgg : public AudioFileDevice
 {
 public:
 	AudioFileOgg( OutputSettings const & outputSettings,
-			const ch_cnt_t _channels,
-			bool & _success_ful,
-			const QString & _file,
-			Mixer* mixer );
+	              const ch_cnt_t _channels, bool & _success_ful,
+	              const QString & _file, Mixer * mixer );
 	virtual ~AudioFileOgg();
 
 	static AudioFileDevice * getInst( const QString & outputFilename,
-					  OutputSettings const & outputSettings,
-					  const ch_cnt_t channels,
-					  Mixer* mixer,
-					  bool & successful )
+	                                  OutputSettings const & outputSettings,
+	                                  const ch_cnt_t channels, Mixer * mixer,
+	                                  bool & successful )
 	{
 		return new AudioFileOgg( outputSettings, channels, successful,
-						outputFilename, mixer );
+		                         outputFilename, mixer );
 	}
-
 
 private:
 	virtual void writeBuffer( const surroundSampleFrame * _ab,
-						const fpp_t _frames,
-						const float _master_gain );
+	                          const fpp_t _frames, const float _master_gain );
 
 	bool startEncoding();
 	void finishEncoding();
@@ -72,7 +66,7 @@ private:
 
 	inline bitrate_t minBitrate() const
 	{
-		if (nominalBitrate() > 64)
+		if( nominalBitrate() > 64 )
 		{
 			return nominalBitrate() - 64;
 		}
@@ -82,10 +76,7 @@ private:
 		}
 	}
 
-	inline bitrate_t maxBitrate() const
-	{
-		return nominalBitrate() + 64;
-	}
+	inline bitrate_t maxBitrate() const { return nominalBitrate() + 64; }
 
 private:
 	bool m_ok;
@@ -97,16 +88,14 @@ private:
 	vorbis_comment * m_comments;
 
 	// encoding setup - init by init_ogg_encoding
-	ogg_stream_state	m_os;
-	ogg_page 	 	m_og;
-	ogg_packet	 	m_op;
+	ogg_stream_state m_os;
+	ogg_page m_og;
+	ogg_packet m_op;
 
-	vorbis_dsp_state 	m_vd;
-	vorbis_block     	m_vb;
-	vorbis_info      	m_vi;
-
-} ;
-
+	vorbis_dsp_state m_vd;
+	vorbis_block m_vb;
+	vorbis_info m_vi;
+};
 
 #endif
 

@@ -23,19 +23,17 @@
  *
  */
 
-
 #ifndef BB_TRACK_H
 #define BB_TRACK_H
 
-#include <QtCore/QObject>
-#include <QtCore/QMap>
 #include <QStaticText>
+#include <QtCore/QMap>
+#include <QtCore/QObject>
 
 #include "Track.h"
 
 class TrackLabelButton;
 class TrackContainer;
-
 
 class BBTCO : public TrackContentObject
 {
@@ -45,30 +43,15 @@ public:
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
-	inline virtual QString nodeName() const
-	{
-		return( "bbtco" );
-	}
+	inline virtual QString nodeName() const { return ( "bbtco" ); }
 
-	unsigned int color() const
-	{
-		return( m_color.rgb() );
-	}
-	
-	QColor colorObj() const
-	{
-		return m_color;
-	}
+	unsigned int color() const { return ( m_color.rgb() ); }
 
-	void setColor( const QColor & c )
-	{
-		m_color = QColor( c );
-	}
+	QColor colorObj() const { return m_color; }
 
-	void setUseStyleColor( bool b )
-	{
-		m_useStyleColor = b;
-	}
+	void setColor( const QColor & c ) { m_color = QColor( c ); }
+
+	void setUseStyleColor( bool b ) { m_useStyleColor = b; }
 
 	int bbTrackIndex();
 
@@ -78,12 +61,8 @@ private:
 	QColor m_color;
 	bool m_useStyleColor;
 
-
 	friend class BBTCOView;
-
-} ;
-
-
+};
 
 class BBTCOView : public TrackContentObjectView
 {
@@ -92,12 +71,8 @@ public:
 	BBTCOView( TrackContentObject * _tco, TrackView * _tv );
 	virtual ~BBTCOView();
 
-	QColor color() const
-	{
-		return( m_bbTCO->m_color );
-	}
+	QColor color() const { return ( m_bbTCO->m_color ); }
 	void setColor( QColor _new_color );
-
 
 protected slots:
 	void openInBBEditor();
@@ -106,50 +81,42 @@ protected slots:
 	void changeColor();
 	void resetColor();
 
-
 protected:
 	virtual void paintEvent( QPaintEvent * pe );
 	virtual void mouseDoubleClickEvent( QMouseEvent * _me );
 	virtual void constructContextMenu( QMenu * );
 
-
 private:
 	BBTCO * m_bbTCO;
 	QPixmap m_paintPixmap;
-	
+
 	QStaticText m_staticTextName;
-} ;
-
-
-
+};
 
 class EXPORT BBTrack : public Track
 {
 	Q_OBJECT
 public:
-	BBTrack( TrackContainer* tc );
+	BBTrack( TrackContainer * tc );
 	virtual ~BBTrack();
 
 	virtual bool play( const MidiTime & _start, const fpp_t _frames,
-						const f_cnt_t _frame_base, int _tco_num = -1 );
-	virtual TrackView * createView( TrackContainerView* tcv );
+	                   const f_cnt_t _frame_base, int _tco_num = -1 );
+	virtual TrackView * createView( TrackContainerView * tcv );
 	virtual TrackContentObject * createTCO( const MidiTime & _pos );
 
 	virtual void saveTrackSpecificSettings( QDomDocument & _doc,
-							QDomElement & _parent );
+	                                        QDomElement & _parent );
 	virtual void loadTrackSpecificSettings( const QDomElement & _this );
 
 	static BBTrack * findBBTrack( int _bb_num );
 	static void swapBBTracks( Track * _track1, Track * _track2 );
 
-	int index()
-	{
-		return s_infoMap[this];
-	}
+	int index() { return s_infoMap[this]; }
 
 	bool automationDisabled( Track * _track )
 	{
-		return( m_disabledTracks.contains( _track ) );
+		return ( m_disabledTracks.contains( _track ) );
 	}
 	void disableAutomation( Track * _track )
 	{
@@ -162,7 +129,7 @@ public:
 
 	static void setLastTCOColor( const QColor & c )
 	{
-		if( ! s_lastTCOColor )
+		if( !s_lastTCOColor )
 		{
 			s_lastTCOColor = new QColor( c );
 		}
@@ -171,7 +138,7 @@ public:
 			*s_lastTCOColor = QColor( c );
 		}
 	}
-	
+
 	static void clearLastTCOColor()
 	{
 		if( s_lastTCOColor )
@@ -182,11 +149,7 @@ public:
 	}
 
 protected:
-	inline virtual QString nodeName() const
-	{
-		return( "bbtrack" );
-	}
-
+	inline virtual QString nodeName() const { return ( "bbtrack" ); }
 
 private:
 	QList<Track *> m_disabledTracks;
@@ -197,36 +160,25 @@ private:
 	static QColor * s_lastTCOColor;
 
 	friend class BBTrackView;
-
-} ;
-
-
+};
 
 class BBTrackView : public TrackView
 {
 	Q_OBJECT
 public:
-	BBTrackView( BBTrack* bbt, TrackContainerView* tcv );
+	BBTrackView( BBTrack * bbt, TrackContainerView * tcv );
 	virtual ~BBTrackView();
 
 	virtual bool close();
 
-	const BBTrack * getBBTrack() const
-	{
-		return( m_bbTrack );
-	}
-
+	const BBTrack * getBBTrack() const { return ( m_bbTrack ); }
 
 public slots:
 	void clickedTrackLabel();
 
-
 private:
 	BBTrack * m_bbTrack;
 	TrackLabelButton * m_trackLabel;
-
-} ;
-
-
+};
 
 #endif

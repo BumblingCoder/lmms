@@ -5,7 +5,7 @@
  * Copyright (c) 2005-2008 Danny McRae <khjklujn@netscape.net>
  *
  * This file is part of LMMS - https://lmms.io
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation; either
@@ -23,71 +23,55 @@
  *
  */
 
-
 #include "Ladspa2LMMS.h"
-
 
 Ladspa2LMMS::Ladspa2LMMS()
 {
 	l_sortable_plugin_t plugins = getSortedPlugins();
-	
+
 	for( l_sortable_plugin_t::iterator it = plugins.begin();
-			it != plugins.end(); ++it )
+	     it != plugins.end(); ++it )
 	{
-		ladspa_key_t key = (*it).second;
+		ladspa_key_t key = ( *it ).second;
 		ladspaManagerDescription * desc = getDescription( key );
-		
+
 		if( desc->type == SOURCE )
 		{
-			m_instruments.append( qMakePair( getName( key ), 
-								key ) );
+			m_instruments.append( qMakePair( getName( key ), key ) );
 		}
 		else if( desc->type == TRANSFER &&
-			( desc->inputChannels == desc->outputChannels &&
-			( desc->inputChannels == 1 ||
-			desc->inputChannels == 2 ||
-			desc->inputChannels == 4 )/* &&
+		         ( desc->inputChannels == desc->outputChannels &&
+		           ( desc->inputChannels == 1 || desc->inputChannels == 2 ||
+		             desc->inputChannels == 4 ) /* &&
 			isRealTimeCapable( key )*/ ) )
 		{
-			m_validEffects.append( qMakePair( getName( key ),
-								key ) );
+			m_validEffects.append( qMakePair( getName( key ), key ) );
 		}
 		else if( desc->type == TRANSFER &&
-			( desc->inputChannels != desc->outputChannels ||
-			( desc->inputChannels != 1 &&
-			desc->inputChannels != 2 &&
-			desc->inputChannels != 4 ) ||
-			!isRealTimeCapable( key ) ) )
+		         ( desc->inputChannels != desc->outputChannels ||
+		           ( desc->inputChannels != 1 && desc->inputChannels != 2 &&
+		             desc->inputChannels != 4 ) ||
+		           !isRealTimeCapable( key ) ) )
 		{
-			m_invalidEffects.append( qMakePair( getName( key ), 
-								key ) );
+			m_invalidEffects.append( qMakePair( getName( key ), key ) );
 		}
 		else if( desc->type == SINK )
 		{
-			m_analysisTools.append( qMakePair( getName( key ),
-								key ) );
+			m_analysisTools.append( qMakePair( getName( key ), key ) );
 		}
 		else if( desc->type == OTHER )
 		{
-			m_otherPlugins.append( qMakePair( getName( key ), 
-								key ) );
+			m_otherPlugins.append( qMakePair( getName( key ), key ) );
 		}
 	}
 }
- 
- 
- 
- 
-Ladspa2LMMS::~Ladspa2LMMS()
-{
-}
 
-
+Ladspa2LMMS::~Ladspa2LMMS() {}
 
 QString Ladspa2LMMS::getShortName( const ladspa_key_t & _key )
 {
 	QString name = getName( _key );
-	
+
 	if( name.indexOf( "(" ) > 0 )
 	{
 		name = name.left( name.indexOf( "(" ) );
@@ -122,7 +106,6 @@ QString Ladspa2LMMS::getShortName( const ladspa_key_t & _key )
 	{
 		name = "LADSPA Plugin";
 	}
-	
+
 	return name;
 }
-

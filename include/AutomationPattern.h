@@ -32,11 +32,8 @@
 
 #include "Track.h"
 
-
 class AutomationTrack;
 class MidiTime;
-
-
 
 class EXPORT AutomationPattern : public TrackContentObject
 {
@@ -47,7 +44,7 @@ public:
 		DiscreteProgression,
 		LinearProgression,
 		CubicHermiteProgression
-	} ;
+	};
 
 	typedef QMap<int, float> timeMap;
 	typedef QVector<QPointer<AutomatableModel> > objectVector;
@@ -59,7 +56,7 @@ public:
 	bool addObject( AutomatableModel * _obj, bool _search_dup = true );
 
 	const AutomatableModel * firstObject() const;
-	const objectVector& objects() const;
+	const objectVector & objects() const;
 
 	// progression-type stuff
 	inline ProgressionTypes progressionType() const
@@ -68,74 +65,44 @@ public:
 	}
 	void setProgressionType( ProgressionTypes _new_progression_type );
 
-	inline float getTension() const
-	{
-		return m_tension;
-	}
+	inline float getTension() const { return m_tension; }
 	void setTension( QString _new_tension );
 
 	MidiTime timeMapLength() const;
 	void updateLength();
 
-	MidiTime putValue( const MidiTime & time,
-				const float value,
-				const bool quantPos = true,
-				const bool ignoreSurroundingPoints = false );
+	MidiTime putValue( const MidiTime & time, const float value,
+	                   const bool quantPos = true,
+	                   const bool ignoreSurroundingPoints = false );
 
 	void removeValue( const MidiTime & time );
 
-	void recordValue(MidiTime time, float value);
+	void recordValue( MidiTime time, float value );
 
-	MidiTime setDragValue( const MidiTime & time,
-				const float value,
-				const bool quantPos = true,
-				const bool controlKey = false );
+	MidiTime setDragValue( const MidiTime & time, const float value,
+	                       const bool quantPos = true,
+	                       const bool controlKey = false );
 
 	void applyDragValue();
 
+	bool isDragging() const { return m_dragging; }
 
-	bool isDragging() const
-	{
-		return m_dragging;
-	}
+	inline const timeMap & getTimeMap() const { return m_timeMap; }
 
-	inline const timeMap & getTimeMap() const
-	{
-		return m_timeMap;
-	}
+	inline timeMap & getTimeMap() { return m_timeMap; }
 
-	inline timeMap & getTimeMap()
-	{
-		return m_timeMap;
-	}
+	inline const timeMap & getTangents() const { return m_tangents; }
 
-	inline const timeMap & getTangents() const
-	{
-		return m_tangents;
-	}
+	inline timeMap & getTangents() { return m_tangents; }
 
-	inline timeMap & getTangents()
-	{
-		return m_tangents;
-	}
+	inline float getMin() const { return firstObject()->minValue<float>(); }
 
-	inline float getMin() const
-	{
-		return firstObject()->minValue<float>();
-	}
+	inline float getMax() const { return firstObject()->maxValue<float>(); }
 
-	inline float getMax() const
-	{
-		return firstObject()->maxValue<float>();
-	}
-
-	inline bool hasAutomation() const
-	{
-		return m_timeMap.isEmpty() == false;
-	}
+	inline bool hasAutomation() const { return m_timeMap.isEmpty() == false; }
 
 	float valueAt( const MidiTime & _time ) const;
-	float *valuesAfter( const MidiTime & _time ) const;
+	float * valuesAfter( const MidiTime & _time ) const;
 
 	const QString name() const;
 
@@ -148,9 +115,9 @@ public:
 
 	virtual TrackContentObjectView * createView( TrackView * _tv );
 
-
 	static bool isAutomated( const AutomatableModel * _m );
-	static QVector<AutomationPattern *> patternsForModel( const AutomatableModel * _m );
+	static QVector<AutomationPattern *>
+	patternsForModel( const AutomatableModel * _m );
 	static AutomationPattern * globalAutomationPattern( AutomatableModel * _m );
 	static void resolveAllIDs();
 
@@ -158,7 +125,7 @@ public:
 	void setRecording( const bool b ) { m_isRecording = b; }
 
 	static int quantization() { return s_quantization; }
-	static void setQuantization(int q) { s_quantization = q; }
+	static void setQuantization( int q ) { s_quantization = q; }
 
 public slots:
 	void clear();
@@ -176,15 +143,16 @@ private:
 	AutomationTrack * m_autoTrack;
 	QVector<jo_id_t> m_idsToResolve;
 	objectVector m_objects;
-	timeMap m_timeMap;	// actual values
-	timeMap m_oldTimeMap;	// old values for storing the values before setDragValue() is called.
-	timeMap m_tangents;	// slope at each point for calculating spline
+	timeMap m_timeMap;    // actual values
+	timeMap m_oldTimeMap; // old values for storing the values before
+	                      // setDragValue() is called.
+	timeMap m_tangents;   // slope at each point for calculating spline
 	float m_tension;
 	bool m_hasAutomation;
 	ProgressionTypes m_progressionType;
 
 	bool m_dragging;
-	
+
 	bool m_isRecording;
 	float m_lastRecordedValue;
 
@@ -194,8 +162,6 @@ private:
 	static const float DEFAULT_MAX_VALUE;
 
 	friend class AutomationPatternView;
-
-} ;
-
+};
 
 #endif

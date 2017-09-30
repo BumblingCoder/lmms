@@ -27,12 +27,11 @@
 
 #include <QtCore/QVector>
 
-#include "JournallingObject.h"
 #include "AutomatableModel.h"
+#include "JournallingObject.h"
 #include "SampleBuffer.h"
 #include "TempoSyncKnobModel.h"
 #include "lmms_basics.h"
-
 
 class EXPORT EnvelopeAndLfoParameters : public Model, public JournallingObject
 {
@@ -41,18 +40,11 @@ public:
 	class LfoInstances
 	{
 	public:
-		LfoInstances()
-		{
-		}
+		LfoInstances() {}
 
-		~LfoInstances()
-		{
-		}
+		~LfoInstances() {}
 
-		inline bool isEmpty() const
-		{
-			return m_lfos.isEmpty();
-		}
+		inline bool isEmpty() const { return m_lfos.isEmpty(); }
 
 		void trigger();
 		void reset();
@@ -64,11 +56,9 @@ public:
 		QMutex m_lfoListMutex;
 		typedef QList<EnvelopeAndLfoParameters *> LfoList;
 		LfoList m_lfos;
+	};
 
-	} ;
-
-	EnvelopeAndLfoParameters( float _value_for_zero_amount,
-							Model * _parent );
+	EnvelopeAndLfoParameters( float _value_for_zero_amount, Model * _parent );
 	virtual ~EnvelopeAndLfoParameters();
 
 	static inline float expKnobVal( float _val )
@@ -76,46 +66,26 @@ public:
 		return ( ( _val < 0 ) ? -_val : _val ) * _val;
 	}
 
-	static LfoInstances * instances()
-	{
-		return s_lfoInstances;
-	}
+	static LfoInstances * instances() { return s_lfoInstances; }
 
-	void fillLevel( float * _buf, f_cnt_t _frame,
-				const f_cnt_t _release_begin,
-				const fpp_t _frames );
+	void fillLevel( float * _buf, f_cnt_t _frame, const f_cnt_t _release_begin,
+	                const fpp_t _frames );
 
-	inline bool isUsed() const
-	{
-		return m_used;
-	}
-
+	inline bool isUsed() const { return m_used; }
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent );
 	virtual void loadSettings( const QDomElement & _this );
-	virtual QString nodeName() const
-	{
-		return "el";
-	}
+	virtual QString nodeName() const { return "el"; }
 
-	inline f_cnt_t PAHD_Frames() const
-	{
-		return m_pahdFrames;
-	}
+	inline f_cnt_t PAHD_Frames() const { return m_pahdFrames; }
 
-	inline f_cnt_t releaseFrames() const
-	{
-		return m_rFrames;
-	}
-
+	inline f_cnt_t releaseFrames() const { return m_rFrames; }
 
 public slots:
 	void updateSampleVars();
 
-
 protected:
 	void fillLfoLevel( float * _buf, f_cnt_t _frame, const fpp_t _frames );
-
 
 private:
 	static LfoInstances * s_lfoInstances;
@@ -131,17 +101,16 @@ private:
 	FloatModel m_releaseModel;
 	FloatModel m_amountModel;
 
-	float  m_sustainLevel;
-	float  m_amount;
-	float  m_valueForZeroAmount;
-	float  m_amountAdd;
+	float m_sustainLevel;
+	float m_amount;
+	float m_valueForZeroAmount;
+	float m_amountAdd;
 	f_cnt_t m_pahdFrames;
 	f_cnt_t m_rFrames;
 	sample_t * m_pahdEnv;
 	sample_t * m_rEnv;
 	f_cnt_t m_pahdBufSize;
 	f_cnt_t m_rBufSize;
-
 
 	FloatModel m_lfoPredelayModel;
 	FloatModel m_lfoAttackModel;
@@ -151,7 +120,6 @@ private:
 
 	BoolModel m_x100Model;
 	BoolModel m_controlEnvAmountModel;
-
 
 	f_cnt_t m_lfoPredelayFrames;
 	f_cnt_t m_lfoAttackFrames;
@@ -173,14 +141,12 @@ private:
 		UserDefinedWave,
 		RandomWave,
 		NumLfoShapes
-	} ;
+	};
 
 	sample_t lfoShapeSample( fpp_t _frame_offset );
 	void updateLfoShapeData();
 
-
 	friend class EnvelopeAndLfoView;
-
-} ;
+};
 
 #endif

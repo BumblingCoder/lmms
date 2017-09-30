@@ -28,19 +28,16 @@
 
 #include <vector>
 
-#include "ProjectRenderer.h"
 #include "OutputSettings.h"
-
+#include "ProjectRenderer.h"
 
 class RenderManager : public QObject
 {
 	Q_OBJECT
 public:
-	RenderManager(
-		const Mixer::qualitySettings & qualitySettings,
-		const OutputSettings & outputSettings,
-		ProjectRenderer::ExportFileFormats fmt,
-		QString outputPath);
+	RenderManager( const Mixer::qualitySettings & qualitySettings,
+	               const OutputSettings & outputSettings,
+	               ProjectRenderer::ExportFileFormats fmt, QString outputPath );
 
 	virtual ~RenderManager();
 
@@ -61,7 +58,7 @@ private slots:
 	void updateConsoleProgress();
 
 private:
-	QString pathForTrack( const Track *track, int num );
+	QString pathForTrack( const Track * track, int num );
 	void restoreMutedState();
 
 	const Mixer::qualitySettings m_qualitySettings;
@@ -69,10 +66,10 @@ private:
 	ProjectRenderer::ExportFileFormats m_format;
 	QString m_outputPath;
 
-	ProjectRenderer* m_activeRenderer;
+	ProjectRenderer * m_activeRenderer;
 
-	QVector<Track*> m_tracksToRender;
-	QVector<Track*> m_unmuted;
-} ;
+	QVector<Track *> m_tracksToRender;
+	QVector<Track *> m_unmuted;
+};
 
 #endif

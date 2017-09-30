@@ -22,37 +22,36 @@
  *
  */
 
-#include <QMenu>
-#include <QToolButton>
 #include <QLabel>
 #include <QLayout>
+#include <QMenu>
+#include <QToolButton>
 
-#include "InstrumentMidiIOView.h"
-#include "MidiPortMenu.h"
 #include "Engine.h"
-#include "embed.h"
 #include "GroupBox.h"
-#include "gui_templates.h"
+#include "InstrumentMidiIOView.h"
+#include "InstrumentTrack.h"
 #include "LcdSpinBox.h"
+#include "LedCheckbox.h"
 #include "MidiClient.h"
+#include "MidiPortMenu.h"
 #include "Mixer.h"
 #include "ToolTip.h"
-#include "InstrumentTrack.h"
-#include "LedCheckbox.h"
+#include "embed.h"
+#include "gui_templates.h"
 
-
-InstrumentMidiIOView::InstrumentMidiIOView( QWidget* parent ) :
-	QWidget( parent ),
-	ModelView( NULL, this ),
-	m_rpBtn( NULL ),
-	m_wpBtn( NULL )
+InstrumentMidiIOView::InstrumentMidiIOView( QWidget * parent )
+    : QWidget( parent ),
+      ModelView( NULL, this ),
+      m_rpBtn( NULL ),
+      m_wpBtn( NULL )
 {
-	QVBoxLayout* layout = new QVBoxLayout( this );
+	QVBoxLayout * layout = new QVBoxLayout( this );
 	layout->setMargin( 5 );
 	m_midiInputGroupBox = new GroupBox( tr( "ENABLE MIDI INPUT" ) );
 	layout->addWidget( m_midiInputGroupBox );
 
-	QHBoxLayout* midiInputLayout = new QHBoxLayout( m_midiInputGroupBox );
+	QHBoxLayout * midiInputLayout = new QHBoxLayout( m_midiInputGroupBox );
 	midiInputLayout->setContentsMargins( 8, 18, 8, 8 );
 	midiInputLayout->setSpacing( 6 );
 
@@ -71,16 +70,14 @@ InstrumentMidiIOView::InstrumentMidiIOView( QWidget* parent ) :
 	midiInputLayout->addStretch();
 
 	connect( m_midiInputGroupBox->ledButton(), SIGNAL( toggled( bool ) ),
-			m_inputChannelSpinBox, SLOT( setEnabled( bool ) ) );
+	         m_inputChannelSpinBox, SLOT( setEnabled( bool ) ) );
 	connect( m_midiInputGroupBox->ledButton(), SIGNAL( toggled( bool ) ),
-		m_fixedInputVelocitySpinBox, SLOT( setEnabled( bool ) ) );
-
-
+	         m_fixedInputVelocitySpinBox, SLOT( setEnabled( bool ) ) );
 
 	m_midiOutputGroupBox = new GroupBox( tr( "ENABLE MIDI OUTPUT" ) );
 	layout->addWidget( m_midiOutputGroupBox );
 
-	QHBoxLayout* midiOutputLayout = new QHBoxLayout( m_midiOutputGroupBox );
+	QHBoxLayout * midiOutputLayout = new QHBoxLayout( m_midiOutputGroupBox );
 	midiOutputLayout->setContentsMargins( 8, 18, 8, 8 );
 	midiOutputLayout->setSpacing( 6 );
 
@@ -110,13 +107,13 @@ InstrumentMidiIOView::InstrumentMidiIOView( QWidget* parent ) :
 	midiOutputLayout->addStretch();
 
 	connect( m_midiOutputGroupBox->ledButton(), SIGNAL( toggled( bool ) ),
-			m_outputChannelSpinBox, SLOT( setEnabled( bool ) ) );
+	         m_outputChannelSpinBox, SLOT( setEnabled( bool ) ) );
 	connect( m_midiOutputGroupBox->ledButton(), SIGNAL( toggled( bool ) ),
-		m_fixedOutputVelocitySpinBox, SLOT( setEnabled( bool ) ) );
+	         m_fixedOutputVelocitySpinBox, SLOT( setEnabled( bool ) ) );
 	connect( m_midiOutputGroupBox->ledButton(), SIGNAL( toggled( bool ) ),
-			m_outputProgramSpinBox, SLOT( setEnabled( bool ) ) );
+	         m_outputProgramSpinBox, SLOT( setEnabled( bool ) ) );
 	connect( m_midiOutputGroupBox->ledButton(), SIGNAL( toggled( bool ) ),
-		m_fixedOutputNoteSpinBox, SLOT( setEnabled( bool ) ) );
+	         m_fixedOutputNoteSpinBox, SLOT( setEnabled( bool ) ) );
 
 	if( !Engine::mixer()->midiClient()->isRaw() )
 	{
@@ -139,16 +136,19 @@ InstrumentMidiIOView::InstrumentMidiIOView( QWidget* parent ) :
 
 #define PROVIDE_CUSTOM_BASE_VELOCITY_UI
 #ifdef PROVIDE_CUSTOM_BASE_VELOCITY_UI
-	GroupBox* baseVelocityGroupBox = new GroupBox( tr( "CUSTOM BASE VELOCITY" ) );
+	GroupBox * baseVelocityGroupBox =
+	    new GroupBox( tr( "CUSTOM BASE VELOCITY" ) );
 	layout->addWidget( baseVelocityGroupBox );
 
-	QVBoxLayout* baseVelocityLayout = new QVBoxLayout( baseVelocityGroupBox );
+	QVBoxLayout * baseVelocityLayout = new QVBoxLayout( baseVelocityGroupBox );
 	baseVelocityLayout->setContentsMargins( 8, 18, 8, 8 );
 	baseVelocityLayout->setSpacing( 6 );
 
-	QLabel* baseVelocityHelp = new QLabel( tr( "Specify the velocity normalization base for MIDI-based instruments at 100% note velocity" ) );
+	QLabel * baseVelocityHelp = new QLabel(
+	    tr( "Specify the velocity normalization base for MIDI-based "
+	        "instruments at 100% note velocity" ) );
 	baseVelocityHelp->setWordWrap( true );
-    baseVelocityHelp->setFont( pointSize<8>( baseVelocityHelp->font() ) );
+	baseVelocityHelp->setFont( pointSize<8>( baseVelocityHelp->font() ) );
 
 	baseVelocityLayout->addWidget( baseVelocityHelp );
 
@@ -158,21 +158,13 @@ InstrumentMidiIOView::InstrumentMidiIOView( QWidget* parent ) :
 	baseVelocityLayout->addWidget( m_baseVelocitySpinBox );
 
 	connect( baseVelocityGroupBox->ledButton(), SIGNAL( toggled( bool ) ),
-			m_baseVelocitySpinBox, SLOT( setEnabled( bool ) ) );
+	         m_baseVelocitySpinBox, SLOT( setEnabled( bool ) ) );
 #endif
 
 	layout->addStretch();
 }
 
-
-
-
-InstrumentMidiIOView::~InstrumentMidiIOView()
-{
-}
-
-
-
+InstrumentMidiIOView::~InstrumentMidiIOView() {}
 
 void InstrumentMidiIOView::modelChanged()
 {
@@ -202,24 +194,19 @@ void InstrumentMidiIOView::modelChanged()
 	}
 }
 
-
-
-InstrumentMiscView::InstrumentMiscView(InstrumentTrack *it, QWidget *parent) :
-	QWidget( parent )
+InstrumentMiscView::InstrumentMiscView( InstrumentTrack * it, QWidget * parent )
+    : QWidget( parent )
 {
-	QVBoxLayout* layout = new QVBoxLayout( this );
+	QVBoxLayout * layout = new QVBoxLayout( this );
 	layout->setMargin( 5 );
-	m_pitchGroupBox = new GroupBox( tr ( "MASTER PITCH" ) );
+	m_pitchGroupBox = new GroupBox( tr( "MASTER PITCH" ) );
 	layout->addWidget( m_pitchGroupBox );
-	QHBoxLayout* masterPitchLayout = new QHBoxLayout( m_pitchGroupBox );
+	QHBoxLayout * masterPitchLayout = new QHBoxLayout( m_pitchGroupBox );
 	masterPitchLayout->setContentsMargins( 8, 18, 8, 8 );
-	QLabel *tlabel = new QLabel(tr( "Enables the use of Master Pitch" ) );
+	QLabel * tlabel = new QLabel( tr( "Enables the use of Master Pitch" ) );
 	m_pitchGroupBox->setModel( &it->m_useMasterPitchModel );
 	masterPitchLayout->addWidget( tlabel );
 	layout->addStretch();
 }
 
-InstrumentMiscView::~InstrumentMiscView()
-{
-
-}
+InstrumentMiscView::~InstrumentMiscView() {}

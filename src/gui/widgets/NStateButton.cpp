@@ -2,7 +2,7 @@
  * NStateButton.cpp - implementation of n-state-button
  *
  * Copyright (c) 2005-2006 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -21,24 +21,16 @@
  * Boston, MA 02110-1301 USA.
  *
  */
- 
 
 #include <QMouseEvent>
 
 #include "NStateButton.h"
 #include "ToolTip.h"
 
-
-
-NStateButton::NStateButton( QWidget * _parent ) :
-	ToolButton( _parent ),
-	m_generalToolTip( "" ),
-	m_curState( -1 )
+NStateButton::NStateButton( QWidget * _parent )
+    : ToolButton( _parent ), m_generalToolTip( "" ), m_curState( -1 )
 {
 }
-
-
-
 
 NStateButton::~NStateButton()
 {
@@ -47,9 +39,6 @@ NStateButton::~NStateButton()
 		m_states.erase( m_states.begin() );
 	}
 }
-
-
-
 
 void NStateButton::addState( const QPixmap & _pm, const QString & _tooltip )
 {
@@ -62,19 +51,15 @@ void NStateButton::addState( const QPixmap & _pm, const QString & _tooltip )
 	}
 }
 
-
-
-
 void NStateButton::changeState( int _n )
 {
 	if( _n >= 0 && _n < (int) m_states.size() )
 	{
 		m_curState = _n;
 
-		const QString & _tooltip =
-			( m_states[m_curState].second != "" ) ?
-				m_states[m_curState].second :
-					m_generalToolTip;
+		const QString & _tooltip = ( m_states[m_curState].second != "" )
+		                               ? m_states[m_curState].second
+		                               : m_generalToolTip;
 		ToolTip::add( this, _tooltip );
 
 		setIcon( m_states[m_curState].first );
@@ -82,8 +67,6 @@ void NStateButton::changeState( int _n )
 		emit changedState( m_curState );
 	}
 }
-
-
 
 void NStateButton::mousePressEvent( QMouseEvent * _me )
 {

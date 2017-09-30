@@ -27,17 +27,17 @@
 #ifndef PIANO_ROLL_H
 #define PIANO_ROLL_H
 
+#include <QInputDialog>
 #include <QVector>
 #include <QWidget>
-#include <QInputDialog>
 
-#include "Editor.h"
 #include "ComboBoxModel.h"
-#include "SerializingObject.h"
+#include "Editor.h"
 #include "Note.h"
-#include "lmms_basics.h"
+#include "SerializingObject.h"
 #include "Song.h"
 #include "ToolTip.h"
+#include "lmms_basics.h"
 
 class QPainter;
 class QPixmap;
@@ -60,14 +60,18 @@ class PianoRoll : public QWidget
 	Q_PROPERTY( QColor noteModeColor READ noteModeColor WRITE setNoteModeColor )
 	Q_PROPERTY( QColor noteColor READ noteColor WRITE setNoteColor )
 	Q_PROPERTY( QColor barColor READ barColor WRITE setBarColor )
-	Q_PROPERTY( QColor selectedNoteColor READ selectedNoteColor WRITE setSelectedNoteColor )
+	Q_PROPERTY( QColor selectedNoteColor READ selectedNoteColor WRITE
+	                setSelectedNoteColor )
 	Q_PROPERTY( QColor textColor READ textColor WRITE setTextColor )
-	Q_PROPERTY( QColor textColorLight READ textColorLight WRITE setTextColorLight )
+	Q_PROPERTY(
+	    QColor textColorLight READ textColorLight WRITE setTextColorLight )
 	Q_PROPERTY( QColor textShadow READ textShadow WRITE setTextShadow )
-	Q_PROPERTY( QColor markedSemitoneColor READ markedSemitoneColor WRITE setMarkedSemitoneColor )
+	Q_PROPERTY( QColor markedSemitoneColor READ markedSemitoneColor WRITE
+	                setMarkedSemitoneColor )
 	Q_PROPERTY( int noteOpacity READ noteOpacity WRITE setNoteOpacity )
 	Q_PROPERTY( bool noteBorders READ noteBorders WRITE setNoteBorders )
-	Q_PROPERTY( QColor backgroundShade READ backgroundShade WRITE setBackgroundShade )
+	Q_PROPERTY(
+	    QColor backgroundShade READ backgroundShade WRITE setBackgroundShade )
 public:
 	enum EditModes
 	{
@@ -81,31 +85,21 @@ public:
 	void reset();
 
 	// functions to display the hover-text labeling a note's volume/panning
-	void showTextFloat(const QString &text, const QPoint &pos, int timeout=-1);
-	void showVolTextFloat(volume_t vol, const QPoint &pos, int timeout=-1);
-	void showPanTextFloat(panning_t pan, const QPoint &pos, int timeout=-1);
+	void showTextFloat( const QString & text, const QPoint & pos,
+	                    int timeout = -1 );
+	void showVolTextFloat( volume_t vol, const QPoint & pos, int timeout = -1 );
+	void showPanTextFloat( panning_t pan, const QPoint & pos,
+	                       int timeout = -1 );
 
-	void setCurrentPattern( Pattern* newPattern );
+	void setCurrentPattern( Pattern * newPattern );
 
-	inline void stopRecording()
-	{
-		m_recording = false;
-	}
+	inline void stopRecording() { m_recording = false; }
 
-	inline bool isRecording() const
-	{
-		return m_recording;
-	}
+	inline bool isRecording() const { return m_recording; }
 
-	const Pattern* currentPattern() const
-	{
-		return m_pattern;
-	}
+	const Pattern * currentPattern() const { return m_pattern; }
 
-	bool hasValidPattern() const
-	{
-		return m_pattern != NULL;
-	}
+	bool hasValidPattern() const { return m_pattern != NULL; }
 
 	Song::PlayModes desiredPlayModeForAccompany() const;
 
@@ -141,7 +135,6 @@ public:
 	QColor backgroundShade() const;
 	void setBackgroundShade( const QColor & c );
 
-
 protected:
 	virtual void keyPressEvent( QKeyEvent * ke );
 	virtual void keyReleaseEvent( QKeyEvent * ke );
@@ -156,9 +149,10 @@ protected:
 	virtual void focusOutEvent( QFocusEvent * );
 
 	int getKey( int y ) const;
-	static void drawNoteRect( QPainter & p, int x, int y,
-					int  width, const Note * n, const QColor & noteCol,
-					const QColor & selCol, const int noteOpc, const bool borderless );
+	static void drawNoteRect( QPainter & p, int x, int y, int width,
+	                          const Note * n, const QColor & noteCol,
+	                          const QColor & selCol, const int noteOpc,
+	                          const bool borderless );
 	void removeSelection();
 	void selectAll();
 	NoteVector getSelectedNotes();
@@ -166,7 +160,7 @@ protected:
 	int xCoordOfTick( int tick );
 
 	// for entering values with dblclick in the vol/pan bars
-	void enterValue( NoteVector* nv );
+	void enterValue( NoteVector * nv );
 
 protected slots:
 	void play();
@@ -180,15 +174,15 @@ protected slots:
 	void horScrolled( int new_pos );
 	void verScrolled( int new_pos );
 
-	void setEditMode(int mode);
+	void setEditMode( int mode );
 
 	void copySelectedNotes();
 	void cutSelectedNotes();
 	void pasteNotes();
 	void deleteSelectedNotes();
 
-	void updatePosition(const MidiTime & t );
-	void updatePositionAccompany(const MidiTime & t );
+	void updatePosition( const MidiTime & t );
+	void updatePositionAccompany( const MidiTime & t );
 
 	void zoomingChanged();
 	void quantizeChanged();
@@ -199,16 +193,14 @@ protected slots:
 	void changeNoteEditMode( int i );
 	void markSemiTone( int i );
 
-	void hidePattern( Pattern* pattern );
+	void hidePattern( Pattern * pattern );
 
 	void selectRegionFromPixels( int xStart, int xEnd );
 
-
 signals:
 	void currentPatternChanged();
-	void semiToneMarkerMenuScaleSetEnabled(bool);
-	void semiToneMarkerMenuChordSetEnabled(bool);
-
+	void semiToneMarkerMenuScaleSetEnabled( bool );
+	void semiToneMarkerMenuChordSetEnabled( bool );
 
 private:
 	enum Actions
@@ -246,7 +238,7 @@ private:
 	};
 
 	QVector<QString> m_nemStr; // gui names of each edit mode
-	QMenu * m_noteEditMenu; // when you right click below the key area
+	QMenu * m_noteEditMenu;    // when you right click below the key area
 
 	QList<int> m_markedSemiTones;
 	QMenu * m_semiToneMarkerMenu; // when you right click on the key area
@@ -255,17 +247,17 @@ private:
 	PianoRoll( const PianoRoll & );
 	virtual ~PianoRoll();
 
-	void autoScroll(const MidiTime & t );
+	void autoScroll( const MidiTime & t );
 
 	MidiTime newNoteLen() const;
 
-	void shiftPos(int amount);
-	void shiftSemiTone(int amount);
+	void shiftPos( int amount );
+	void shiftSemiTone( int amount );
 	bool isSelection() const;
 	int selectionCount() const;
 	void testPlayNote( Note * n );
 	void testPlayKey( int _key, int _vol, int _pan );
-	void pauseTestNotes(bool pause = true );
+	void pauseTestNotes( bool pause = true );
 
 	QList<int> getAllOctavesForKey( int keyToMirror ) const;
 
@@ -305,7 +297,7 @@ private:
 
 	static const QVector<double> m_zoomLevels;
 
-	Pattern* m_pattern;
+	Pattern * m_pattern;
 	QScrollBar * m_leftRightScroll;
 	QScrollBar * m_topBottomScroll;
 
@@ -343,7 +335,7 @@ private:
 
 	int m_oldNotesEditHeight;
 	int m_notesEditHeight;
-	int m_ppt;  // pixels per tact
+	int m_ppt; // pixels per tact
 	int m_totalKeysToScroll;
 
 	// remember these values to use them
@@ -358,14 +350,15 @@ private:
 	EditModes m_editMode;
 	EditModes m_ctrlMode; // mode they were in before they hit ctrl
 
-	bool m_mouseDownRight; //true if right click is being held down
+	bool m_mouseDownRight; // true if right click is being held down
 
 	TimeLineWidget * m_timeLine;
 	bool m_scrollBack;
 
-	void copyToClipboard(const NoteVector & notes ) const;
+	void copyToClipboard( const NoteVector & notes ) const;
 
-	void drawDetuningInfo( QPainter & _p, const Note * _n, int _x, int _y ) const;
+	void drawDetuningInfo( QPainter & _p, const Note * _n, int _x,
+	                       int _y ) const;
 	bool mouseOverNote();
 	Note * noteUnderMouse();
 
@@ -396,10 +389,7 @@ private:
 
 signals:
 	void positionChanged( const MidiTime & );
-} ;
-
-
-
+};
 
 class PianoRollWindow : public Editor, SerializingObject
 {
@@ -407,8 +397,8 @@ class PianoRollWindow : public Editor, SerializingObject
 public:
 	PianoRollWindow();
 
-	const Pattern* currentPattern() const;
-	void setCurrentPattern(Pattern* pattern);
+	const Pattern * currentPattern() const;
+	void setCurrentPattern( Pattern * pattern );
 
 	int quantization() const;
 
@@ -423,37 +413,31 @@ public:
 	/*! \brief Resets settings to default when e.g. creating a new project */
 	void reset();
 
-	using SerializingObject::saveState;
 	using SerializingObject::restoreState;
-	virtual void saveSettings(QDomDocument & doc, QDomElement & de );
+	using SerializingObject::saveState;
+	virtual void saveSettings( QDomDocument & doc, QDomElement & de );
 	virtual void loadSettings( const QDomElement & de );
 
-	inline virtual QString nodeName() const
-	{
-		return "pianoroll";
-	}
+	inline virtual QString nodeName() const { return "pianoroll"; }
 
 	QSize sizeHint() const;
 
 signals:
 	void currentPatternChanged();
 
-
 private slots:
 	void patternRenamed();
 
 private:
-	void focusInEvent(QFocusEvent * event);
+	void focusInEvent( QFocusEvent * event );
 
-	PianoRoll* m_editor;
+	PianoRoll * m_editor;
 
 	ComboBox * m_zoomingComboBox;
 	ComboBox * m_quantizeComboBox;
 	ComboBox * m_noteLenComboBox;
 	ComboBox * m_scaleComboBox;
 	ComboBox * m_chordComboBox;
-
 };
-
 
 #endif

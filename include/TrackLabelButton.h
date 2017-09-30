@@ -22,17 +22,15 @@
  *
  */
 
-
 #ifndef TRACK_LABEL_BUTTON_H
 #define TRACK_LABEL_BUTTON_H
 
-#include <QToolButton>
 #include <QLineEdit>
+#include <QToolButton>
 
 class TrackView;
 
 class TrackRenameLineEdit;
-
 
 class TrackLabelButton : public QToolButton
 {
@@ -41,12 +39,10 @@ public:
 	TrackLabelButton( TrackView * _tv, QWidget * _parent );
 	virtual ~TrackLabelButton();
 
-
 public slots:
 	void rename();
 	void renameFinished();
 	void nameChanged();
-
 
 protected:
 	virtual void dragEnterEvent( QDragEnterEvent * _dee );
@@ -57,14 +53,12 @@ protected:
 	virtual void paintEvent( QPaintEvent * _pe );
 	virtual void resizeEvent( QResizeEvent * _re );
 
-
 private:
 	TrackView * m_trackView;
 	QString m_iconName;
 	TrackRenameLineEdit * m_renameLineEdit;
 	QRect m_buttonRect;
-	QString elideName( const QString &name );
-
-} ;
+	QString elideName( const QString & name );
+};
 
 #endif

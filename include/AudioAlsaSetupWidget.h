@@ -33,10 +33,8 @@
 
 #include "AudioAlsa.h"
 
-
 class QComboBox;
 class LcdSpinBox;
-
 
 class AudioAlsaSetupWidget : public AudioDeviceSetupWidget
 {
@@ -49,7 +47,7 @@ public:
 	virtual void saveSettings();
 
 public slots:
-	void onCurrentIndexChanged(int index);
+	void onCurrentIndexChanged( int index );
 
 private:
 	QComboBox * m_deviceComboBox;

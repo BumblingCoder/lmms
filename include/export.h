@@ -22,7 +22,6 @@
  *
  */
 
-
 #ifndef EXPORT_H
 #define EXPORT_H
 
@@ -31,10 +30,10 @@
 #ifdef LMMS_BUILD_WIN32
 
 #ifdef PLUGIN_NAME
-#define EXPORT __declspec(dllimport)
-#define PLUGIN_EXPORT __declspec(dllexport)
+#define EXPORT __declspec( dllimport )
+#define PLUGIN_EXPORT __declspec( dllexport )
 #else
-#define EXPORT __declspec(dllexport)
+#define EXPORT __declspec( dllexport )
 #endif
 
 #else

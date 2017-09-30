@@ -24,15 +24,16 @@
 
 #include "AudioDeviceSetupWidget.h"
 
-AudioDeviceSetupWidget::AudioDeviceSetupWidget( const QString & _caption, QWidget * _parent ) :
-	TabWidget( TabWidget::tr( "Settings for %1" ).arg(TabWidget::tr( _caption.toLatin1() ) ).toUpper(),
-			   _parent )
+AudioDeviceSetupWidget::AudioDeviceSetupWidget( const QString & _caption,
+                                                QWidget * _parent )
+    : TabWidget( TabWidget::tr( "Settings for %1" )
+                     .arg( TabWidget::tr( _caption.toLatin1() ) )
+                     .toUpper(),
+                 _parent )
 {
 }
 
-AudioDeviceSetupWidget::~AudioDeviceSetupWidget()
-{
-}
+AudioDeviceSetupWidget::~AudioDeviceSetupWidget() {}
 
 void AudioDeviceSetupWidget::show()
 {

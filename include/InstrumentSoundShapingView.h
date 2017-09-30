@@ -38,7 +38,6 @@ class GroupBox;
 class Knob;
 class TabWidget;
 
-
 class InstrumentSoundShapingView : public QWidget, public ModelView
 {
 	Q_OBJECT
@@ -48,10 +47,8 @@ public:
 
 	void setFunctionsHidden( bool hidden );
 
-
 private:
 	virtual void modelChanged();
-
 
 	InstrumentSoundShaping * m_ss;
 	TabWidget * m_targetsTabWidget;
@@ -63,8 +60,7 @@ private:
 	Knob * m_filterCutKnob;
 	Knob * m_filterResKnob;
 
-	QLabel* m_singleStreamInfoLabel;
-
-} ;
+	QLabel * m_singleStreamInfoLabel;
+};
 
 #endif

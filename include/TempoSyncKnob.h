@@ -38,7 +38,8 @@ class EXPORT TempoSyncKnob : public Knob
 {
 	Q_OBJECT
 public:
-	TempoSyncKnob( knobTypes knobNum, QWidget* parent = NULL, const QString& name = QString() );
+	TempoSyncKnob( knobTypes knobNum, QWidget * parent = NULL,
+	               const QString & name = QString() );
 	virtual ~TempoSyncKnob();
 
 	const QString & syncDescription();
@@ -47,36 +48,26 @@ public:
 	const QPixmap & syncIcon();
 	void setSyncIcon( const QPixmap & _new_pix );
 
-	TempoSyncKnobModel * model()
-	{
-		return castModel<TempoSyncKnobModel>();
-	}
+	TempoSyncKnobModel * model() { return castModel<TempoSyncKnobModel>(); }
 
 	virtual void modelChanged();
-
 
 signals:
 	void syncDescriptionChanged( const QString & _new_description );
 	void syncIconChanged();
 
-
 protected:
 	virtual void contextMenuEvent( QContextMenuEvent * _me );
-
 
 protected slots:
 	void updateDescAndIcon();
 	void showCustom();
-
 
 private:
 	QPixmap m_tempoSyncIcon;
 	QString m_tempoSyncDescription;
 
 	QPointer<MeterDialog> m_custom;
-
-} ;
-
-
+};
 
 #endif

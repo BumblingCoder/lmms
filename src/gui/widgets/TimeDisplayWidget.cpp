@@ -24,22 +24,20 @@
 
 #include <QMouseEvent>
 
-#include "TimeDisplayWidget.h"
+#include "Engine.h"
 #include "GuiApplication.h"
 #include "MainWindow.h"
-#include "Engine.h"
-#include "ToolTip.h"
 #include "Song.h"
+#include "TimeDisplayWidget.h"
+#include "ToolTip.h"
 
-
-
-TimeDisplayWidget::TimeDisplayWidget() :
-	QWidget(),
-	m_displayMode( MinutesSeconds ),
-	m_spinBoxesLayout( this ),
-	m_majorLCD( 4, this ),
-	m_minorLCD( 2, this ),
-	m_milliSecondsLCD( 3, this )
+TimeDisplayWidget::TimeDisplayWidget()
+    : QWidget(),
+      m_displayMode( MinutesSeconds ),
+      m_spinBoxesLayout( this ),
+      m_majorLCD( 4, this ),
+      m_minorLCD( 2, this ),
+      m_milliSecondsLCD( 3, this )
 {
 	m_spinBoxesLayout.setSpacing( 0 );
 	m_spinBoxesLayout.setMargin( 0 );
@@ -54,20 +52,11 @@ TimeDisplayWidget::TimeDisplayWidget() :
 	// update labels of LCD spinboxes
 	setDisplayMode( m_displayMode );
 
-	connect( gui->mainWindow(), SIGNAL( periodicUpdate() ),
-					this, SLOT( updateTime() ) );
+	connect( gui->mainWindow(), SIGNAL( periodicUpdate() ), this,
+	         SLOT( updateTime() ) );
 }
 
-
-
-
-TimeDisplayWidget::~TimeDisplayWidget()
-{
-}
-
-
-
-
+TimeDisplayWidget::~TimeDisplayWidget() {}
 
 void TimeDisplayWidget::setDisplayMode( DisplayMode displayMode )
 {
@@ -87,16 +76,14 @@ void TimeDisplayWidget::setDisplayMode( DisplayMode displayMode )
 			m_milliSecondsLCD.setLabel( tr( "TICK" ) );
 			break;
 
-		default: break;
+		default:
+			break;
 	}
 }
 
-
-
-
 void TimeDisplayWidget::updateTime()
 {
-	Song* s = Engine::getSong();
+	Song * s = Engine::getSong();
 
 	switch( m_displayMode )
 	{
@@ -108,22 +95,25 @@ void TimeDisplayWidget::updateTime()
 
 		case BarsTicks:
 			int tick;
-			tick = ( s->getMilliseconds() * s->getTempo() * (DefaultTicksPerTact / 4 ) ) / 60000 ;
-			m_majorLCD.setValue( (int)(tick / s->ticksPerTact() ) + 1);
+			tick = ( s->getMilliseconds() * s->getTempo() *
+			         ( DefaultTicksPerTact / 4 ) ) /
+			       60000;
+			m_majorLCD.setValue( (int) ( tick / s->ticksPerTact() ) + 1 );
 			m_minorLCD.setValue( ( tick % s->ticksPerTact() ) /
-						 ( s->ticksPerTact() / s->getTimeSigModel().getNumerator() ) +1 );
-			m_milliSecondsLCD.setValue( ( tick % s->ticksPerTact() ) %
-							( s->ticksPerTact() / s->getTimeSigModel().getNumerator() ) );
+			                         ( s->ticksPerTact() /
+			                           s->getTimeSigModel().getNumerator() ) +
+			                     1 );
+			m_milliSecondsLCD.setValue(
+			    ( tick % s->ticksPerTact() ) %
+			    ( s->ticksPerTact() / s->getTimeSigModel().getNumerator() ) );
 			break;
 
-		default: break;
+		default:
+			break;
 	}
 }
 
-
-
-
-void TimeDisplayWidget::mousePressEvent( QMouseEvent* mouseEvent )
+void TimeDisplayWidget::mousePressEvent( QMouseEvent * mouseEvent )
 {
 	if( mouseEvent->button() == Qt::LeftButton )
 	{

@@ -33,13 +33,11 @@
 #include "embed.h"
 #include "gui_templates.h"
 
-
-
-GroupBox::GroupBox( const QString & _caption, QWidget * _parent ) :
-	QWidget( _parent ),
-	BoolModelView( NULL, this ),
-	m_caption( _caption ),
-	m_titleBarHeight( 11 )
+GroupBox::GroupBox( const QString & _caption, QWidget * _parent )
+    : QWidget( _parent ),
+      BoolModelView( NULL, this ),
+      m_caption( _caption ),
+      m_titleBarHeight( 11 )
 {
 	m_led = new PixmapButton( this, _caption );
 	m_led->setCheckable( true );
@@ -52,24 +50,9 @@ GroupBox::GroupBox( const QString & _caption, QWidget * _parent ) :
 	unsetCursor();
 }
 
+GroupBox::~GroupBox() { delete m_led; }
 
-
-
-GroupBox::~GroupBox()
-{
-	delete m_led;
-}
-
-
-
-
-void GroupBox::modelChanged()
-{
-	m_led->setModel( model() );
-}
-
-
-
+void GroupBox::modelChanged() { m_led->setModel( model() ); }
 
 void GroupBox::mousePressEvent( QMouseEvent * _me )
 {
@@ -78,9 +61,6 @@ void GroupBox::mousePressEvent( QMouseEvent * _me )
 		model()->setValue( !model()->value() );
 	}
 }
-
-
-
 
 void GroupBox::paintEvent( QPaintEvent * pe )
 {
@@ -94,7 +74,8 @@ void GroupBox::paintEvent( QPaintEvent * pe )
 	p.drawRect( 0, 0, width() - 1, height() - 1 );
 
 	// draw line below titlebar
-	p.fillRect( 1, 1, width() - 2, m_titleBarHeight + 1, p.background().color().darker( 150 ) );
+	p.fillRect( 1, 1, width() - 2, m_titleBarHeight + 1,
+	            p.background().color().darker( 150 ) );
 
 	// draw text
 	p.setPen( palette().color( QPalette::Active, QPalette::Text ) );

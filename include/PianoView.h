@@ -32,7 +32,6 @@
 
 class Piano;
 
-
 class PianoView : public QWidget, public ModelView
 {
 	Q_OBJECT
@@ -42,11 +41,9 @@ public:
 
 	static int getKeyFromKeyEvent( QKeyEvent * _ke );
 
-
 public:
 	virtual void keyPressEvent( QKeyEvent * ke );
 	virtual void keyReleaseEvent( QKeyEvent * ke );
-
 
 protected:
 	virtual void modelChanged();
@@ -57,7 +54,6 @@ protected:
 	virtual void mouseMoveEvent( QMouseEvent * me );
 	virtual void focusOutEvent( QFocusEvent * _fe );
 	virtual void resizeEvent( QResizeEvent * _event );
-
 
 private:
 	int getKeyFromMouse( const QPoint & _p ) const;
@@ -71,9 +67,8 @@ private:
 	Piano * m_piano;
 
 	QScrollBar * m_pianoScroll;
-	int m_startKey;			// first key when drawing
+	int m_startKey; // first key when drawing
 	int m_lastKey;
-
 
 private slots:
 	void pianoScrolled( int _new_pos );
@@ -81,9 +76,6 @@ private slots:
 signals:
 	void keyPressed( int );
 	void baseNoteChanged();
-
-} ;
-
+};
 
 #endif
-

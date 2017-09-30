@@ -2,7 +2,7 @@
  * VisualizationWidget.cpp - widget for visualization of sound-data
  *
  * Copyright (c) 2005-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
- * 
+ *
  * This file is part of LMMS - https://lmms.io
  *
  * This program is free software; you can redistribute it and/or
@@ -22,45 +22,40 @@
  *
  */
 
-
 #include <QMouseEvent>
 #include <QPainter>
 
-#include "VisualizationWidget.h"
+#include "Engine.h"
 #include "GuiApplication.h"
-#include "gui_templates.h"
 #include "MainWindow.h"
 #include "Mixer.h"
-#include "Engine.h"
-#include "ToolTip.h"
 #include "Song.h"
+#include "ToolTip.h"
+#include "VisualizationWidget.h"
+#include "gui_templates.h"
 
 #include "BufferManager.h"
 
-
 VisualizationWidget::VisualizationWidget( const QPixmap & _bg, QWidget * _p,
-						visualizationTypes _vtype ) :
-	QWidget( _p ),
-	s_background( _bg ),
-	m_points( new QPointF[Engine::mixer()->framesPerPeriod()] ),
-	m_active( false )
+                                          visualizationTypes _vtype )
+    : QWidget( _p ),
+      s_background( _bg ),
+      m_points( new QPointF[Engine::mixer()->framesPerPeriod()] ),
+      m_active( false )
 {
 	setFixedSize( s_background.width(), s_background.height() );
 	setAttribute( Qt::WA_OpaquePaintEvent, true );
-	setActive( ConfigManager::inst()->value( "ui", "displaywaveform").toInt() );
+	setActive(
+	    ConfigManager::inst()->value( "ui", "displaywaveform" ).toInt() );
 
 	const fpp_t frames = Engine::mixer()->framesPerPeriod();
 	m_buffer = new sampleFrame[frames];
 
 	BufferManager::clear( m_buffer, frames );
 
-
 	ToolTip::add( this, tr( "click to enable/disable visualization of "
-							"master-output" ) );
+	                        "master-output" ) );
 }
-
-
-
 
 VisualizationWidget::~VisualizationWidget()
 {
@@ -68,10 +63,8 @@ VisualizationWidget::~VisualizationWidget()
 	delete[] m_points;
 }
 
-
-
-
-void VisualizationWidget::updateAudioBuffer( const surroundSampleFrame * buffer )
+void VisualizationWidget::updateAudioBuffer(
+    const surroundSampleFrame * buffer )
 {
 	if( !Engine::getSong()->isExporting() )
 	{
@@ -80,37 +73,30 @@ void VisualizationWidget::updateAudioBuffer( const surroundSampleFrame * buffer 
 	}
 }
 
-
-
-
 void VisualizationWidget::setActive( bool _active )
 {
 	m_active = _active;
 	if( m_active )
 	{
-		connect( gui->mainWindow(),
-					SIGNAL( periodicUpdate() ),
-					this, SLOT( update() ) );
+		connect( gui->mainWindow(), SIGNAL( periodicUpdate() ), this,
+		         SLOT( update() ) );
 		connect( Engine::mixer(),
-			SIGNAL( nextAudioBuffer( const surroundSampleFrame* ) ),
-			this, SLOT( updateAudioBuffer( const surroundSampleFrame* ) ) );
+		         SIGNAL( nextAudioBuffer( const surroundSampleFrame * ) ), this,
+		         SLOT( updateAudioBuffer( const surroundSampleFrame * ) ) );
 	}
 	else
 	{
-		disconnect( gui->mainWindow(),
-					SIGNAL( periodicUpdate() ),
-					this, SLOT( update() ) );
+		disconnect( gui->mainWindow(), SIGNAL( periodicUpdate() ), this,
+		            SLOT( update() ) );
 		disconnect( Engine::mixer(),
-			SIGNAL( nextAudioBuffer( const surroundSampleFrame* ) ),
-			this, SLOT( updateAudioBuffer( const surroundSampleFrame* ) ) );
+		            SIGNAL( nextAudioBuffer( const surroundSampleFrame * ) ),
+		            this,
+		            SLOT( updateAudioBuffer( const surroundSampleFrame * ) ) );
 		// we have to update (remove last waves),
 		// because timer doesn't do that anymore
 		update();
 	}
 }
-
-
-
 
 void VisualizationWidget::paintEvent( QPaintEvent * )
 {
@@ -123,13 +109,12 @@ void VisualizationWidget::paintEvent( QPaintEvent * )
 		Mixer const * mixer = Engine::mixer();
 
 		float master_output = mixer->masterGain();
-		int w = width()-4;
+		int w = width() - 4;
 		const float half_h = -( height() - 6 ) / 3.0 * master_output - 1;
 		int x_base = 2;
-		const float y_base = height()/2 - 0.5f;
+		const float y_base = height() / 2 - 0.5f;
 
-//		p.setClipRect( 2, 2, w, height()-4 );
-
+		//		p.setClipRect( 2, 2, w, height()-4 );
 
 		const fpp_t frames = mixer->framesPerPeriod();
 		float peakLeft;
@@ -162,10 +147,8 @@ void VisualizationWidget::paintEvent( QPaintEvent * )
 			for( int frame = 0; frame < frames; ++frame )
 			{
 				m_points[frame] = QPointF(
-					x_base + (float) frame * xd,
-					y_base + ( Mixer::clip(
-						m_buffer[frame][ch] ) *
-								half_h ) );
+				    x_base + (float) frame * xd,
+				    y_base + ( Mixer::clip( m_buffer[frame][ch] ) * half_h ) );
 			}
 			p.drawPolyline( m_points, frames );
 		}
@@ -174,12 +157,9 @@ void VisualizationWidget::paintEvent( QPaintEvent * )
 	{
 		p.setPen( QColor( 192, 192, 192 ) );
 		p.setFont( pointSize<7>( p.font() ) );
-		p.drawText( 6, height()-5, tr( "Click to enable" ) );
+		p.drawText( 6, height() - 5, tr( "Click to enable" ) );
 	}
 }
-
-
-
 
 void VisualizationWidget::mousePressEvent( QMouseEvent * _me )
 {
@@ -188,9 +168,3 @@ void VisualizationWidget::mousePressEvent( QMouseEvent * _me )
 		setActive( !m_active );
 	}
 }
-
-
-
-
-
-

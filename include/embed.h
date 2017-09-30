@@ -31,7 +31,6 @@
 #include "export.h"
 #include "lmms_basics.h"
 
-
 namespace embed
 {
 
@@ -40,69 +39,54 @@ struct descriptor
 	int size;
 	const unsigned char * data;
 	const char * name;
-} ;
+};
 
-
-QPixmap EXPORT getIconPixmap( const char *  _name, int _w = -1, int _h = -1 );
+QPixmap EXPORT getIconPixmap( const char * _name, int _w = -1, int _h = -1 );
 QString EXPORT getText( const char * _name );
-
 }
-
 
 #ifdef PLUGIN_NAME
 namespace PLUGIN_NAME
 {
 
-QPixmap getIconPixmap( const char *  _name, int _w = -1, int _h = -1 );
-//QString getText( const char * _name );
-
+QPixmap getIconPixmap( const char * _name, int _w = -1, int _h = -1 );
+// QString getText( const char * _name );
 }
 #endif
-
-
 
 class PixmapLoader
 {
 public:
-	PixmapLoader( const PixmapLoader * _ref ) :
-		m_name( _ref != NULL ? _ref->m_name : QString::null )
+	PixmapLoader( const PixmapLoader * _ref )
+	    : m_name( _ref != NULL ? _ref->m_name : QString::null )
 	{
 	}
 
-	PixmapLoader( const QString & _name = QString::null ) :
-		m_name( _name )
-	{
-	}
+	PixmapLoader( const QString & _name = QString::null ) : m_name( _name ) {}
 
 	virtual QPixmap pixmap() const
 	{
 		if( !m_name.isEmpty() )
 		{
-			return( embed::getIconPixmap( m_name.toLatin1().constData() ) );
+			return ( embed::getIconPixmap( m_name.toLatin1().constData() ) );
 		}
-		return( QPixmap() );
+		return ( QPixmap() );
 	}
 
-	virtual ~PixmapLoader()
-	{
-	}
+	virtual ~PixmapLoader() {}
 
-	virtual QString pixmapName() const
-	{
-		return m_name;
-	}
+	virtual QString pixmapName() const { return m_name; }
 
 protected:
 	QString m_name;
-} ;
-
+};
 
 #ifdef PLUGIN_NAME
 class PluginPixmapLoader : public PixmapLoader
 {
 public:
-	PluginPixmapLoader( const QString & _name = QString::null ) :
-		PixmapLoader( _name )
+	PluginPixmapLoader( const QString & _name = QString::null )
+	    : PixmapLoader( _name )
 	{
 	}
 
@@ -110,20 +94,17 @@ public:
 	{
 		if( !m_name.isEmpty() )
 		{
-			return( PLUGIN_NAME::getIconPixmap(
-					m_name.toLatin1().constData() ) );
+			return (
+			    PLUGIN_NAME::getIconPixmap( m_name.toLatin1().constData() ) );
 		}
-		return( QPixmap() );
+		return ( QPixmap() );
 	}
 
 	virtual QString pixmapName() const
 	{
-		return QString( STRINGIFY(PLUGIN_NAME) ) + "::" + m_name;
+		return QString( STRINGIFY( PLUGIN_NAME ) ) + "::" + m_name;
 	}
-
-} ;
+};
 #endif
-
-
 
 #endif

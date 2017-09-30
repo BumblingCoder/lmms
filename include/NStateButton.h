@@ -22,16 +22,14 @@
  *
  */
 
-
 #ifndef NSTATE_BUTTON_H
 #define NSTATE_BUTTON_H
 
 #include <QPixmap>
-#include <QtCore/QVector>
 #include <QtCore/QPair>
+#include <QtCore/QVector>
 
 #include "ToolButton.h"
-
 
 class NStateButton : public ToolButton
 {
@@ -46,30 +44,22 @@ public:
 		m_generalToolTip = _tooltip;
 	}
 
-	inline int state() const
-	{
-		return( m_curState );
-	}
-
+	inline int state() const { return ( m_curState ); }
 
 public slots:
 	void changeState( int _n );
 
-
 signals:
 	void changedState( int _n );
 
-
 protected:
 	virtual void mousePressEvent( QMouseEvent * _me );
-
 
 private:
 	QVector<QPair<QPixmap, QString> > m_states;
 	QString m_generalToolTip;
 
 	int m_curState;
-
-} ;
+};
 
 #endif

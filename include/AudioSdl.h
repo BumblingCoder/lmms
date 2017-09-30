@@ -37,19 +37,17 @@
 
 class QLineEdit;
 
-
 class AudioSdl : public AudioDevice
 {
 public:
-	AudioSdl( bool & _success_ful, Mixer* mixer );
+	AudioSdl( bool & _success_ful, Mixer * mixer );
 	virtual ~AudioSdl();
 
 	inline static QString name()
 	{
 		return QT_TRANSLATE_NOOP( "setupWidget",
-					"SDL (Simple DirectMedia Layer)" );
+		                          "SDL (Simple DirectMedia Layer)" );
 	}
-
 
 	class setupWidget : public AudioDeviceSetupWidget
 	{
@@ -61,9 +59,7 @@ public:
 
 	private:
 		QLineEdit * m_device;
-
-	} ;
-
+	};
 
 private:
 	virtual void startProcessing();
@@ -83,8 +79,7 @@ private:
 	bool m_convertEndian;
 
 	bool m_stopped;
-
-} ;
+};
 
 #endif
 

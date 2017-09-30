@@ -22,25 +22,18 @@
  *
  */
 
-
 #ifndef CUSTOM_EVENTS_H
 #define CUSTOM_EVENTS_H
 
-
 #include <QtCore/QEvent>
-
 
 namespace customEvents
 {
 
-	enum Type
-	{
-		GUI_UPDATE = QEvent::User
-	} ;
-
+enum Type
+{
+	GUI_UPDATE = QEvent::User
+};
 }
-
-
-
 
 #endif

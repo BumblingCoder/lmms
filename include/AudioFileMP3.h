@@ -2,7 +2,8 @@
  * AudioFileMP3.h - Audio-device which encodes a wave stream into
  *                  an MP3 file. This is used for song export.
  *
- * Copyright (c) 2017 to present Michael Gregorius <michael.gregorius.git/at/arcor[dot]de>
+ * Copyright (c) 2017 to present Michael Gregorius
+ * <michael.gregorius.git/at/arcor[dot]de>
  *
  * This file is part of LMMS - https://lmms.io
  *
@@ -34,31 +35,27 @@
 
 #include "lame/lame.h"
 
-
 class AudioFileMP3 : public AudioFileDevice
 {
 public:
 	AudioFileMP3( OutputSettings const & outputSettings,
-			const ch_cnt_t _channels,
-			bool & successful,
-			const QString & _file,
-			Mixer* mixer );
+	              const ch_cnt_t _channels, bool & successful,
+	              const QString & _file, Mixer * mixer );
 	virtual ~AudioFileMP3();
 
 	static AudioFileDevice * getInst( const QString & outputFilename,
-					  OutputSettings const & outputSettings,
-					  const ch_cnt_t channels,
-					  Mixer* mixer,
-					  bool & successful )
+	                                  OutputSettings const & outputSettings,
+	                                  const ch_cnt_t channels, Mixer * mixer,
+	                                  bool & successful )
 	{
 		return new AudioFileMP3( outputSettings, channels, successful,
-					 outputFilename, mixer );
+		                         outputFilename, mixer );
 	}
 
 protected:
 	virtual void writeBuffer( const surroundSampleFrame * /* _buf*/,
-				  const fpp_t /*_frames*/,
-				  const float /*_master_gain*/ );
+	                          const fpp_t /*_frames*/,
+	                          const float /*_master_gain*/ );
 
 private:
 	void flushRemainingBuffers();

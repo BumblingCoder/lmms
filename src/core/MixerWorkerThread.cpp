@@ -24,17 +24,15 @@
 
 #include "MixerWorkerThread.h"
 
+#include "Mixer.h"
+#include "ThreadableJob.h"
 #include "denormals.h"
 #include <QMutex>
 #include <QWaitCondition>
-#include "ThreadableJob.h"
-#include "Mixer.h"
 
 MixerWorkerThread::JobQueue MixerWorkerThread::globalJobQueue;
 QWaitCondition * MixerWorkerThread::queueReadyWaitCond = NULL;
 QList<MixerWorkerThread *> MixerWorkerThread::workerThreads;
-
-
 
 // implementation of internal JobQueue
 void MixerWorkerThread::JobQueue::reset( OperationMode _opMode )
@@ -44,9 +42,6 @@ void MixerWorkerThread::JobQueue::reset( OperationMode _opMode )
 	m_opMode = _opMode;
 }
 
-
-
-
 void MixerWorkerThread::JobQueue::addJob( ThreadableJob * _job )
 {
 	if( _job->requiresProcessing() )
@@ -54,11 +49,9 @@ void MixerWorkerThread::JobQueue::addJob( ThreadableJob * _job )
 		// update job state
 		_job->queue();
 		// actually queue the job via atomic operations
-		m_items[m_queueSize.fetchAndAddOrdered(1)] = _job;
+		m_items[m_queueSize.fetchAndAddOrdered( 1 )] = _job;
 	}
 }
-
-
 
 void MixerWorkerThread::JobQueue::run()
 {
@@ -81,28 +74,20 @@ void MixerWorkerThread::JobQueue::run()
 	}
 }
 
-
-
-
 void MixerWorkerThread::JobQueue::wait()
 {
 	while( (int) m_itemsDone < (int) m_queueSize )
 	{
-#if defined(LMMS_HOST_X86) || defined(LMMS_HOST_X86_64)
+#if defined( LMMS_HOST_X86 ) || defined( LMMS_HOST_X86_64 )
 		asm( "pause" );
 #endif
 	}
 }
 
-
-
-
-
 // implementation of worker threads
 
-MixerWorkerThread::MixerWorkerThread( Mixer* mixer ) :
-	QThread( mixer ),
-	m_quit( false )
+MixerWorkerThread::MixerWorkerThread( Mixer * mixer )
+    : QThread( mixer ), m_quit( false )
 {
 	// initialize global static data
 	if( queueReadyWaitCond == NULL )
@@ -118,25 +103,13 @@ MixerWorkerThread::MixerWorkerThread( Mixer* mixer ) :
 	resetJobQueue();
 }
 
-
-
-
-MixerWorkerThread::~MixerWorkerThread()
-{
-	workerThreads.removeAll( this );
-}
-
-
-
+MixerWorkerThread::~MixerWorkerThread() { workerThreads.removeAll( this ); }
 
 void MixerWorkerThread::quit()
 {
 	m_quit = true;
 	resetJobQueue();
 }
-
-
-
 
 void MixerWorkerThread::startAndWaitForJobs()
 {
@@ -147,9 +120,6 @@ void MixerWorkerThread::startAndWaitForJobs()
 	globalJobQueue.run();
 	globalJobQueue.wait();
 }
-
-
-
 
 void MixerWorkerThread::run()
 {
@@ -164,5 +134,3 @@ void MixerWorkerThread::run()
 		m.unlock();
 	}
 }
-
-
